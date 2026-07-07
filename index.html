@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אוצר התורה · Centro de Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#FFFFFF; --card:#FBF8F1; --linea:#E4DCCB;
+    --klaf:#1B2440; --zahav:#A9852F; --tchelet:#3D6BC6;
+    --olive:#5E8C46; --adom:#B85A4C; --mut:#8A8FA3;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--ink);color:var(--klaf);font-family:'Heebo',sans-serif;
+       min-height:100vh;padding:26px 20px 60px;font-weight:300}
+  /* ── Sha'ar (portada) ── */
+  .shaar{max-width:1180px;margin:0 auto 26px;border:1px solid var(--zahav);
+         outline:1px solid var(--zahav);outline-offset:4px;
+         padding:26px 24px 22px;text-align:center;position:relative}
+  .shaar .keter{font-size:1.3rem;color:var(--zahav);letter-spacing:.5em;margin-bottom:6px}
+  .shaar h1{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:2rem;
+            color:var(--klaf);letter-spacing:.02em}
+  .shaar .lema{color:var(--mut);font-size:.85rem;margin-top:4px}
+  .totales{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin-top:20px;
+           border-top:1px solid var(--linea);padding-top:18px}
+  .tot{min-width:86px}
+  .tot b{display:block;font-family:'Frank Ruhl Libre',serif;font-weight:700;
+         font-size:1.7rem;color:var(--klaf)}
+  .tot span{font-size:.72rem;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+  .tot em{display:block;font-style:normal;font-size:.75rem;margin-top:2px}
+  .tot.oro b{color:var(--zahav)} .tot.verde b{color:var(--olive)}
+  .up{color:var(--olive)} .down{color:var(--adom)} .flat{color:var(--mut)}
+  /* ── Cards ── */
+  .grid{max-width:1180px;margin:0 auto;display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--linea);border-top:2px solid var(--zahav);
+        padding:18px 18px 14px;animation:ap .5s ease both;
+        box-shadow:0 2px 10px rgba(27,36,64,.06)}
+  @keyframes ap{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){.card{animation:none}.det{transition:none!important}}
+  .card h2{font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.12rem;
+           direction:rtl;text-align:center;margin-bottom:2px}
+  .card .rimon{text-align:center;color:var(--zahav);font-size:.7rem;
+               letter-spacing:.4em;margin-bottom:12px}
+  .nums{display:flex;gap:8px;margin-bottom:12px}
+  .num{flex:1;text-align:center;padding:6px 2px;border:1px solid var(--linea)}
+  .num b{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.25rem;font-weight:700}
+  .num span{font-size:.63rem;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
+  .num em{display:block;font-style:normal;font-size:.68rem;margin-top:1px}
+  .num.hoy b{color:var(--olive)} .num.horas b{color:var(--zahav)}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:50px;padding:6px 4px 4px;
+         border:1px solid var(--linea);margin-bottom:3px}
+  .bar{flex:1;background:var(--tchelet);min-height:2px}
+  .bar.actual{background:var(--zahav)}
+  .meses{display:flex;gap:3px;margin-bottom:10px;padding:0 4px}
+  .meses span{flex:1;text-align:center;font-size:.55rem;color:var(--mut)}
+  .ult{font-size:.8rem;color:var(--mut);direction:rtl;text-align:right;
+       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:10px}
+  .acciones{display:flex;gap:8px;align-items:center}
+  .btn{flex:1;text-align:center;font-size:.76rem;padding:7px 4px;cursor:pointer;
+       border:1px solid var(--linea);color:var(--klaf);background:none;
+       text-decoration:none;font-family:'Heebo',sans-serif}
+  .btn:hover{border-color:var(--zahav);color:var(--zahav)}
+  .btn.principal{border-color:var(--zahav);color:var(--zahav)}
+  /* ── Desglose ── */
+  .det{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .det.abierto{max-height:900px}
+  .det-inner{border-top:1px solid var(--linea);margin-top:14px;padding-top:12px}
+  .mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .ms{border:1px solid var(--linea);padding:8px;text-align:center}
+  .ms b{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;color:var(--zahav)}
+  .ms span{font-size:.62rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+  .ep-lista{list-style:none}
+  .ep-lista li{display:flex;justify-content:space-between;gap:10px;font-size:.78rem;
+               padding:6px 2px;border-bottom:1px dashed var(--linea)}
+  .ep-lista .t{direction:rtl;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .ep-lista .f{color:var(--mut);white-space:nowrap;font-size:.72rem}
+  .err{color:var(--adom);font-size:.85rem;text-align:center;padding:10px 0}
+  .pie{max-width:1180px;margin:26px auto 0;color:var(--mut);font-size:.78rem;
+       line-height:1.6;text-align:center}
+  .pie a{color:var(--tchelet)}
+</style>
+</head>
+<body>
+
+<header class="shaar">
+  <h1>אוצר התורה</h1>
+  <p class="lema">Centro de Control · <span id="fecha"></span></p>
+  <div class="totales">
+    <div class="tot verde"><b id="t-hoy">–</b><span>hoy</span></div>
+    <div class="tot"><b id="t-mes">–</b><span>este mes</span><em id="t-mescmp"></em></div>
+    <div class="tot"><b id="t-anio">–</b><span>este año</span><em id="t-aniocmp"></em></div>
+    <div class="tot"><b id="t-total">–</b><span>episodios</span></div>
+    <div class="tot oro"><b id="t-horas">–</b><span>horas de Torá</span></div>
+    <div class="tot"><b id="t-shows">–</b><span>shows</span></div>
+    <div class="tot oro"><b id="t-dls">–</b><span>descargas 30d</span></div>
+  </div>
+</header>
+
+<main class="grid" id="grid"></main>
+
+<p class="pie">
+  ⏱️ "Horas de Torá" = duración sumada de los shiurim publicados (del feed).
+  📥 Descargas: OP3 — clave en <a href="https://op3.dev/api/docs" target="_blank">op3.dev/api/docs</a>,
+  UUIDs en <a href="https://op3.dev/setup" target="_blank">op3.dev/setup</a>.
+  🎧 Horas <i>escuchadas</i> y oyentes: botón Spotify de cada show (creators.spotify.com).
+</p>
+
+<script>
+// ═══════════ CONFIGURACION ═══════════
+const OP3_TOKEN = "";
+
+const SHOWS = [
+  {nombre:"מחוברים לתורה - התנ״ך המבואר", feed:"https://rabmeireliyahu.github.io/podcast/feed.xml", op3:""},
+  {nombre:"מרן הראשון לציון הרב דוד יוסף", feed:"https://rabmeireliyahu.github.io/yechavedaat/feed.xml", op3:""},
+  {nombre:"הרב מאיר אליהו", feed:"https://rabmeireliyahu.github.io/ravmeir/feed.xml", op3:""},
+  {nombre:"הרב אשר וייס", feed:"https://rabmeireliyahu.github.io/ravasherweiss/feed.xml", op3:""},
+  {nombre:"הרב בן ציון מוצפי", feed:"https://rabmeireliyahu.github.io/ravmutzafi/feed.xml", op3:""},
+];
+// ═════════════════════════════════════
+
+document.getElementById("fecha").textContent=new Date().toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
+const grid=document.getElementById("grid");
+const ahora=new Date(), hoy0=new Date(); hoy0.setHours(0,0,0,0);
+const mesIni=new Date(ahora.getFullYear(),ahora.getMonth(),1);
+const mesPasIni=new Date(ahora.getFullYear(),ahora.getMonth()-1,1);
+const anioIni=new Date(ahora.getFullYear(),0,1);
+const anioPasIni=new Date(ahora.getFullYear()-1,0,1);
+const anioPasCorte=new Date(ahora.getFullYear()-1,ahora.getMonth(),ahora.getDate(),23,59,59);
+const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","shabat"];
+const MESES_L=["E","F","M","A","M","J","J","A","S","O","N","D"];
+let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0};
+
+function dur2seg(t){
+  if(!t)return 0; t=t.trim();
+  if(/^\d+$/.test(t))return +t;
+  const p=t.split(":").map(Number);
+  return p.length===3?p[0]*3600+p[1]*60+p[2]:p.length===2?p[0]*60+p[1]:0;
+}
+function segFmt(s){const h=Math.floor(s/3600);return h>=1?h.toLocaleString()+" h":Math.round(s/60)+" min";}
+function cmpHTML(a,b){
+  if(b===0&&a===0)return `<em class="flat">·</em>`;
+  if(b===0)return `<em class="up">▲ nuevo</em>`;
+  const p=Math.round((a-b)/b*100);
+  return p>0?`<em class="up">▲ ${p}% vs pasado</em>`:p<0?`<em class="down">▼ ${Math.abs(p)}% vs pasado</em>`:`<em class="flat">= igual</em>`;
+}
+function totales(){
+  document.getElementById("t-hoy").textContent=T.hoy;
+  document.getElementById("t-mes").textContent=T.mes;
+  document.getElementById("t-mescmp").innerHTML=cmpHTML(T.mes,T.mesPas);
+  document.getElementById("t-anio").textContent=T.anio;
+  document.getElementById("t-aniocmp").innerHTML=cmpHTML(T.anio,T.anioPas);
+  document.getElementById("t-total").textContent=T.total.toLocaleString();
+  document.getElementById("t-horas").textContent=segFmt(T.seg);
+  document.getElementById("t-shows").textContent=T.shows;
+  document.getElementById("t-dls").textContent=T.dls>0?T.dls.toLocaleString():"–";
+}
+
+SHOWS.forEach(async (s,ix)=>{
+  const card=document.createElement("section");
+  card.className="card"; card.style.animationDelay=(ix*80)+"ms";
+  card.innerHTML=`<h2>${s.nombre}</h2><p class="err">Cargando…</p>`;
+  grid.appendChild(card);
+  try{
+    const r=await fetch(s.feed+"?nc="+Date.now());
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const xml=new DOMParser().parseFromString(await r.text(),"application/xml");
+    const items=[...xml.querySelectorAll("item")].map(it=>({
+      titulo:it.querySelector("title")?.textContent||"—",
+      fecha:new Date(it.querySelector("pubDate")?.textContent||0),
+      seg:dur2seg(it.getElementsByTagName("itunes:duration")[0]?.textContent||
+                  it.querySelector("duration")?.textContent||"")
+    })).sort((a,b)=>b.fecha-a.fecha);
+
+    let hoy=0,mes=0,mesPas=0,anio=0,anioPas=0,seg=0,segMes=0;
+    const m12=Array(12).fill(0), porDia=Array(7).fill(0), diasSet=new Set();
+    items.forEach(e=>{
+      const d=e.fecha;
+      if(d>=hoy0)hoy++;
+      if(d>=mesIni){mes++;segMes+=e.seg;}
+      else if(d>=mesPasIni&&d<mesIni)mesPas++;
+      if(d>=anioIni)anio++;
+      else if(d>=anioPasIni&&d<=anioPasCorte)anioPas++;
+      seg+=e.seg;
+      const diff=(ahora.getFullYear()-d.getFullYear())*12+(ahora.getMonth()-d.getMonth());
+      if(diff>=0&&diff<12)m12[11-diff]++;
+      porDia[d.getDay()]++;
+      diasSet.add(Math.floor(d.getTime()/86400000));
+    });
+    // racha de dias consecutivos publicando
+    let racha=0, cursor=Math.floor(hoy0.getTime()/86400000);
+    if(!diasSet.has(cursor))cursor--;
+    while(diasSet.has(cursor)){racha++;cursor--;}
+    const diaTop=porDia.indexOf(Math.max(...porDia));
+    const prom=items.length?Math.round(seg/items.length/60):0;
+    const primero=items.length?items[items.length-1].fecha:null;
+
+    T.hoy+=hoy;T.mes+=mes;T.mesPas+=mesPas;T.anio+=anio;T.anioPas+=anioPas;
+    T.total+=items.length;T.seg+=seg;T.shows++;
+
+    let dlsNum="–";
+    if(OP3_TOKEN&&s.op3){
+      try{
+        const o=await fetch(`https://op3.dev/api/1/queries/show-download-counts?showUuid=${s.op3}&token=${OP3_TOKEN}`);
+        const j=await o.json(); const sd=j.showDownloadCounts?.[s.op3];
+        if(sd){T.dls+=sd.monthlyDownloads||0;dlsNum=(sd.monthlyDownloads||0).toLocaleString();}
+      }catch(e){}
+    }
+
+    const maxM=Math.max(...m12,1);
+    const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.15}" title="${v}"></div>`).join("");
+    const eti=[];for(let i=11;i>=0;i--){const mm=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);eti.push(`<span>${MESES_L[mm.getMonth()]}</span>`);}
+    const lista=items.slice(0,8).map(e=>`<li><span class="t">${e.titulo}</span><span class="f">${e.fecha.toLocaleDateString("es-MX")}${e.seg?" · "+Math.round(e.seg/60)+"′":""}</span></li>`).join("");
+
+    card.innerHTML=`
+      <h2>${s.nombre}</h2>
+      <div class="rimon">✦ ✦ ✦</div>
+      <div class="nums">
+        <div class="num hoy"><b>${hoy}</b><span>hoy</span></div>
+        <div class="num"><b>${mes}</b><span>mes</span>${cmpHTML(mes,mesPas)}</div>
+        <div class="num"><b>${anio}</b><span>año</span>${cmpHTML(anio,anioPas)}</div>
+        <div class="num horas"><b>${segFmt(seg)}</b><span>de Torá</span></div>
+      </div>
+      <div class="chart">${barras}</div>
+      <div class="meses">${eti.join("")}</div>
+      <p class="ult">🆕 ${items[0]?.titulo||"—"} · ${items[0]?items[0].fecha.toLocaleDateString("es-MX"):""}</p>
+      <div class="acciones">
+        <button class="btn principal" data-toggle>Desglosar ▾</button>
+        <a class="btn" href="${s.feed}" target="_blank">Feed</a>
+        <a class="btn" href="https://creators.spotify.com" target="_blank">Spotify</a>
+        ${s.op3?`<a class="btn" href="https://op3.dev/show/${s.op3}" target="_blank">OP3</a>`:``}
+      </div>
+      <div class="det">
+        <div class="det-inner">
+          <div class="mini-stats">
+            <div class="ms"><b>${items.length.toLocaleString()}</b><span>episodios totales</span></div>
+            <div class="ms"><b>${dlsNum}</b><span>descargas 30d</span></div>
+            <div class="ms"><b>${segFmt(segMes)}</b><span>Torá este mes</span></div>
+            <div class="ms"><b>${prom}′</b><span>duración promedio</span></div>
+            <div class="ms"><b>${racha}</b><span>días seguidos publicando</span></div>
+            <div class="ms"><b>${items.length?DIAS[diaTop]:"—"}</b><span>día más activo</span></div>
+          </div>
+          <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+            Publicando desde ${primero?primero.toLocaleDateString("es-MX",{month:"long",year:"numeric"}):"—"} · Últimos 8:
+          </p>
+          <ul class="ep-lista">${lista}</ul>
+        </div>
+      </div>`;
+    card.querySelector("[data-toggle]").addEventListener("click",(ev)=>{
+      const det=card.querySelector(".det");
+      det.classList.toggle("abierto");
+      ev.target.textContent=det.classList.contains("abierto")?"Cerrar ▴":"Desglosar ▾";
+    });
+    totales();
+  }catch(e){
+    card.innerHTML=`<h2>${s.nombre}</h2><p class="err">⚠️ No pude leer el feed (${e.message})</p>`;
+  }
+});
+</script>
+</body>
+</html>
