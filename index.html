@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎙️ Centro de Control PRO</title>
+<style>
+  :root{--bg:#0b0e1a;--card:#161b30;--txt:#eef1ff;--mut:#8b93b8;--acc:#4ade80;--rojo:#f87171;--acc2:#60a5fa;--acc3:#fbbf24;}
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,sans-serif}
+  body{background:var(--bg);color:var(--txt);min-height:100vh;padding:22px}
+  h1{font-size:1.5rem}
+  .sub{color:var(--mut);margin:4px 0 18px;font-size:.9rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+  .card{background:var(--card);border-radius:16px;padding:18px;border:1px solid #232a4d}
+  .card h2{font-size:1rem;margin-bottom:10px;direction:rtl;text-align:right}
+  .nums{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .num{flex:1;min-width:70px;background:#0e1226;border-radius:10px;padding:8px;text-align:center}
+  .num b{display:block;font-size:1.25rem}
+  .num span{font-size:.66rem;color:var(--mut)}
+  .num .cmp{display:block;font-size:.68rem;margin-top:2px}
+  .up{color:var(--acc)} .down{color:var(--rojo)} .flat{color:var(--mut)}
+  .hoy b{color:var(--acc)} .dls b{color:var(--acc3)}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:52px;margin-bottom:4px;
+         background:#0e1226;border-radius:8px;padding:6px}
+  .bar{flex:1;background:var(--acc2);border-radius:2px;min-height:2px}
+  .bar.actual{background:var(--acc)}
+  .meses{display:flex;gap:3px;margin-bottom:10px;padding:0 6px}
+  .meses span{flex:1;text-align:center;font-size:.55rem;color:var(--mut)}
+  .ult{font-size:.8rem;color:var(--mut);direction:rtl;text-align:right;
+       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:10px}
+  .links{display:flex;gap:6px;flex-wrap:wrap}
+  .links a{font-size:.74rem;color:var(--acc2);text-decoration:none;background:#0e1226;
+           padding:5px 9px;border-radius:8px}
+  .err{color:#f87171;font-size:.85rem}
+  .tbar{background:var(--card);border-radius:16px;padding:14px 18px;margin-bottom:16px;
+        display:flex;gap:22px;flex-wrap:wrap;border:1px solid #232a4d;align-items:center}
+  .tbar .item b{font-size:1.3rem;margin-right:4px}
+  .tbar .item span{font-size:.78rem;color:var(--mut)}
+  .tbar .g b{color:var(--acc)} .tbar .y b{color:var(--acc3)}
+  .nota{margin-top:22px;color:var(--mut);font-size:.8rem;line-height:1.55;max-width:840px}
+  .nota a{color:var(--acc2)}
+</style>
+</head>
+<body>
+<h1>🎙️ Centro de Control PRO</h1>
+<p class="sub">Episodios: feeds en vivo · Descargas 30d: OP3 · <span id="fecha"></span></p>
+
+<div class="tbar" id="tbar">
+  <div class="item g"><b id="t-hoy">–</b><span>hoy</span></div>
+  <div class="item"><b id="t-mes">–</b><span>este mes <em id="t-mescmp"></em></span></div>
+  <div class="item"><b id="t-anio">–</b><span>este año <em id="t-aniocmp"></em></span></div>
+  <div class="item"><b id="t-total">–</b><span>episodios</span></div>
+  <div class="item"><b id="t-shows">–</b><span>shows</span></div>
+  <div class="item y"><b id="t-dls">–</b><span>descargas/30d</span></div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<p class="nota">
+  📊 Cada tarjeta: publicados hoy · este mes <b>vs mes pasado</b> · este año <b>vs mismo periodo del año pasado</b> ·
+  gráfica de los últimos 12 meses (mes actual en verde) · descargas 30 días (OP3).<br>
+  🟡 <b>Descargas OP3:</b> empiezan a contar desde que cada feed trae el contador; tras unos días, saca tu API key en
+  <a href="https://op3.dev/api/docs" target="_blank">op3.dev/api/docs</a>, los UUID en
+  <a href="https://op3.dev/setup" target="_blank">op3.dev/setup</a>, y me los mandas para conectar los números
+  (las comparativas de descargas mes vs mes nacerán conforme se acumule historia).<br>
+  🎧 <b>Horas escuchadas de Spotify:</b> Spotify no da API de eso a nadie — botón directo en cada show.
+</p>
+
+<script>
+// ═══════════ CONFIGURACION ═══════════
+const OP3_TOKEN = "";   // <- tu API key de op3.dev cuando la tengas
+
+const SHOWS = [
+  {nombre:"מחוברים לתורה - התנ״ך המבואר (Rab Wasserman)", feed:"https://rabmeireliyahu.github.io/podcast/feed.xml", op3:""},
+  {nombre:"מרן הראשון לציון הרב דוד יוסף (Yechave Daat)", feed:"https://rabmeireliyahu.github.io/yechavedaat/feed.xml", op3:""},
+  {nombre:"הרב מאיר אליהו", feed:"https://rabmeireliyahu.github.io/ravmeir/feed.xml", op3:""},
+  {nombre:"הרב אשר וייס", feed:"https://rabmeireliyahu.github.io/ravasherweiss/feed.xml", op3:""},
+  {nombre:"הרב בן ציון מוצפי", feed:"https://rabmeireliyahu.github.io/ravmutzafi/feed.xml", op3:""},
+];
+// ═════════════════════════════════════
+
+document.getElementById("fecha").textContent=new Date().toLocaleString("es-MX");
+const grid=document.getElementById("grid");
+const ahora=new Date();
+const hoy0=new Date(); hoy0.setHours(0,0,0,0);
+const mesIni=new Date(ahora.getFullYear(),ahora.getMonth(),1);
+const mesPasIni=new Date(ahora.getFullYear(),ahora.getMonth()-1,1);
+const anioIni=new Date(ahora.getFullYear(),0,1);
+const anioPasIni=new Date(ahora.getFullYear()-1,0,1);
+const anioPasCorte=new Date(ahora.getFullYear()-1,ahora.getMonth(),ahora.getDate(),23,59,59);
+
+let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0};
+
+function cmpHTML(act,ant){
+  if(ant===0&&act===0)return `<em class="cmp flat">=</em>`;
+  if(ant===0)return `<em class="cmp up">▲ nuevo</em>`;
+  const p=Math.round((act-ant)/ant*100);
+  if(p>0)return `<em class="cmp up">▲ ${p}%</em>`;
+  if(p<0)return `<em class="cmp down">▼ ${Math.abs(p)}%</em>`;
+  return `<em class="cmp flat">= 0%</em>`;
+}
+function totales(){
+  document.getElementById("t-hoy").textContent=T.hoy;
+  document.getElementById("t-mes").textContent=T.mes;
+  document.getElementById("t-mescmp").innerHTML=cmpHTML(T.mes,T.mesPas);
+  document.getElementById("t-anio").textContent=T.anio;
+  document.getElementById("t-aniocmp").innerHTML=cmpHTML(T.anio,T.anioPas);
+  document.getElementById("t-total").textContent=T.total;
+  document.getElementById("t-shows").textContent=T.shows;
+  document.getElementById("t-dls").textContent=T.dls>0?T.dls.toLocaleString():"–";
+}
+
+const MESES_L=["E","F","M","A","M","J","J","A","S","O","N","D"];
+
+SHOWS.forEach(async (s)=>{
+  const card=document.createElement("div");
+  card.className="card";
+  card.innerHTML=`<h2>${s.nombre}</h2><p class="err">Cargando…</p>`;
+  grid.appendChild(card);
+  try{
+    const r=await fetch(s.feed+"?nc="+Date.now());
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const xml=new DOMParser().parseFromString(await r.text(),"application/xml");
+    const items=[...xml.querySelectorAll("item")];
+    let hoy=0,mes=0,mesPas=0,anio=0,anioPas=0,ultTit="—",ultFecha=null;
+    const m12=Array(12).fill(0);
+    items.forEach(it=>{
+      const d=new Date(it.querySelector("pubDate")?.textContent||0);
+      if(d>=hoy0)hoy++;
+      if(d>=mesIni)mes++;
+      else if(d>=mesPasIni&&d<mesIni)mesPas++;
+      if(d>=anioIni)anio++;
+      else if(d>=anioPasIni&&d<=anioPasCorte)anioPas++;
+      const diff=(ahora.getFullYear()-d.getFullYear())*12+(ahora.getMonth()-d.getMonth());
+      if(diff>=0&&diff<12)m12[11-diff]++;
+      if(!ultFecha||d>ultFecha){ultFecha=d;ultTit=it.querySelector("title")?.textContent||"—";}
+    });
+    T.hoy+=hoy;T.mes+=mes;T.mesPas+=mesPas;T.anio+=anio;T.anioPas+=anioPas;
+    T.total+=items.length;T.shows++;
+
+    let dlsHTML=`<div class="num dls"><b>–</b><span>desc/30d</span></div>`;
+    if(OP3_TOKEN&&s.op3){
+      try{
+        const o=await fetch(`https://op3.dev/api/1/queries/show-download-counts?showUuid=${s.op3}&token=${OP3_TOKEN}`);
+        const j=await o.json();
+        const sd=j.showDownloadCounts?.[s.op3];
+        if(sd){T.dls+=sd.monthlyDownloads||0;
+          dlsHTML=`<div class="num dls"><b>${(sd.monthlyDownloads||0).toLocaleString()}</b><span>desc/30d</span></div>`;}
+      }catch(e){}
+    }
+
+    const maxM=Math.max(...m12,1);
+    const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.15}" title="${v} episodios"></div>`).join("");
+    const eti=[];for(let i=11;i>=0;i--){const mm=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);eti.push(`<span>${MESES_L[mm.getMonth()]}</span>`);}
+    card.innerHTML=`
+      <h2>${s.nombre}</h2>
+      <div class="nums">
+        <div class="num hoy"><b>${hoy}</b><span>hoy</span></div>
+        <div class="num"><b>${mes}</b><span>mes</span>${cmpHTML(mes,mesPas)}</div>
+        <div class="num"><b>${anio}</b><span>año</span>${cmpHTML(anio,anioPas)}</div>
+        <div class="num"><b>${items.length}</b><span>total</span></div>
+        ${dlsHTML}
+      </div>
+      <div class="chart">${barras}</div>
+      <div class="meses">${eti.join("")}</div>
+      <p class="ult">🆕 ${ultTit}<br>🗓️ ${ultFecha?ultFecha.toLocaleDateString("es-MX"):"—"}</p>
+      <div class="links">
+        <a href="${s.feed}" target="_blank">Feed</a>
+        <a href="https://creators.spotify.com" target="_blank">Spotify (horas)</a>
+        ${s.op3?`<a href="https://op3.dev/show/${s.op3}" target="_blank">OP3 Stats</a>`:``}
+      </div>`;
+    totales();
+  }catch(e){
+    card.innerHTML=`<h2>${s.nombre}</h2><p class="err">⚠️ No pude leer el feed (${e.message})</p>`;
+  }
+});
+</script>
+</body>
+</html>
