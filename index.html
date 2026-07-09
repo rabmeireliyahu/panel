@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0045)file:///C:/Users/alber/Downloads/index_7.html -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>אוצר התורה · Centro de Control</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link href="./index_files/css2" rel="stylesheet">
 <style>
   :root{
     --ink:#FFFFFF; --card:#FBF8F1; --linea:#E4DCCB;
@@ -78,29 +78,304 @@
   .pie{max-width:1180px;margin:26px auto 0;color:var(--mut);font-size:.78rem;
        line-height:1.6;text-align:center}
   .pie a{color:var(--tchelet)}
+  /* Modal */
+  #modal{position:fixed;inset:0;display:none;z-index:50}
+  #modal.on{display:block}
+  .modal-bg{position:absolute;inset:0;background:rgba(27,36,64,.45)}
+  .modal-box{position:relative;max-width:640px;margin:6vh auto;background:#fff;
+             border:1px solid var(--zahav);border-top:4px solid var(--zahav);
+             padding:22px;max-height:84vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+  .modal-box h3{font-family:'Frank Ruhl Libre',serif;font-size:1.15rem;margin-bottom:14px;
+                direction:rtl;text-align:center;color:var(--klaf)}
+  .modal-x{position:absolute;top:12px;left:14px;border:none;background:none;
+           font-size:1.1rem;cursor:pointer;color:var(--mut)}
+  .ep-lista.big li{padding:9px 2px}
+  .ep-lista.big .t{font-size:.85rem}
+  .ins-card{background:var(--card);border:1px solid var(--linea);border-left:3px solid var(--zahav);
+            padding:14px 16px;text-align:center}
+  .ins-card span{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.5rem;
+                 font-weight:700;color:var(--zahav)}
+  .ins-card em{font-style:normal;font-size:.74rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 </style>
 </head>
 <body>
 
 <header class="shaar">
   <h1>אוצר התורה</h1>
-  <p class="lema">Centro de Control · <span id="fecha"></span> ·
+  <p class="lema">Centro de Control · <span id="fecha">miércoles, 8 de julio</span> ·
      <button id="btn-refrescar" style="border:1px solid var(--zahav);color:var(--zahav);background:none;
-       padding:3px 12px;cursor:pointer;font-family:'Heebo',sans-serif;font-size:.8rem">🔄 Actualizar</button>
-     <span id="auto-info" style="font-size:.72rem"></span></p>
+       padding:3px 12px;cursor:pointer;font-family:&#39;Heebo&#39;,sans-serif;font-size:.8rem">🔄 Actualizar</button>
+     <span id="auto-info" style="font-size:.72rem">· se actualiza solo cada 10 min</span></p>
   <div class="totales">
-    <div class="tot verde"><b id="t-hoy">–</b><span>hoy</span></div>
-    <div class="tot"><b id="t-mes">–</b><span>este mes</span><em id="t-mescmp"></em></div>
-    <div class="tot"><b id="t-anio">–</b><span>este año</span><em id="t-aniocmp"></em></div>
-    <div class="tot"><b id="t-total">–</b><span>episodios</span></div>
-    <div class="tot oro"><b id="t-horas">–</b><span>horas de Torá</span></div>
-    <div class="tot"><b id="t-shows">–</b><span>shows</span></div>
+    <div class="tot verde"><b id="t-hoy">4</b><span>hoy</span></div>
+    <div class="tot"><b id="t-mes">290</b><span>este mes</span><em id="t-mescmp"><em class="down">▼ 45%</em></em></div>
+    <div class="tot"><b id="t-anio">940</b><span>este año</span><em id="t-aniocmp"><em class="up">▲ 192%</em></em></div>
+    <div class="tot"><b id="t-total">1,590</b><span>episodios</span></div>
+    <div class="tot oro"><b id="t-horas">643 h</b><span>horas de Torá</span></div>
+    <div class="tot"><b id="t-shows">7</b><span>shows</span></div>
     <div class="tot oro"><b id="t-dls">–</b><span>descargas 30d</span></div>
   </div>
 </header>
 
-<p class="buscando" id="buscando">🔎 Buscando shows en GitHub…</p>
-<main class="grid" id="grid"></main>
+<p class="buscando" id="buscando" style="display: none;">🔎 Buscando shows en GitHub…</p>
+<main class="grid" id="grid"><section class="card">
+    <h2>מחוברים לתורה-התנ״ך המבואר</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>0</b><span>hoy</span></div>
+      <div class="num"><b>128</b><span>mes</span><em class="down">▼ 73%</em></div>
+      <div class="num"><b>608</b><span>año</span><em class="up">▲ nuevo</em></div>
+      <div class="num horas"><b>0 min</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:100%;opacity:0.95" title="480"></div><div class="bar actual" style="height:26.666666666666668%;opacity:0.95" title="128"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 שיר השירים פרק ח · 6/7/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/podcast/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/%D7%9E%D7%97%D7%95%D7%91%D7%A8%D7%99%D7%9D%20%D7%9C%D7%AA%D7%95%D7%A8%D7%94-%D7%94%D7%AA%D7%A0%D7%B4%D7%9A%20%D7%94%D7%9E%D7%91%D7%95%D7%90%D7%A8/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>608</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>0 min</b><span>Torá este mes</span></div>
+        <div class="ms"><b>0′</b><span>duración promedio</span></div>
+        <div class="ms"><b>0</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>domingo</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde junio de 2026 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">שיר השירים פרק ח</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ז</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ו</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ה</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ד</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ג</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ב</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק א</span><span class="f">6/7/2026</span></li></ul>
+    </div></div></section><section class="card">
+    <h2>Rabbi Israel Yakobov</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>0</b><span>hoy</span></div>
+      <div class="num"><b>0</b><span>mes</span><em class="down">▼ 100%</em></div>
+      <div class="num"><b>21</b><span>año</span><em class="down">▼ 66%</em></div>
+      <div class="num horas"><b>21 h</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:42.857142857142854%;opacity:0.95" title="3"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:14.285714285714285%;opacity:0.95" title="1"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:14.285714285714285%;opacity:0.95" title="1"></div><div class="bar " style="height:100%;opacity:0.95" title="7"></div><div class="bar " style="height:85.71428571428571%;opacity:0.95" title="6"></div><div class="bar " style="height:100%;opacity:0.95" title="7"></div><div class="bar actual" style="height:5%;opacity:0.18" title="0"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 Where are the 10 TRIBES · 15/6/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/yakobov/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/Rabbi%20Israel%20Yakobov/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>99</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>0 min</b><span>Torá este mes</span></div>
+        <div class="ms"><b>13′</b><span>duración promedio</span></div>
+        <div class="ms"><b>0</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>lunes</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde enero de 2025 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">Where are the 10 TRIBES</span><span class="f">15/6/2026</span></li><li><span class="t">Tomer Devorah Introduction to the Most Powerful Kabbalistic Healing Book</span><span class="f">9/6/2026 · 62′</span></li><li><span class="t">Use permitted Physical Pleasures to motivate Yourself to Serve haShem</span><span class="f">8/6/2026 · 10′</span></li><li><span class="t">The Ultimate Investment Where Should a Person Place Their Focus in Life</span><span class="f">8/6/2026</span></li><li><span class="t">RED FLAGS ON A DATE. What to Look For in a Husband or Wife</span><span class="f">3/6/2026 · 69′</span></li><li><span class="t">🌊MIKVEH &amp; MINDSET of G-Ds Salvation</span><span class="f">3/6/2026 · 37′</span></li><li><span class="t">The Key To Success. Why It Starts At The Chuppah</span><span class="f">1/6/2026</span></li><li><span class="t">How Your Emotions Control Your Income</span><span class="f">28/5/2026 · 78′</span></li></ul>
+    </div></div></section><section class="card">
+    <h2>TorahAnytime</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>0</b><span>hoy</span></div>
+      <div class="num"><b>150</b><span>mes</span><em class="up">▲ 7400%</em></div>
+      <div class="num"><b>154</b><span>año</span><em class="up">▲ nuevo</em></div>
+      <div class="num horas"><b>15 h</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.95" title="2"></div><div class="bar " style="height:5%;opacity:0.95" title="2"></div><div class="bar actual" style="height:100%;opacity:0.95" title="150"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 The Power of Prayer - Mr. Uri Lati - TorahAnytime.com · 7/7/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/torahanytime/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/TorahAnytime/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>154</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>15 h</b><span>Torá este mes</span></div>
+        <div class="ms"><b>6′</b><span>duración promedio</span></div>
+        <div class="ms"><b>1</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>martes</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde mayo de 2026 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">The Power of Prayer - Mr. Uri Lati - TorahAnytime.com</span><span class="f">7/7/2026 · 4′</span></li><li><span class="t">From the Kidneys to the Heart - R. David Ashear - TorahAnytime.com</span><span class="f">7/7/2026 · 6′</span></li><li><span class="t">Satan Knows When Mashiach Will Arrive - R. Joey Haber - TorahAnytime.com</span><span class="f">7/7/2026 · 2′</span></li><li><span class="t">It’s About to End…</span><span class="f">7/7/2026 · 1′</span></li><li><span class="t">Corona Virus： Do you Think God is Joking Around？ - R. Yaakov Mizrahi - TorahAnytime.com</span><span class="f">7/7/2026 · 4′</span></li><li><span class="t">Cellphone Implant in your Brain - R. Ephraim Wachsman - TorahAnytime.com</span><span class="f">7/7/2026 · 2′</span></li><li><span class="t">The Spiky Haired Kid at the Wedding - R. Shlomo Farhi - TorahAnytime.com</span><span class="f">7/7/2026 · 2′</span></li><li><span class="t">Dissecting the Hebrew Word for Miracle - R. Jonathan Rietti - TorahAnytime.com</span><span class="f">7/7/2026 · 7′</span></li></ul>
+    </div></div></section><section class="card">
+    <h2>הרב ישראל אברג'ל</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>0</b><span>hoy</span></div>
+      <div class="num"><b>1</b><span>mes</span><em class="down">▼ 90%</em></div>
+      <div class="num"><b>37</b><span>año</span><em class="up">▲ nuevo</em></div>
+      <div class="num horas"><b>53 h</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:70%;opacity:0.95" title="7"></div><div class="bar " style="height:60%;opacity:0.95" title="6"></div><div class="bar " style="height:80%;opacity:0.95" title="8"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:30%;opacity:0.95" title="3"></div><div class="bar " style="height:60%;opacity:0.95" title="6"></div><div class="bar " style="height:40%;opacity:0.95" title="4"></div><div class="bar " style="height:50%;opacity:0.95" title="5"></div><div class="bar " style="height:80%;opacity:0.95" title="8"></div><div class="bar " style="height:100%;opacity:0.95" title="10"></div><div class="bar actual" style="height:10%;opacity:0.95" title="1"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 כמה פעמים אדם נולד מחדש פרשת מטות - מסעי · 6/7/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/abergel/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/%D7%94%D7%A8%D7%91%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C%20%D7%90%D7%91%D7%A8%D7%92&#39;%D7%9C/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>58</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>50 min</b><span>Torá este mes</span></div>
+        <div class="ms"><b>55′</b><span>duración promedio</span></div>
+        <div class="ms"><b>0</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>lunes</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde septiembre de 2025 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">כמה פעמים אדם נולד מחדש פרשת מטות - מסעי</span><span class="f">6/7/2026 · 50′</span></li><li><span class="t">איך אנשים טובים מאבדים את המצפן פרשת פנחס</span><span class="f">29/6/2026 · 50′</span></li><li><span class="t">סדרת קנייני תורה</span><span class="f">25/6/2026 · 99′</span></li><li><span class="t">איך מתחילים לחיות באמת פרשת חוקת</span><span class="f">22/6/2026 · 95′</span></li><li><span class="t">סדרת קנייני תורה 'מעמידו על השלום' (א) איך אפשר לחיות בשלום</span><span class="f">18/6/2026 · 126′</span></li><li><span class="t">משווה לאחרים אתה כבר מפסיד! פרשת השלום - פרשת קורח</span><span class="f">15/6/2026 · 95′</span></li><li><span class="t">מעמידו על האמת' (ב) יסודות העולם האמת והשלום</span><span class="f">10/6/2026 · 109′</span></li><li><span class="t">שלבי התגלות המשיח והגאולה לפי הזוהר הקדוש הרב ישראל אברגל שליטא</span><span class="f">9/6/2026</span></li></ul>
+    </div></div></section><section class="card">
+    <h2>Rab Meir Eliyahu - הרב מאיר אליהו</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>1</b><span>hoy</span></div>
+      <div class="num"><b>6</b><span>mes</span><em class="up">▲ 20%</em></div>
+      <div class="num"><b>34</b><span>año</span><em class="down">▼ 67%</em></div>
+      <div class="num horas"><b>222 h</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:100%;opacity:0.95" title="7"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:57.14285714285714%;opacity:0.95" title="4"></div><div class="bar " style="height:57.14285714285714%;opacity:0.95" title="4"></div><div class="bar " style="height:28.57142857142857%;opacity:0.95" title="2"></div><div class="bar " style="height:42.857142857142854%;opacity:0.95" title="3"></div><div class="bar " style="height:57.14285714285714%;opacity:0.95" title="4"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:85.71428571428571%;opacity:0.95" title="6"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar actual" style="height:85.71428571428571%;opacity:0.95" title="6"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 הרב מאיר אליהו ｜ נבואת הילד ｜ יזדים - ה׳תשפ״ו · 8/7/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/ravmeir/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/Rab%20Meir%20Eliyahu%20-%20%D7%94%D7%A8%D7%91%20%D7%9E%D7%90%D7%99%D7%A8%20%D7%90%D7%9C%D7%99%D7%94%D7%95/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>230</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>5 h</b><span>Torá este mes</span></div>
+        <div class="ms"><b>58′</b><span>duración promedio</span></div>
+        <div class="ms"><b>4</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>miércoles</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde enero de 2023 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">הרב מאיר אליהו ｜ נבואת הילד ｜ יזדים - ה׳תשפ״ו</span><span class="f">8/7/2026 · 73′</span></li><li><span class="t">הרב מאיר אליהו ｜ תשתוק תרוויח תמיד ｜ מוסאיוף - ה׳תשפ״ו</span><span class="f">7/7/2026 · 35′</span></li><li><span class="t">אין כסף אין שידוך !!! tmp</span><span class="f">6/7/2026 · 29′</span></li><li><span class="t">טיפים לנישואים שמחים</span><span class="f">5/7/2026 · 71′</span></li><li><span class="t">הכתובת הייתה על הקיר</span><span class="f">1/7/2026 · 62′</span></li><li><span class="t">האם מותר לעשן מריחואנה</span><span class="f">1/7/2026 · 51′</span></li><li><span class="t">זריקות הרזייה</span><span class="f">17/6/2026 · 74′</span></li><li><span class="t">איך להתקרב אליך השם</span><span class="f">13/6/2026 · 45′</span></li></ul>
+    </div></div></section><section class="card">
+    <h2>מרן הראשון לציון הרב דוד יוסף - Harav David Yosef</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>1</b><span>hoy</span></div>
+      <div class="num"><b>3</b><span>mes</span><em class="down">▼ 80%</em></div>
+      <div class="num"><b>42</b><span>año</span><em class="up">▲ 367%</em></div>
+      <div class="num horas"><b>44 h</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:6.666666666666667%;opacity:0.95" title="1"></div><div class="bar " style="height:20%;opacity:0.95" title="3"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:6.666666666666667%;opacity:0.95" title="1"></div><div class="bar " style="height:20%;opacity:0.95" title="3"></div><div class="bar " style="height:13.333333333333334%;opacity:0.95" title="2"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:40%;opacity:0.95" title="6"></div><div class="bar " style="height:86.66666666666667%;opacity:0.95" title="13"></div><div class="bar " style="height:100%;opacity:0.95" title="15"></div><div class="bar actual" style="height:20%;opacity:0.95" title="3"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 אמירה לגוי בכביסה ובאיסורי דרבנן I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון · 8/7/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/yechavedaat/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/%D7%9E%D7%A8%D7%9F%20%D7%94%D7%A8%D7%90%D7%A9%D7%95%D7%9F%20%D7%9C%D7%A6%D7%99%D7%95%D7%9F%20%D7%94%D7%A8%D7%91%20%D7%93%D7%95%D7%93%20%D7%99%D7%95%D7%A1%D7%A3%20-%20Harav%20David%20Yosef/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>73</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>16 min</b><span>Torá este mes</span></div>
+        <div class="ms"><b>37′</b><span>duración promedio</span></div>
+        <div class="ms"><b>3</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>miércoles</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde marzo de 2024 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">אמירה לגוי בכביסה ובאיסורי דרבנן I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון</span><span class="f">8/7/2026 · 3′</span></li><li><span class="t">כיבוס במכונת כביסה אוטומטית I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון</span><span class="f">6/7/2026 · 7′</span></li><li><span class="t">איסור כיבוס בשבוע שחל בו תשעה באב I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון</span><span class="f">6/7/2026 · 6′</span></li><li><span class="t">אירוסין בבין המצרים</span><span class="f">29/6/2026 · 16′</span></li><li><span class="t">שמיעת מוזיקה וואקלית בבין המצרים</span><span class="f">22/6/2026 · 2′</span></li><li><span class="t">מנהגי הספרדים בימי בין המצרים</span><span class="f">22/6/2026 · 6′</span></li><li><span class="t">פולמוס על דלתות אוטומטיות ותאורה בשבת</span><span class="f">22/6/2026 · 9′</span></li><li><span class="t">סגירת דלת על חיה או בהמה בשבת</span><span class="f">22/6/2026 · 4′</span></li></ul>
+    </div></div></section><section class="card">
+    <h2>הרב אשר וייס - Rabbi Asher Weiss</h2>
+    <div class="rimon">✦ ✦ ✦</div>
+    <div class="nums">
+      <div class="num hoy"><b>2</b><span>hoy</span></div>
+      <div class="num"><b>2</b><span>mes</span><em class="down">▼ 71%</em></div>
+      <div class="num"><b>44</b><span>año</span><em class="down">▼ 70%</em></div>
+      <div class="num horas"><b>285 h</b><span>de Torá</span></div>
+    </div>
+    <div class="chart"><div class="bar " style="height:57.692307692307686%;opacity:0.95" title="15"></div><div class="bar " style="height:100%;opacity:0.95" title="26"></div><div class="bar " style="height:73.07692307692307%;opacity:0.95" title="19"></div><div class="bar " style="height:46.15384615384615%;opacity:0.95" title="12"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar " style="height:23.076923076923077%;opacity:0.95" title="6"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar " style="height:30.76923076923077%;opacity:0.95" title="8"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar actual" style="height:7.6923076923076925%;opacity:0.95" title="2"></div></div>
+    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
+    <p class="ult">🆕 Ohr Somayach Yarchei Kallah 2026 - Kriyas HaTorah ｜ Shiur by Harav Asher Weiss Shlita ｜ 5786 · 8/7/2026</p>
+    <div class="acciones">
+      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
+      <button class="btn" data-toggle="">Estadísticas ▾</button>
+      <button class="btn" data-agregar="">➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
+      <a class="btn" href="https://rabmeireliyahu.github.io/ravasherweiss/feed.xml" target="_blank">Feed</a>
+      <a class="btn" href="https://open.spotify.com/search/%D7%94%D7%A8%D7%91%20%D7%90%D7%A9%D7%A8%20%D7%95%D7%99%D7%99%D7%A1%20-%20Rabbi%20Asher%20Weiss/shows" target="_blank">Spotify</a>
+      
+    </div>
+    <div class="det"><div class="det-inner">
+      <div class="mini-stats">
+        <div class="ms"><b>368</b><span>episodios totales</span></div>
+        <div class="ms"><b>–</b><span>descargas 30d</span></div>
+        <div class="ms"><b>1 h</b><span>Torá este mes</span></div>
+        <div class="ms"><b>47′</b><span>duración promedio</span></div>
+        <div class="ms"><b>1</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>lunes</b><span>día más activo</span></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
+        Publicando desde junio de 2024 · Últimos 8:
+      </p>
+      <ul class="ep-lista"><li><span class="t">Ohr Somayach Yarchei Kallah 2026 - Kriyas HaTorah ｜ Shiur by Harav Asher Weiss Shlita ｜ 5786</span><span class="f">8/7/2026 · 54′</span></li><li><span class="t">Drasha at Ohr Somayach on The 3 Weeks ｜ by Harav Asher Weiss Shlita ｜ 5786</span><span class="f">8/7/2026 · 24′</span></li><li><span class="t">Hezk Riyah</span><span class="f">29/6/2026 · 32′</span></li><li><span class="t">הרבה למדתי מרבותי — Harav Asher Weiss on the Legacy of His Rebbe</span><span class="f">29/6/2026 · 6′</span></li><li><span class="t">Value Your Learning</span><span class="f">22/6/2026 · 23′</span></li><li><span class="t">Addressing the Keren Olam Hatorah Event in Miami</span><span class="f">15/6/2026 · 14′</span></li><li><span class="t">מצוות פדיון הבן -פרשת קרח תשפ״ו</span><span class="f">12/6/2026 · 43′</span></li><li><span class="t">Mitzvas Pidyon HaBen (Korach 5786)</span><span class="f">8/6/2026 · 57′</span></li></ul>
+    </div></div></section></main>
+
+<section id="insights" style="max-width: 1180px; margin: 22px auto 0px; display: block;">
+  <h2 style="font-family:&#39;Frank Ruhl Libre&#39;,serif;font-size:1.3rem;text-align:center;margin-bottom:14px;color:var(--klaf)">📊 Panorama del אוצר</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+    <div class="ins-card"><span id="ins-ritmo">34.8</span><em>shiurim/semana (todos)</em></div>
+    <div class="ins-card"><span id="ins-proy">1124</span><em>proyección este mes</em></div>
+    <div class="ins-card"><span id="ins-activo"><span style="font-size:.95rem;direction:rtl;display:block">TorahAnytime</span></span><em>show más activo (mes)</em></div>
+    <div class="ins-card"><span id="ins-prom">24′</span><em>duración media global</em></div>
+    <div class="ins-card"><span id="ins-dia">Martes</span><em>día más productivo</em></div>
+    <div class="ins-card"><span id="ins-reciente"><span style="font-size:.8rem;direction:rtl;display:block">אמירה לגוי בכביסה ובאיסורי דרבנן I מרן ה</span></span><em>último shiur publicado</em></div>
+  </div>
+</section>
 
 <p class="pie">
   Los shows se detectan solos: cualquier repositorio con un feed.xml publicado aparece aquí automáticamente.<br>
@@ -129,6 +404,7 @@ const anioPasCorte=new Date(ahora.getFullYear()-1,ahora.getMonth(),ahora.getDate
 const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","shabat"];
 const MESES_L=["E","F","M","A","M","J","J","A","S","O","N","D"];
 let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0};
+let G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, primeraFecha:null};
 
 function dur2seg(t){
   if(!t)return 0; t=t.trim();
@@ -195,6 +471,12 @@ async function pintarShow(repo, feedURL){
 
   T.hoy+=hoy;T.mes+=mes;T.mesPas+=mesPas;T.anio+=anio;T.anioPas+=anioPas;
   T.total+=items.length;T.seg+=seg;T.shows++;
+  // insights globales
+  porDia.forEach((v,i)=>G.porDiaGlobal[i]+=v);
+  if(mes>G.showMesMax.n)G.showMesMax={nombre,n:mes};
+  if(items[0] && (!G.ultimoGlobal.fecha || items[0].fecha>G.ultimoGlobal.fecha))
+    G.ultimoGlobal={titulo:items[0].titulo,fecha:items[0].fecha,show:nombre};
+  if(primero && (!G.primeraFecha || primero<G.primeraFecha))G.primeraFecha=primero;
 
   const op3=OP3_MAP[repo]||"";
   let dlsNum="–";
@@ -210,6 +492,8 @@ async function pintarShow(repo, feedURL){
   const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.18}" title="${v}"></div>`).join("");
   const eti=[];for(let i=11;i>=0;i--){const mm=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);eti.push(`<span>${MESES_L[mm.getMonth()]}</span>`);}
   const lista=items.slice(0,8).map(e=>`<li><span class="t">${e.titulo}</span><span class="f">${e.fecha.toLocaleDateString("es-MX")}${e.seg?" · "+Math.round(e.seg/60)+"′":""}</span></li>`).join("");
+  // lista larga para el visor de ultimos episodios (con reproductor)
+  const listaLarga=items.slice(0,40).map(e=>`<li><span class="t">${e.titulo}</span><span class="f">${e.fecha.toLocaleDateString("es-MX")}${e.seg?" · "+Math.round(e.seg/60)+"′":""}</span></li>`).join("");
 
   const card=document.createElement("section");
   card.className="card";
@@ -226,9 +510,13 @@ async function pintarShow(repo, feedURL){
     <div class="meses">${eti.join("")}</div>
     <p class="ult">🆕 ${items[0]?.titulo||"—"} · ${items[0]?items[0].fecha.toLocaleDateString("es-MX"):""}</p>
     <div class="acciones">
-      <button class="btn principal" data-toggle>Desglosar ▾</button>
+      <button class="btn principal" data-verep>🎧 Últimos episodios</button>
+      <button class="btn" data-toggle>Estadísticas ▾</button>
+      <button class="btn" data-agregar>➕ Agregar</button>
+    </div>
+    <div class="acciones" style="margin-top:6px">
       <a class="btn" href="${feedURL}" target="_blank">Feed</a>
-      <a class="btn" href="https://creators.spotify.com" target="_blank">Spotify</a>
+      <a class="btn" href="https://open.spotify.com/search/${encodeURIComponent(nombre)}/shows" target="_blank">Spotify</a>
       ${op3?`<a class="btn" href="https://op3.dev/show/${op3}" target="_blank">OP3</a>`:``}
     </div>
     <div class="det"><div class="det-inner">
@@ -248,14 +536,72 @@ async function pintarShow(repo, feedURL){
   card.querySelector("[data-toggle]").addEventListener("click",(ev)=>{
     const det=card.querySelector(".det");
     det.classList.toggle("abierto");
-    ev.target.textContent=det.classList.contains("abierto")?"Cerrar ▴":"Desglosar ▾";
+    ev.target.textContent=det.classList.contains("abierto")?"Cerrar ▴":"Estadísticas ▾";
+  });
+  card.querySelector("[data-verep]").addEventListener("click",()=>{
+    abrirModal(`🎧 ${nombre} · últimos episodios`,
+      `<ul class="ep-lista big">${listaLarga}</ul>
+       <p style="margin-top:10px;font-size:.8rem;color:var(--mut)">
+       Escúchalos completos en <a href="${feedURL}" target="_blank" style="color:var(--tchelet)">el feed</a>
+       o en Spotify / Apple Podcasts buscando "${nombre}".</p>`);
+  });
+  card.querySelector("[data-agregar]").addEventListener("click",()=>{
+    abrirModal(`➕ Agregar un shiur a ${nombre}`,
+      `<p style="font-size:.88rem;line-height:1.6">
+        Para shiurim que llegan por <b>WhatsApp</b> u otras fuentes, súbelos desde tu computadora
+        (donde vive el sistema). Es de 10 segundos:</p>
+       <ol style="font-size:.86rem;line-height:1.9;margin:10px 18px">
+        <li>Guarda el audio del WhatsApp en tu compu.</li>
+        <li>Abre la carpeta <b>${repo}</b> del Escritorio.</li>
+        <li><b>Arrastra el audio ENCIMA</b> del archivo <b>agregar_shiur.py</b>.</li>
+        <li>Se sube solo a Archive + feed. Aparece en Spotify en unas horas. ✅</li>
+       </ol>
+       <p style="font-size:.8rem;color:var(--mut);margin-top:8px">
+        (También sirve arrastrar varios audios a la vez. Convierte formatos raros a MP3 automáticamente.)</p>`);
   });
   grid.appendChild(card);
   totales();
 }
 
+function abrirModal(titulo, html){
+  let m=document.getElementById("modal");
+  if(!m){
+    m=document.createElement("div"); m.id="modal";
+    m.innerHTML=`<div class="modal-bg"></div><div class="modal-box">
+      <button class="modal-x">✕</button><h3 id="modal-t"></h3><div id="modal-c"></div></div>`;
+    document.body.appendChild(m);
+    m.querySelector(".modal-bg").onclick=()=>m.classList.remove("on");
+    m.querySelector(".modal-x").onclick=()=>m.classList.remove("on");
+  }
+  m.querySelector("#modal-t").innerHTML=titulo;
+  m.querySelector("#modal-c").innerHTML=html;
+  m.classList.add("on");
+}
+
+function pintarInsights(){
+  const DIAS_L=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Shabat"];
+  const diaCorte=ahora.getDate();
+  const semanasAnio=Math.max(1,(ahora-anioIni)/(7*86400000));
+  const ritmo=(T.anio/semanasAnio).toFixed(1);
+  const diasMes=new Date(ahora.getFullYear(),ahora.getMonth()+1,0).getDate();
+  const proy=Math.round(T.mes/diaCorte*diasMes);
+  const promMin=T.total?Math.round(T.seg/T.total/60):0;
+  const diaTop=G.porDiaGlobal.indexOf(Math.max(...G.porDiaGlobal));
+  document.getElementById("ins-ritmo").textContent=ritmo;
+  document.getElementById("ins-proy").textContent=proy;
+  document.getElementById("ins-activo").innerHTML=`<span style="font-size:.95rem;direction:rtl;display:block">${G.showMesMax.nombre}</span>`;
+  document.getElementById("ins-prom").textContent=promMin+"′";
+  document.getElementById("ins-dia").textContent=DIAS_L[diaTop];
+  document.getElementById("ins-reciente").innerHTML=G.ultimoGlobal.fecha
+    ? `<span style="font-size:.8rem;direction:rtl;display:block">${G.ultimoGlobal.titulo.slice(0,40)}</span>`
+    : "—";
+  document.getElementById("insights").style.display="block";
+}
+
 async function cargar(){
   T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0};
+  G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, primeraFecha:null};
+  document.getElementById("insights").style.display="none";
   grid.innerHTML="";
   const busc=document.getElementById("buscando");
   busc.style.display="block"; busc.textContent="🔎 Buscando shows en GitHub…";
@@ -270,6 +616,7 @@ async function cargar(){
       await pintarShow(repo.name, `https://${GITHUB_USER}.github.io/${repo.name}/feed.xml`);
     }
     if(T.shows===0)grid.innerHTML=`<p class="err">No encontré shows con feed publicado todavía.</p>`;
+    else pintarInsights();
     document.getElementById("auto-info").textContent="· se actualiza solo cada 10 min";
   }catch(e){
     busc.textContent="⚠️ No pude consultar GitHub: "+e.message;
@@ -279,5 +626,6 @@ document.getElementById("btn-refrescar").addEventListener("click",cargar);
 setInterval(cargar, 10*60*1000);   // auto-actualiza cada 10 minutos
 cargar();
 </script>
-</body>
-</html>
+
+
+</body></html>
