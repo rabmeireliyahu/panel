@@ -1,400 +1,306 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/alber/Downloads/index_7.html -->
-<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="es">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>אוצר התורה · Centro de Control</title>
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link href="./index_files/css2" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#FFFFFF; --card:#FBF8F1; --linea:#E4DCCB;
-    --klaf:#1B2440; --zahav:#A9852F; --tchelet:#3D6BC6;
-    --olive:#5E8C46; --adom:#B85A4C; --mut:#8A8FA3;
+    --ink:#FBF9F4; --card:#FFFFFF; --linea:#EBE3D4;
+    --klaf:#2A2440; --zahav:#B8862F; --tchelet:#4A6FA5;
+    --olive:#5B8A5A; --adom:#C06B54; --mut:#9691A8;
+    --crema:#F4EEE1; --joya:#6B4E9E; --bg1:#FBF9F4; --bg2:#F4EEE1;
+  }
+  body.noche{
+    --ink:#14121F; --card:#1E1B2E; --linea:#2E2A42;
+    --klaf:#F0EBFF; --zahav:#D4A84B; --tchelet:#7BA0D9;
+    --olive:#7FB57E; --adom:#D98872; --mut:#9691B8;
+    --crema:#262236; --joya:#9A7FD0; --bg1:#14121F; --bg2:#1A1728;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--ink);color:var(--klaf);font-family:'Heebo',sans-serif;
-       min-height:100vh;padding:26px 20px 60px;font-weight:300}
-  .shaar{max-width:1180px;margin:0 auto 26px;border:1px solid var(--zahav);
-         outline:1px solid var(--zahav);outline-offset:4px;
-         padding:26px 24px 22px;text-align:center}
-  .shaar h1{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:2.2rem;color:var(--klaf)}
+  body{background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);color:var(--klaf);
+       font-family:'Heebo',sans-serif;min-height:100vh;padding:20px 20px 60px;font-weight:300;
+       transition:background .4s,color .4s}
+  a{color:var(--tchelet)}
+
+  /* ── ENCABEZADO ── */
+  .shaar{max-width:1200px;margin:0 auto 22px;border:1px solid var(--zahav);
+         outline:1px solid var(--zahav);outline-offset:4px;background:var(--card);
+         padding:26px 24px 20px;text-align:center;border-radius:8px;position:relative;
+         box-shadow:0 6px 24px rgba(42,36,64,.10)}
+  .shaar h1{font-family:'Frank Ruhl Libre',serif;font-weight:900;font-size:2.4rem;
+            color:var(--klaf);letter-spacing:.02em}
   .shaar .lema{color:var(--mut);font-size:.85rem;margin-top:4px}
-  .totales{display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin-top:20px;
-           border-top:1px solid var(--linea);padding-top:18px}
-  .tot{min-width:86px}
+  .top-btns{position:absolute;top:14px;right:16px;display:flex;gap:8px}
+  .icon-btn{border:1px solid var(--linea);background:var(--crema);color:var(--klaf);
+            width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1rem;
+            display:flex;align-items:center;justify-content:center;transition:.2s}
+  .icon-btn:hover{border-color:var(--zahav);transform:scale(1.08)}
+
+  /* ── SHIUR DEL DÍA ── */
+  .destacado{max-width:1200px;margin:0 auto 20px;background:linear-gradient(120deg,var(--joya),var(--tchelet));
+             border-radius:12px;padding:2px;box-shadow:0 8px 30px rgba(107,78,158,.25)}
+  .destacado-in{background:var(--card);border-radius:11px;padding:18px 22px;display:flex;
+                align-items:center;gap:18px;flex-wrap:wrap}
+  .destacado .etiqueta{font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;
+                       color:var(--joya);font-weight:800}
+  .destacado h3{font-family:'Frank Ruhl Libre',serif;font-size:1.25rem;direction:rtl;
+                text-align:right;margin:4px 0;color:var(--klaf)}
+  .destacado .quien{font-size:.82rem;color:var(--mut);direction:rtl;text-align:right}
+  .destacado .play-big{margin-left:auto;background:var(--joya);color:#fff;border:none;
+                       border-radius:50%;width:56px;height:56px;font-size:1.4rem;cursor:pointer;
+                       flex-shrink:0;transition:.2s;box-shadow:0 4px 14px rgba(107,78,158,.4)}
+  .destacado .play-big:hover{transform:scale(1.1)}
+
+  /* ── TOTALES ── */
+  .totales{display:flex;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:18px;
+           border-top:1px solid var(--linea);padding-top:16px}
+  .tot{min-width:90px}
   .tot b{display:block;font-family:'Frank Ruhl Libre',serif;font-weight:700;
-         font-size:1.7rem;color:var(--klaf)}
-  .tot span{font-size:.72rem;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
-  .tot em{display:block;font-style:normal;font-size:.75rem;margin-top:2px}
-  .tot.oro b{color:var(--zahav)} .tot.verde b{color:var(--olive)}
-  .up{color:var(--olive)} .down{color:var(--adom)} .flat{color:var(--mut)}
-  .grid{max-width:1180px;margin:0 auto;display:grid;
-        grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px}
-  .card{background:var(--card);border:1px solid var(--linea);border-top:2px solid var(--zahav);
-        padding:18px 18px 14px;animation:ap .5s ease both;
-        box-shadow:0 2px 10px rgba(27,36,64,.06)}
-  @keyframes ap{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
-  @media (prefers-reduced-motion: reduce){.card{animation:none}.det{transition:none!important}}
-  .card h2{font-family:'Frank Ruhl Libre',serif;font-weight:700;font-size:1.12rem;
-           direction:rtl;text-align:center;margin-bottom:2px}
-  .card .rimon{text-align:center;color:var(--zahav);font-size:.7rem;
-               letter-spacing:.4em;margin-bottom:12px}
+         font-size:1.8rem;color:var(--klaf)}
+  .tot span{font-size:.68rem;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
+  .tot.oro b{color:var(--zahav)} .tot.verde b{color:var(--olive)} .tot.joya b{color:var(--joya)}
+
+  /* ── BUSCADOR ── */
+  .barra-busca{max-width:1200px;margin:0 auto 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .busca-input{flex:1;min-width:200px;padding:11px 16px;border:1px solid var(--linea);
+               border-radius:24px;background:var(--card);color:var(--klaf);font-size:.9rem;
+               font-family:'Heebo',sans-serif;outline:none}
+  .busca-input:focus{border-color:var(--zahav)}
+  .refrescar{border:1px solid var(--zahav);color:var(--zahav);background:var(--card);
+             padding:9px 18px;border-radius:24px;cursor:pointer;font-family:'Heebo',sans-serif;
+             font-size:.85rem;white-space:nowrap}
+  .refrescar:hover{background:var(--crema)}
+  .auto-info{font-size:.72rem;color:var(--mut)}
+
+  /* ── INSIGHTS ── */
+  #insights{max-width:1200px;margin:0 auto 20px;display:none}
+  #insights h2{font-family:'Frank Ruhl Libre',serif;font-size:1.2rem;text-align:center;
+               margin-bottom:12px;color:var(--klaf)}
+  .ins-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+  .ins-card{background:var(--card);border:1px solid var(--linea);border-left:3px solid var(--zahav);
+            padding:14px 16px;text-align:center;border-radius:8px}
+  .ins-card span{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.5rem;
+                 font-weight:700;color:var(--zahav)}
+  .ins-card em{font-style:normal;font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+
+  /* ── GRID DE SHOWS ── */
+  .grid{max-width:1200px;margin:0 auto;display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid var(--linea);border-top:3px solid var(--zahav);
+        padding:18px 18px 14px;animation:ap .5s ease both;border-radius:12px;
+        box-shadow:0 4px 16px rgba(42,36,64,.07);transition:transform .2s,box-shadow .2s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(42,36,64,.13)}
+  @keyframes ap{from{opacity:0;transform:translateY(10px)}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.card{animation:none}.det{transition:none!important}}
+  .cabecera{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .foto{width:56px;height:56px;border-radius:50%;object-fit:cover;flex-shrink:0;
+        border:2px solid var(--zahav);box-shadow:0 2px 8px rgba(42,36,64,.18)}
+  .foto-fallback{width:56px;height:56px;border-radius:50%;flex-shrink:0;display:flex;
+                 align-items:center;justify-content:center;font-family:'Frank Ruhl Libre',serif;
+                 font-size:1.5rem;color:#fff;background:var(--joya);border:2px solid var(--zahav)}
+  .cabecera h2{margin:0;flex:1;font-family:'Frank Ruhl Libre',serif;font-weight:700;
+               font-size:1.12rem;direction:rtl;text-align:right;line-height:1.2;color:var(--klaf)}
+  .rimon{text-align:center;color:var(--zahav);font-size:.7rem;letter-spacing:.4em;
+         margin-bottom:12px;opacity:.6}
   .nums{display:flex;gap:8px;margin-bottom:12px}
-  .num{flex:1;text-align:center;padding:6px 2px;border:1px solid var(--linea);background:#fff}
-  .num b{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.25rem;font-weight:700}
-  .num span{font-size:.63rem;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
-  .num em{display:block;font-style:normal;font-size:.68rem;margin-top:1px}
+  .num{flex:1;text-align:center;padding:8px 2px;border:1px solid var(--linea);
+       background:var(--crema);border-radius:8px}
+  .num b{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.25rem;font-weight:700;color:var(--klaf)}
+  .num span{font-size:.6rem;color:var(--mut);letter-spacing:.04em;text-transform:uppercase}
   .num.hoy b{color:var(--olive)} .num.horas b{color:var(--zahav)}
-  .chart{display:flex;align-items:flex-end;gap:3px;height:50px;padding:6px 4px 4px;
-         border:1px solid var(--linea);background:#fff;margin-bottom:3px}
-  .bar{flex:1;background:var(--tchelet);min-height:2px}
+  .chart{display:flex;align-items:flex-end;gap:3px;height:52px;padding:6px 4px 4px;
+         border:1px solid var(--linea);background:var(--crema);margin-bottom:3px;border-radius:8px}
+  .bar{flex:1;background:var(--tchelet);min-height:2px;border-radius:2px 2px 0 0;transition:height .3s}
   .bar.actual{background:var(--zahav)}
   .meses{display:flex;gap:3px;margin-bottom:10px;padding:0 4px}
   .meses span{flex:1;text-align:center;font-size:.55rem;color:var(--mut)}
   .ult{font-size:.8rem;color:var(--mut);direction:rtl;text-align:right;
        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:10px}
   .acciones{display:flex;gap:8px;align-items:center}
-  .btn{flex:1;text-align:center;font-size:.76rem;padding:7px 4px;cursor:pointer;
-       border:1px solid var(--linea);color:var(--klaf);background:#fff;
-       text-decoration:none;font-family:'Heebo',sans-serif}
-  .btn:hover{border-color:var(--zahav);color:var(--zahav)}
-  .btn.principal{border-color:var(--zahav);color:var(--zahav)}
+  .btn{flex:1;text-align:center;font-size:.75rem;padding:8px 4px;cursor:pointer;
+       border:1px solid var(--linea);color:var(--klaf);background:var(--card);border-radius:8px;
+       text-decoration:none;font-family:'Heebo',sans-serif;transition:.15s}
+  .btn:hover{border-color:var(--zahav);color:var(--zahav);background:var(--crema)}
+  .btn.principal{border-color:var(--joya);color:#fff;background:var(--joya)}
+  .btn.principal:hover{background:#5a3f8a;color:#fff}
   .det{max-height:0;overflow:hidden;transition:max-height .4s ease}
-  .det.abierto{max-height:900px}
+  .det.abierto{max-height:1200px}
   .det-inner{border-top:1px solid var(--linea);margin-top:14px;padding-top:12px}
   .mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-  .ms{border:1px solid var(--linea);background:#fff;padding:8px;text-align:center}
+  .ms{border:1px solid var(--linea);background:var(--crema);padding:8px;text-align:center;border-radius:8px}
   .ms b{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.05rem;color:var(--zahav)}
-  .ms span{font-size:.62rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+  .ms span{font-size:.6rem;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
   .ep-lista{list-style:none}
   .ep-lista li{display:flex;justify-content:space-between;gap:10px;font-size:.78rem;
-               padding:6px 2px;border-bottom:1px dashed var(--linea)}
-  .ep-lista .t{direction:rtl;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+               padding:7px 2px;border-bottom:1px dashed var(--linea);align-items:center}
+  .ep-lista .t{direction:rtl;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
   .ep-lista .f{color:var(--mut);white-space:nowrap;font-size:.72rem}
+  .ep-play{background:var(--joya);color:#fff;border:none;border-radius:50%;width:26px;height:26px;
+           cursor:pointer;font-size:.7rem;flex-shrink:0}
+  .ep-copy,.ep-spo{background:var(--crema);border:1px solid var(--linea);border-radius:6px;
+                   width:26px;height:26px;cursor:pointer;font-size:.72rem;flex-shrink:0;
+                   display:flex;align-items:center;justify-content:center;text-decoration:none;
+                   color:var(--klaf);transition:.15s;padding:0}
+  .ep-copy:hover,.ep-spo:hover{border-color:var(--zahav);background:var(--card)}
+  .ep-copy.copiado{background:var(--olive);color:#fff;border-color:var(--olive)}
+  #toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+         background:var(--klaf);color:var(--ink);padding:11px 20px;border-radius:24px;
+         font-size:.85rem;z-index:100;opacity:0;transition:.3s;pointer-events:none;
+         box-shadow:0 6px 20px rgba(0,0,0,.25)}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
   .err{color:var(--adom);font-size:.85rem;text-align:center;padding:10px 0}
-  .buscando{max-width:1180px;margin:0 auto;text-align:center;color:var(--mut);
-            font-size:.9rem;padding:20px 0}
-  .pie{max-width:1180px;margin:26px auto 0;color:var(--mut);font-size:.78rem;
-       line-height:1.6;text-align:center}
-  .pie a{color:var(--tchelet)}
-  /* Modal */
-  #modal{position:fixed;inset:0;display:none;z-index:50}
+  .buscando{max-width:1200px;margin:0 auto;text-align:center;color:var(--mut);font-size:.9rem;padding:30px 0}
+  .oculto{display:none!important}
+
+  /* ── REPRODUCTOR FLOTANTE ── */
+  #player{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:2px solid var(--zahav);
+          padding:12px 20px;display:none;align-items:center;gap:14px;z-index:60;
+          box-shadow:0 -4px 20px rgba(42,36,64,.15)}
+  #player.on{display:flex}
+  #player .pinfo{flex:1;min-width:0}
+  #player .ptitulo{font-size:.85rem;direction:rtl;text-align:right;white-space:nowrap;
+                   overflow:hidden;text-overflow:ellipsis;color:var(--klaf)}
+  #player .pshow{font-size:.72rem;color:var(--mut);direction:rtl;text-align:right}
+  #player audio{flex:2;min-width:200px;max-width:500px}
+  #player .cerrar-p{border:none;background:none;color:var(--mut);font-size:1.2rem;cursor:pointer}
+  #player .vel-btn,#player .copy-btn{border:1px solid var(--linea);background:var(--crema);
+      color:var(--klaf);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:.8rem;
+      font-family:'Heebo',sans-serif;white-space:nowrap;flex-shrink:0}
+  #player .vel-btn:hover,#player .copy-btn:hover{border-color:var(--zahav)}
+  #player .copy-btn.copiado{background:var(--olive);color:#fff;border-color:var(--olive)}
+
+  /* ── MODAL ── */
+  #modal{position:fixed;inset:0;display:none;z-index:70}
   #modal.on{display:block}
-  .modal-bg{position:absolute;inset:0;background:rgba(27,36,64,.45)}
-  .modal-box{position:relative;max-width:640px;margin:6vh auto;background:#fff;
-             border:1px solid var(--zahav);border-top:4px solid var(--zahav);
-             padding:22px;max-height:84vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)}
-  .modal-box h3{font-family:'Frank Ruhl Libre',serif;font-size:1.15rem;margin-bottom:14px;
+  .modal-bg{position:absolute;inset:0;background:rgba(20,18,31,.55);backdrop-filter:blur(2px)}
+  .modal-box{position:relative;max-width:640px;margin:6vh auto;background:var(--card);
+             border:1px solid var(--zahav);border-top:4px solid var(--zahav);border-radius:10px;
+             padding:24px;max-height:84vh;overflow:auto;box-shadow:0 16px 50px rgba(0,0,0,.35)}
+  .modal-box h3{font-family:'Frank Ruhl Libre',serif;font-size:1.2rem;margin-bottom:14px;
                 direction:rtl;text-align:center;color:var(--klaf)}
   .modal-x{position:absolute;top:12px;left:14px;border:none;background:none;
-           font-size:1.1rem;cursor:pointer;color:var(--mut)}
+           font-size:1.2rem;cursor:pointer;color:var(--mut)}
   .ep-lista.big li{padding:9px 2px}
   .ep-lista.big .t{font-size:.85rem}
-  .ins-card{background:var(--card);border:1px solid var(--linea);border-left:3px solid var(--zahav);
-            padding:14px 16px;text-align:center}
-  .ins-card span{display:block;font-family:'Frank Ruhl Libre',serif;font-size:1.5rem;
-                 font-weight:700;color:var(--zahav)}
-  .ins-card em{font-style:normal;font-size:.74rem;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+
+  .pie{max-width:1200px;margin:26px auto 0;color:var(--mut);font-size:.78rem;line-height:1.6;text-align:center}
+  .pie a{color:var(--tchelet)}
+
+  /* confeti */
+  #confeti{position:fixed;inset:0;pointer-events:none;z-index:90}
 </style>
 </head>
 <body>
 
+<canvas id="confeti"></canvas>
+
 <header class="shaar">
+  <div class="top-btns">
+    <button class="icon-btn" id="btn-noche" title="Modo noche">🌙</button>
+  </div>
   <h1>אוצר התורה</h1>
-  <p class="lema">Centro de Control · <span id="fecha">miércoles, 8 de julio</span> ·
-     <button id="btn-refrescar" style="border:1px solid var(--zahav);color:var(--zahav);background:none;
-       padding:3px 12px;cursor:pointer;font-family:&#39;Heebo&#39;,sans-serif;font-size:.8rem">🔄 Actualizar</button>
-     <span id="auto-info" style="font-size:.72rem">· se actualiza solo cada 10 min</span></p>
+  <p class="lema">Centro de Control · <span id="fecha"></span> · <span id="hebrea"></span></p>
   <div class="totales">
-    <div class="tot verde"><b id="t-hoy">4</b><span>hoy</span></div>
-    <div class="tot"><b id="t-mes">290</b><span>este mes</span><em id="t-mescmp"><em class="down">▼ 45%</em></em></div>
-    <div class="tot"><b id="t-anio">940</b><span>este año</span><em id="t-aniocmp"><em class="up">▲ 192%</em></em></div>
-    <div class="tot"><b id="t-total">1,590</b><span>episodios</span></div>
-    <div class="tot oro"><b id="t-horas">643 h</b><span>horas de Torá</span></div>
-    <div class="tot"><b id="t-shows">7</b><span>shows</span></div>
-    <div class="tot oro"><b id="t-dls">–</b><span>descargas 30d</span></div>
+    <div class="tot verde"><b id="t-hoy">–</b><span>shiurim hoy</span></div>
+    <div class="tot oro"><b id="t-horasmes">–</b><span>horas de Torá este mes</span></div>
+    <div class="tot"><b id="t-anio">–</b><span>shiurim este año</span></div>
+    <div class="tot"><b id="t-aniopas">–</b><span>a esta fecha 2025</span></div>
+    <div class="tot"><b id="t-total">–</b><span>episodios en total</span></div>
+    <div class="tot oro"><b id="t-horas">–</b><span>horas de Torá en total</span></div>
+    <div class="tot joya"><b id="t-shows">–</b><span>shows</span></div>
   </div>
 </header>
 
-<p class="buscando" id="buscando" style="display: none;">🔎 Buscando shows en GitHub…</p>
-<main class="grid" id="grid"><section class="card">
-    <h2>מחוברים לתורה-התנ״ך המבואר</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>0</b><span>hoy</span></div>
-      <div class="num"><b>128</b><span>mes</span><em class="down">▼ 73%</em></div>
-      <div class="num"><b>608</b><span>año</span><em class="up">▲ nuevo</em></div>
-      <div class="num horas"><b>0 min</b><span>de Torá</span></div>
+<!-- SHIUR DEL DÍA -->
+<div class="destacado oculto" id="destacado">
+  <div class="destacado-in">
+    <div style="flex:1;min-width:0">
+      <div class="etiqueta">✦ Shiur del día ✦</div>
+      <h3 id="dest-titulo">—</h3>
+      <div class="quien" id="dest-quien">—</div>
     </div>
-    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:100%;opacity:0.95" title="480"></div><div class="bar actual" style="height:26.666666666666668%;opacity:0.95" title="128"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 שיר השירים פרק ח · 6/7/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/podcast/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/%D7%9E%D7%97%D7%95%D7%91%D7%A8%D7%99%D7%9D%20%D7%9C%D7%AA%D7%95%D7%A8%D7%94-%D7%94%D7%AA%D7%A0%D7%B4%D7%9A%20%D7%94%D7%9E%D7%91%D7%95%D7%90%D7%A8/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>608</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>0 min</b><span>Torá este mes</span></div>
-        <div class="ms"><b>0′</b><span>duración promedio</span></div>
-        <div class="ms"><b>0</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>domingo</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde junio de 2026 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">שיר השירים פרק ח</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ז</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ו</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ה</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ד</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ג</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק ב</span><span class="f">6/7/2026</span></li><li><span class="t">שיר השירים פרק א</span><span class="f">6/7/2026</span></li></ul>
-    </div></div></section><section class="card">
-    <h2>Rabbi Israel Yakobov</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>0</b><span>hoy</span></div>
-      <div class="num"><b>0</b><span>mes</span><em class="down">▼ 100%</em></div>
-      <div class="num"><b>21</b><span>año</span><em class="down">▼ 66%</em></div>
-      <div class="num horas"><b>21 h</b><span>de Torá</span></div>
-    </div>
-    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:42.857142857142854%;opacity:0.95" title="3"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:14.285714285714285%;opacity:0.95" title="1"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:14.285714285714285%;opacity:0.95" title="1"></div><div class="bar " style="height:100%;opacity:0.95" title="7"></div><div class="bar " style="height:85.71428571428571%;opacity:0.95" title="6"></div><div class="bar " style="height:100%;opacity:0.95" title="7"></div><div class="bar actual" style="height:5%;opacity:0.18" title="0"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 Where are the 10 TRIBES · 15/6/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/yakobov/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/Rabbi%20Israel%20Yakobov/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>99</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>0 min</b><span>Torá este mes</span></div>
-        <div class="ms"><b>13′</b><span>duración promedio</span></div>
-        <div class="ms"><b>0</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>lunes</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde enero de 2025 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">Where are the 10 TRIBES</span><span class="f">15/6/2026</span></li><li><span class="t">Tomer Devorah Introduction to the Most Powerful Kabbalistic Healing Book</span><span class="f">9/6/2026 · 62′</span></li><li><span class="t">Use permitted Physical Pleasures to motivate Yourself to Serve haShem</span><span class="f">8/6/2026 · 10′</span></li><li><span class="t">The Ultimate Investment Where Should a Person Place Their Focus in Life</span><span class="f">8/6/2026</span></li><li><span class="t">RED FLAGS ON A DATE. What to Look For in a Husband or Wife</span><span class="f">3/6/2026 · 69′</span></li><li><span class="t">🌊MIKVEH &amp; MINDSET of G-Ds Salvation</span><span class="f">3/6/2026 · 37′</span></li><li><span class="t">The Key To Success. Why It Starts At The Chuppah</span><span class="f">1/6/2026</span></li><li><span class="t">How Your Emotions Control Your Income</span><span class="f">28/5/2026 · 78′</span></li></ul>
-    </div></div></section><section class="card">
-    <h2>TorahAnytime</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>0</b><span>hoy</span></div>
-      <div class="num"><b>150</b><span>mes</span><em class="up">▲ 7400%</em></div>
-      <div class="num"><b>154</b><span>año</span><em class="up">▲ nuevo</em></div>
-      <div class="num horas"><b>15 h</b><span>de Torá</span></div>
-    </div>
-    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.95" title="2"></div><div class="bar " style="height:5%;opacity:0.95" title="2"></div><div class="bar actual" style="height:100%;opacity:0.95" title="150"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 The Power of Prayer - Mr. Uri Lati - TorahAnytime.com · 7/7/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/torahanytime/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/TorahAnytime/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>154</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>15 h</b><span>Torá este mes</span></div>
-        <div class="ms"><b>6′</b><span>duración promedio</span></div>
-        <div class="ms"><b>1</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>martes</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde mayo de 2026 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">The Power of Prayer - Mr. Uri Lati - TorahAnytime.com</span><span class="f">7/7/2026 · 4′</span></li><li><span class="t">From the Kidneys to the Heart - R. David Ashear - TorahAnytime.com</span><span class="f">7/7/2026 · 6′</span></li><li><span class="t">Satan Knows When Mashiach Will Arrive - R. Joey Haber - TorahAnytime.com</span><span class="f">7/7/2026 · 2′</span></li><li><span class="t">It’s About to End…</span><span class="f">7/7/2026 · 1′</span></li><li><span class="t">Corona Virus： Do you Think God is Joking Around？ - R. Yaakov Mizrahi - TorahAnytime.com</span><span class="f">7/7/2026 · 4′</span></li><li><span class="t">Cellphone Implant in your Brain - R. Ephraim Wachsman - TorahAnytime.com</span><span class="f">7/7/2026 · 2′</span></li><li><span class="t">The Spiky Haired Kid at the Wedding - R. Shlomo Farhi - TorahAnytime.com</span><span class="f">7/7/2026 · 2′</span></li><li><span class="t">Dissecting the Hebrew Word for Miracle - R. Jonathan Rietti - TorahAnytime.com</span><span class="f">7/7/2026 · 7′</span></li></ul>
-    </div></div></section><section class="card">
-    <h2>הרב ישראל אברג'ל</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>0</b><span>hoy</span></div>
-      <div class="num"><b>1</b><span>mes</span><em class="down">▼ 90%</em></div>
-      <div class="num"><b>37</b><span>año</span><em class="up">▲ nuevo</em></div>
-      <div class="num horas"><b>53 h</b><span>de Torá</span></div>
-    </div>
-    <div class="chart"><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:70%;opacity:0.95" title="7"></div><div class="bar " style="height:60%;opacity:0.95" title="6"></div><div class="bar " style="height:80%;opacity:0.95" title="8"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:30%;opacity:0.95" title="3"></div><div class="bar " style="height:60%;opacity:0.95" title="6"></div><div class="bar " style="height:40%;opacity:0.95" title="4"></div><div class="bar " style="height:50%;opacity:0.95" title="5"></div><div class="bar " style="height:80%;opacity:0.95" title="8"></div><div class="bar " style="height:100%;opacity:0.95" title="10"></div><div class="bar actual" style="height:10%;opacity:0.95" title="1"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 כמה פעמים אדם נולד מחדש פרשת מטות - מסעי · 6/7/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/abergel/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/%D7%94%D7%A8%D7%91%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C%20%D7%90%D7%91%D7%A8%D7%92&#39;%D7%9C/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>58</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>50 min</b><span>Torá este mes</span></div>
-        <div class="ms"><b>55′</b><span>duración promedio</span></div>
-        <div class="ms"><b>0</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>lunes</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde septiembre de 2025 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">כמה פעמים אדם נולד מחדש פרשת מטות - מסעי</span><span class="f">6/7/2026 · 50′</span></li><li><span class="t">איך אנשים טובים מאבדים את המצפן פרשת פנחס</span><span class="f">29/6/2026 · 50′</span></li><li><span class="t">סדרת קנייני תורה</span><span class="f">25/6/2026 · 99′</span></li><li><span class="t">איך מתחילים לחיות באמת פרשת חוקת</span><span class="f">22/6/2026 · 95′</span></li><li><span class="t">סדרת קנייני תורה 'מעמידו על השלום' (א) איך אפשר לחיות בשלום</span><span class="f">18/6/2026 · 126′</span></li><li><span class="t">משווה לאחרים אתה כבר מפסיד! פרשת השלום - פרשת קורח</span><span class="f">15/6/2026 · 95′</span></li><li><span class="t">מעמידו על האמת' (ב) יסודות העולם האמת והשלום</span><span class="f">10/6/2026 · 109′</span></li><li><span class="t">שלבי התגלות המשיח והגאולה לפי הזוהר הקדוש הרב ישראל אברגל שליטא</span><span class="f">9/6/2026</span></li></ul>
-    </div></div></section><section class="card">
-    <h2>Rab Meir Eliyahu - הרב מאיר אליהו</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>1</b><span>hoy</span></div>
-      <div class="num"><b>6</b><span>mes</span><em class="up">▲ 20%</em></div>
-      <div class="num"><b>34</b><span>año</span><em class="down">▼ 67%</em></div>
-      <div class="num horas"><b>222 h</b><span>de Torá</span></div>
-    </div>
-    <div class="chart"><div class="bar " style="height:100%;opacity:0.95" title="7"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:57.14285714285714%;opacity:0.95" title="4"></div><div class="bar " style="height:57.14285714285714%;opacity:0.95" title="4"></div><div class="bar " style="height:28.57142857142857%;opacity:0.95" title="2"></div><div class="bar " style="height:42.857142857142854%;opacity:0.95" title="3"></div><div class="bar " style="height:57.14285714285714%;opacity:0.95" title="4"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:85.71428571428571%;opacity:0.95" title="6"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar " style="height:71.42857142857143%;opacity:0.95" title="5"></div><div class="bar actual" style="height:85.71428571428571%;opacity:0.95" title="6"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 הרב מאיר אליהו ｜ נבואת הילד ｜ יזדים - ה׳תשפ״ו · 8/7/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/ravmeir/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/Rab%20Meir%20Eliyahu%20-%20%D7%94%D7%A8%D7%91%20%D7%9E%D7%90%D7%99%D7%A8%20%D7%90%D7%9C%D7%99%D7%94%D7%95/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>230</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>5 h</b><span>Torá este mes</span></div>
-        <div class="ms"><b>58′</b><span>duración promedio</span></div>
-        <div class="ms"><b>4</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>miércoles</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde enero de 2023 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">הרב מאיר אליהו ｜ נבואת הילד ｜ יזדים - ה׳תשפ״ו</span><span class="f">8/7/2026 · 73′</span></li><li><span class="t">הרב מאיר אליהו ｜ תשתוק תרוויח תמיד ｜ מוסאיוף - ה׳תשפ״ו</span><span class="f">7/7/2026 · 35′</span></li><li><span class="t">אין כסף אין שידוך !!! tmp</span><span class="f">6/7/2026 · 29′</span></li><li><span class="t">טיפים לנישואים שמחים</span><span class="f">5/7/2026 · 71′</span></li><li><span class="t">הכתובת הייתה על הקיר</span><span class="f">1/7/2026 · 62′</span></li><li><span class="t">האם מותר לעשן מריחואנה</span><span class="f">1/7/2026 · 51′</span></li><li><span class="t">זריקות הרזייה</span><span class="f">17/6/2026 · 74′</span></li><li><span class="t">איך להתקרב אליך השם</span><span class="f">13/6/2026 · 45′</span></li></ul>
-    </div></div></section><section class="card">
-    <h2>מרן הראשון לציון הרב דוד יוסף - Harav David Yosef</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>1</b><span>hoy</span></div>
-      <div class="num"><b>3</b><span>mes</span><em class="down">▼ 80%</em></div>
-      <div class="num"><b>42</b><span>año</span><em class="up">▲ 367%</em></div>
-      <div class="num horas"><b>44 h</b><span>de Torá</span></div>
-    </div>
-    <div class="chart"><div class="bar " style="height:6.666666666666667%;opacity:0.95" title="1"></div><div class="bar " style="height:20%;opacity:0.95" title="3"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:6.666666666666667%;opacity:0.95" title="1"></div><div class="bar " style="height:20%;opacity:0.95" title="3"></div><div class="bar " style="height:13.333333333333334%;opacity:0.95" title="2"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:40%;opacity:0.95" title="6"></div><div class="bar " style="height:86.66666666666667%;opacity:0.95" title="13"></div><div class="bar " style="height:100%;opacity:0.95" title="15"></div><div class="bar actual" style="height:20%;opacity:0.95" title="3"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 אמירה לגוי בכביסה ובאיסורי דרבנן I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון · 8/7/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/yechavedaat/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/%D7%9E%D7%A8%D7%9F%20%D7%94%D7%A8%D7%90%D7%A9%D7%95%D7%9F%20%D7%9C%D7%A6%D7%99%D7%95%D7%9F%20%D7%94%D7%A8%D7%91%20%D7%93%D7%95%D7%93%20%D7%99%D7%95%D7%A1%D7%A3%20-%20Harav%20David%20Yosef/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>73</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>16 min</b><span>Torá este mes</span></div>
-        <div class="ms"><b>37′</b><span>duración promedio</span></div>
-        <div class="ms"><b>3</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>miércoles</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde marzo de 2024 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">אמירה לגוי בכביסה ובאיסורי דרבנן I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון</span><span class="f">8/7/2026 · 3′</span></li><li><span class="t">כיבוס במכונת כביסה אוטומטית I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון</span><span class="f">6/7/2026 · 7′</span></li><li><span class="t">איסור כיבוס בשבוע שחל בו תשעה באב I מרן הראשון לציון הגאון רבי דוד יוסף שליט＂א #הלכה #הראשון לציון</span><span class="f">6/7/2026 · 6′</span></li><li><span class="t">אירוסין בבין המצרים</span><span class="f">29/6/2026 · 16′</span></li><li><span class="t">שמיעת מוזיקה וואקלית בבין המצרים</span><span class="f">22/6/2026 · 2′</span></li><li><span class="t">מנהגי הספרדים בימי בין המצרים</span><span class="f">22/6/2026 · 6′</span></li><li><span class="t">פולמוס על דלתות אוטומטיות ותאורה בשבת</span><span class="f">22/6/2026 · 9′</span></li><li><span class="t">סגירת דלת על חיה או בהמה בשבת</span><span class="f">22/6/2026 · 4′</span></li></ul>
-    </div></div></section><section class="card">
-    <h2>הרב אשר וייס - Rabbi Asher Weiss</h2>
-    <div class="rimon">✦ ✦ ✦</div>
-    <div class="nums">
-      <div class="num hoy"><b>2</b><span>hoy</span></div>
-      <div class="num"><b>2</b><span>mes</span><em class="down">▼ 71%</em></div>
-      <div class="num"><b>44</b><span>año</span><em class="down">▼ 70%</em></div>
-      <div class="num horas"><b>285 h</b><span>de Torá</span></div>
-    </div>
-    <div class="chart"><div class="bar " style="height:57.692307692307686%;opacity:0.95" title="15"></div><div class="bar " style="height:100%;opacity:0.95" title="26"></div><div class="bar " style="height:73.07692307692307%;opacity:0.95" title="19"></div><div class="bar " style="height:46.15384615384615%;opacity:0.95" title="12"></div><div class="bar " style="height:5%;opacity:0.18" title="0"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar " style="height:23.076923076923077%;opacity:0.95" title="6"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar " style="height:30.76923076923077%;opacity:0.95" title="8"></div><div class="bar " style="height:26.923076923076923%;opacity:0.95" title="7"></div><div class="bar actual" style="height:7.6923076923076925%;opacity:0.95" title="2"></div></div>
-    <div class="meses"><span>A</span><span>S</span><span>O</span><span>N</span><span>D</span><span>E</span><span>F</span><span>M</span><span>A</span><span>M</span><span>J</span><span>J</span></div>
-    <p class="ult">🆕 Ohr Somayach Yarchei Kallah 2026 - Kriyas HaTorah ｜ Shiur by Harav Asher Weiss Shlita ｜ 5786 · 8/7/2026</p>
-    <div class="acciones">
-      <button class="btn principal" data-verep="">🎧 Últimos episodios</button>
-      <button class="btn" data-toggle="">Estadísticas ▾</button>
-      <button class="btn" data-agregar="">➕ Agregar</button>
-    </div>
-    <div class="acciones" style="margin-top:6px">
-      <a class="btn" href="https://rabmeireliyahu.github.io/ravasherweiss/feed.xml" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/%D7%94%D7%A8%D7%91%20%D7%90%D7%A9%D7%A8%20%D7%95%D7%99%D7%99%D7%A1%20-%20Rabbi%20Asher%20Weiss/shows" target="_blank">Spotify</a>
-      
-    </div>
-    <div class="det"><div class="det-inner">
-      <div class="mini-stats">
-        <div class="ms"><b>368</b><span>episodios totales</span></div>
-        <div class="ms"><b>–</b><span>descargas 30d</span></div>
-        <div class="ms"><b>1 h</b><span>Torá este mes</span></div>
-        <div class="ms"><b>47′</b><span>duración promedio</span></div>
-        <div class="ms"><b>1</b><span>días seguidos publicando</span></div>
-        <div class="ms"><b>lunes</b><span>día más activo</span></div>
-      </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde junio de 2024 · Últimos 8:
-      </p>
-      <ul class="ep-lista"><li><span class="t">Ohr Somayach Yarchei Kallah 2026 - Kriyas HaTorah ｜ Shiur by Harav Asher Weiss Shlita ｜ 5786</span><span class="f">8/7/2026 · 54′</span></li><li><span class="t">Drasha at Ohr Somayach on The 3 Weeks ｜ by Harav Asher Weiss Shlita ｜ 5786</span><span class="f">8/7/2026 · 24′</span></li><li><span class="t">Hezk Riyah</span><span class="f">29/6/2026 · 32′</span></li><li><span class="t">הרבה למדתי מרבותי — Harav Asher Weiss on the Legacy of His Rebbe</span><span class="f">29/6/2026 · 6′</span></li><li><span class="t">Value Your Learning</span><span class="f">22/6/2026 · 23′</span></li><li><span class="t">Addressing the Keren Olam Hatorah Event in Miami</span><span class="f">15/6/2026 · 14′</span></li><li><span class="t">מצוות פדיון הבן -פרשת קרח תשפ״ו</span><span class="f">12/6/2026 · 43′</span></li><li><span class="t">Mitzvas Pidyon HaBen (Korach 5786)</span><span class="f">8/6/2026 · 57′</span></li></ul>
-    </div></div></section></main>
+    <button class="play-big" id="dest-play">▶</button>
+  </div>
+</div>
 
-<section id="insights" style="max-width: 1180px; margin: 22px auto 0px; display: block;">
-  <h2 style="font-family:&#39;Frank Ruhl Libre&#39;,serif;font-size:1.3rem;text-align:center;margin-bottom:14px;color:var(--klaf)">📊 Panorama del אוצר</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
-    <div class="ins-card"><span id="ins-ritmo">34.8</span><em>shiurim/semana (todos)</em></div>
-    <div class="ins-card"><span id="ins-proy">1124</span><em>proyección este mes</em></div>
-    <div class="ins-card"><span id="ins-activo"><span style="font-size:.95rem;direction:rtl;display:block">TorahAnytime</span></span><em>show más activo (mes)</em></div>
-    <div class="ins-card"><span id="ins-prom">24′</span><em>duración media global</em></div>
-    <div class="ins-card"><span id="ins-dia">Martes</span><em>día más productivo</em></div>
-    <div class="ins-card"><span id="ins-reciente"><span style="font-size:.8rem;direction:rtl;display:block">אמירה לגוי בכביסה ובאיסורי דרבנן I מרן ה</span></span><em>último shiur publicado</em></div>
+<!-- BUSCADOR -->
+<div class="barra-busca">
+  <input class="busca-input" id="busca" placeholder="🔎 Buscar un rav o show...">
+  <button class="refrescar" id="btn-refrescar">🔄 Actualizar</button>
+  <span class="auto-info" id="auto-info"></span>
+</div>
+
+<!-- INSIGHTS -->
+<section id="insights">
+  <h2>📊 Panorama del אוצר</h2>
+  <div class="ins-grid">
+    <div class="ins-card"><span id="ins-ritmo">–</span><em>shiurim/semana</em></div>
+    <div class="ins-card"><span id="ins-proy">–</span><em>proyección este mes</em></div>
+    <div class="ins-card"><span id="ins-activo">–</span><em>show más activo</em></div>
+    <div class="ins-card"><span id="ins-prom">–</span><em>duración media</em></div>
+    <div class="ins-card"><span id="ins-dia">–</span><em>día más productivo</em></div>
+    <div class="ins-card"><span id="ins-racha">–</span><em>mejor racha activa</em></div>
   </div>
 </section>
 
+<p class="buscando" id="buscando">🔎 Buscando shows en GitHub…</p>
+<main class="grid" id="grid"></main>
+
 <p class="pie">
-  Los shows se detectan solos: cualquier repositorio con un feed.xml publicado aparece aquí automáticamente.<br>
-  ⏱️ "Horas de Torá" = duración sumada de los shiurim publicados ·
-  📥 Descargas: <a href="https://op3.dev/api/docs" target="_blank">OP3</a> ·
-  🎧 Horas escuchadas de Spotify: botón Spotify de cada show.
+  Los shows se detectan solos: cualquier repositorio con feed.xml aparece aquí automáticamente.<br>
+  ⏱️ "Horas de Torá" = duración sumada de los shiurim · 🎧 Toca ▶ para escuchar sin salir del panel ·
+  📤 "Subir shiur" abre la carpeta del rav para que tu equipo suelte audios de WhatsApp.
 </p>
+
+<!-- REPRODUCTOR FLOTANTE -->
+<div id="player">
+  <div class="pinfo">
+    <div class="ptitulo" id="p-titulo">—</div>
+    <div class="pshow" id="p-show">—</div>
+  </div>
+  <audio id="p-audio" controls></audio>
+  <button class="vel-btn" id="p-vel" title="Velocidad">1x</button>
+  <button class="copy-btn" id="p-copy" title="Copiar para WhatsApp">📋</button>
+  <button class="cerrar-p" id="p-cerrar">✕</button>
+</div>
 
 <script>
 // ═══════════ CONFIGURACION ═══════════
 const GITHUB_USER = "rabmeireliyahu";
-const OP3_TOKEN = "";              // tu API key de op3.dev cuando la tengas
-const OP3_MAP = {                  // "repositorio": "uuid de op3"
-  // "yechavedaat": "xxxxxxxxxxxxxxxx",
+const OP3_TOKEN = "";
+const OP3_MAP = {};
+const DRIVE_MAP = {
+  "abergel":       "https://drive.google.com/drive/folders/1sjG3NXpLTMB0tCHryYpbisBC6yhlcbZh",
+  "podcast":       "https://drive.google.com/drive/folders/1kzDXsHJX-_njVr1KDeZmlwiQpVf38Bng",
+  "ravasherweiss": "https://drive.google.com/drive/folders/1pj4rOxvslHfjk8YPbPetgAKr7pSBQ1mX",
+  "ravmeir":       "https://drive.google.com/drive/folders/1NGdEVKbUOLxPrssJxxCBuKSmMIAJN3JC",
+  "ravmutzafi":    "https://drive.google.com/drive/folders/179ows7EiDtq-UTQ6e8BZTsTQ9ujNsuRE",
+  "torahanytime":  "https://drive.google.com/drive/folders/1wTds15aRJ6sxRWFb5hYh_e5qm4_1w1cL",
+  "yakobov":       "https://drive.google.com/drive/folders/114hy4W5J46bpte-V-H0Hi6QKP9uzyxA9",
+  "yechavedaat":   "https://drive.google.com/drive/folders/1YHnodzf0lA1xNxp9YAL-yBib0YMLDX83",
 };
+// Link del show en Spotify (pagina publica del podcast). Cuando lo tengas, pegalo aqui.
+// Si esta vacio, se usa una busqueda de Spotify con el nombre del rav.
+const SPOTIFY_MAP = {
+  "torahanytime":  "https://open.spotify.com/show/033fyjMvhujvDj4I9z69hG",
+  "ravasherweiss": "https://open.spotify.com/show/7IIbVOhwAcSkPnWO5GXsJG",
+  "ravmeir":       "https://open.spotify.com/show/79x4PVsbPAnLZ0mUr1Oa5j",
+  "yechavedaat":   "https://open.spotify.com/show/5cSJFLJ1IvapcH5L9i4CSU",
+  // faltan (pásame sus links de Spotify y los pego aquí):
+  // "yakobov":    "https://open.spotify.com/show/XXXXXXXX",
+  // "ravmutzafi": "https://open.spotify.com/show/XXXXXXXX",
+  // "abergel":    "https://open.spotify.com/show/XXXXXXXX",
+  // "podcast":    "https://open.spotify.com/show/XXXXXXXX",
+};
+function spotifyLink(repo, nombre){
+  return SPOTIFY_MAP[repo] || `https://open.spotify.com/search/${encodeURIComponent(nombre)}/shows`;
+}
 // ═════════════════════════════════════
 
-document.getElementById("fecha").textContent=new Date().toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
-const grid=document.getElementById("grid");
 const ahora=new Date(), hoy0=new Date(); hoy0.setHours(0,0,0,0);
 const mesIni=new Date(ahora.getFullYear(),ahora.getMonth(),1);
 const mesPasIni=new Date(ahora.getFullYear(),ahora.getMonth()-1,1);
@@ -402,9 +308,19 @@ const anioIni=new Date(ahora.getFullYear(),0,1);
 const anioPasIni=new Date(ahora.getFullYear()-1,0,1);
 const anioPasCorte=new Date(ahora.getFullYear()-1,ahora.getMonth(),ahora.getDate(),23,59,59);
 const DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","shabat"];
+const DIAS_L=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Shabat"];
 const MESES_L=["E","F","M","A","M","J","J","A","S","O","N","D"];
-let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0};
-let G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, primeraFecha:null};
+
+document.getElementById("fecha").textContent=ahora.toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
+try{
+  const hb=new Intl.DateTimeFormat("he-u-ca-hebrew",{day:"numeric",month:"long",year:"numeric"}).format(ahora);
+  document.getElementById("hebrea").textContent=hb;
+}catch(e){}
+
+const grid=document.getElementById("grid");
+let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0};
+let G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, rachaMax:0, primeraFecha:null};
+let TODOS_EPISODIOS=[]; // para shiur del dia y busqueda
 
 function dur2seg(t){
   if(!t)return 0; t=t.trim();
@@ -413,39 +329,77 @@ function dur2seg(t){
   return p.length===3?p[0]*3600+p[1]*60+p[2]:p.length===2?p[0]*60+p[1]:0;
 }
 function segFmt(s){const h=Math.floor(s/3600);return h>=1?h.toLocaleString()+" h":Math.round(s/60)+" min";}
-function cmpHTML(a,b){
-  if(b===0&&a===0)return `<em class="flat">·</em>`;
-  if(b===0)return `<em class="up">▲ nuevo</em>`;
-  const p=Math.round((a-b)/b*100);
-  return p>0?`<em class="up">▲ ${p}%</em>`:p<0?`<em class="down">▼ ${Math.abs(p)}%</em>`:`<em class="flat">=</em>`;
-}
+
 function totales(){
-  document.getElementById("t-hoy").textContent=T.hoy;
-  document.getElementById("t-mes").textContent=T.mes;
-  document.getElementById("t-mescmp").innerHTML=cmpHTML(T.mes,T.mesPas);
-  document.getElementById("t-anio").textContent=T.anio;
-  document.getElementById("t-aniocmp").innerHTML=cmpHTML(T.anio,T.anioPas);
+  animarNum("t-hoy",T.hoy);
+  document.getElementById("t-horasmes").textContent=segFmt(T.segMes);
+  animarNum("t-anio",T.anio);
+  animarNum("t-aniopas",T.anioPas);
   document.getElementById("t-total").textContent=T.total.toLocaleString();
   document.getElementById("t-horas").textContent=segFmt(T.seg);
-  document.getElementById("t-shows").textContent=T.shows;
-  document.getElementById("t-dls").textContent=T.dls>0?T.dls.toLocaleString():"–";
+  animarNum("t-shows",T.shows);
+}
+function animarNum(id,fin){
+  const el=document.getElementById(id); if(!el)return;
+  const ini=parseInt(el.textContent.replace(/\D/g,""))||0;
+  if(ini===fin){el.textContent=fin.toLocaleString();return;}
+  const pasos=18; let i=0;
+  const t=setInterval(()=>{i++;el.textContent=Math.round(ini+(fin-ini)*i/pasos).toLocaleString();
+    if(i>=pasos){el.textContent=fin.toLocaleString();clearInterval(t);}},22);
+}
+
+// reproductor
+const player=document.getElementById("player");
+const pAudio=document.getElementById("p-audio");
+let epActual={titulo:"",show:"",link:""};
+function reproducir(url,titulo,show,link){
+  pAudio.src=url;
+  epActual={titulo,show,link:link||""};
+  document.getElementById("p-titulo").textContent=titulo;
+  document.getElementById("p-show").textContent=show;
+  player.classList.add("on");
+  pAudio.play().catch(()=>{});
+}
+document.getElementById("p-cerrar").onclick=()=>{pAudio.pause();player.classList.remove("on");};
+// velocidad
+const VELS=[1,1.25,1.5,1.75,2,0.75];let velIdx=0;
+document.getElementById("p-vel").onclick=()=>{
+  velIdx=(velIdx+1)%VELS.length;pAudio.playbackRate=VELS[velIdx];
+  document.getElementById("p-vel").textContent=VELS[velIdx]+"x";
+};
+// copiar el episodio que suena
+document.getElementById("p-copy").onclick=()=>{
+  const link=epActual.link||`https://open.spotify.com/search/${encodeURIComponent(epActual.show)}/shows`;
+  copiar(`${epActual.titulo}\n${link}`,document.getElementById("p-copy"));
+};
+
+async function fetchT(url,ms){
+  const c=new AbortController();const id=setTimeout(()=>c.abort(),ms||8000);
+  try{return await fetch(url,{signal:c.signal});}finally{clearTimeout(id);}
 }
 
 async function pintarShow(repo, feedURL){
   let xml;
   try{
-    const r=await fetch(feedURL+"?nc="+Date.now());
-    if(!r.ok)return;                       // repo sin feed -> no es show
+    const r=await fetchT(feedURL+"?nc="+Date.now(),8000);
+    if(!r.ok)return;
     xml=new DOMParser().parseFromString(await r.text(),"application/xml");
     if(!xml.querySelector("channel > title"))return;
   }catch(e){return;}
 
   const nombre=xml.querySelector("channel > title").textContent;
+  let portada=xml.getElementsByTagName("itunes:image")[0]?.getAttribute("href")||"";
+  if(!portada)portada=`https://${GITHUB_USER}.github.io/${repo}/portada.jpg`;
+
   const items=[...xml.querySelectorAll("item")].map(it=>({
     titulo:it.querySelector("title")?.textContent||"—",
     fecha:new Date(it.querySelector("pubDate")?.textContent||0),
-    seg:dur2seg(it.getElementsByTagName("itunes:duration")[0]?.textContent||"")
+    seg:dur2seg(it.getElementsByTagName("itunes:duration")[0]?.textContent||""),
+    audio:it.querySelector("enclosure")?.getAttribute("url")||""
   })).sort((a,b)=>b.fecha-a.fecha);
+
+  const spoURL=spotifyLink(repo,nombre);
+  items.forEach(e=>TODOS_EPISODIOS.push({...e,show:nombre,link:spoURL}));
 
   let hoy=0,mes=0,mesPas=0,anio=0,anioPas=0,seg=0,segMes=0;
   const m12=Array(12).fill(0), porDia=Array(7).fill(0), diasSet=new Set();
@@ -470,105 +424,151 @@ async function pintarShow(repo, feedURL){
   const primero=items.length?items[items.length-1].fecha:null;
 
   T.hoy+=hoy;T.mes+=mes;T.mesPas+=mesPas;T.anio+=anio;T.anioPas+=anioPas;
-  T.total+=items.length;T.seg+=seg;T.shows++;
-  // insights globales
+  T.total+=items.length;T.seg+=seg;T.segMes+=segMes;T.shows++;
   porDia.forEach((v,i)=>G.porDiaGlobal[i]+=v);
   if(mes>G.showMesMax.n)G.showMesMax={nombre,n:mes};
   if(items[0] && (!G.ultimoGlobal.fecha || items[0].fecha>G.ultimoGlobal.fecha))
     G.ultimoGlobal={titulo:items[0].titulo,fecha:items[0].fecha,show:nombre};
+  if(racha>G.rachaMax)G.rachaMax=racha;
   if(primero && (!G.primeraFecha || primero<G.primeraFecha))G.primeraFecha=primero;
 
   const op3=OP3_MAP[repo]||"";
   let dlsNum="–";
-  if(OP3_TOKEN&&op3){
-    try{
-      const o=await fetch(`https://op3.dev/api/1/queries/show-download-counts?showUuid=${op3}&token=${OP3_TOKEN}`);
-      const j=await o.json(); const sd=j.showDownloadCounts?.[op3];
-      if(sd){T.dls+=sd.monthlyDownloads||0;dlsNum=(sd.monthlyDownloads||0).toLocaleString();}
-    }catch(e){}
-  }
 
   const maxM=Math.max(...m12,1);
-  const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.18}" title="${v}"></div>`).join("");
+  const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.2}" title="${v}"></div>`).join("");
   const eti=[];for(let i=11;i>=0;i--){const mm=new Date(ahora.getFullYear(),ahora.getMonth()-i,1);eti.push(`<span>${MESES_L[mm.getMonth()]}</span>`);}
-  const lista=items.slice(0,8).map(e=>`<li><span class="t">${e.titulo}</span><span class="f">${e.fecha.toLocaleDateString("es-MX")}${e.seg?" · "+Math.round(e.seg/60)+"′":""}</span></li>`).join("");
-  // lista larga para el visor de ultimos episodios (con reproductor)
-  const listaLarga=items.slice(0,40).map(e=>`<li><span class="t">${e.titulo}</span><span class="f">${e.fecha.toLocaleDateString("es-MX")}${e.seg?" · "+Math.round(e.seg/60)+"′":""}</span></li>`).join("");
+  const filaEp=(e)=>`<li>
+      <button class="ep-play" data-audio="${escAttr(e.audio)}" data-t="${escAttr(e.titulo)}" data-s="${escAttr(nombre)}" data-link="${escAttr(spoURL)}" title="Escuchar aquí">▶</button>
+      <span class="t">${escHtml(e.titulo)}</span>
+      <span class="f">${e.fecha.toLocaleDateString("es-MX")}${e.seg?" · "+Math.round(e.seg/60)+"′":""}</span>
+      <button class="ep-copy" data-t="${escAttr(e.titulo)}" data-link="${escAttr(spoURL)}" title="Copiar para WhatsApp">📋</button>
+      <a class="ep-spo" href="${spoURL}" target="_blank" title="Abrir en Spotify">🎵</a>
+    </li>`;
+  const lista=items.slice(0,8).map(filaEp).join("");
+  const listaLarga=items.slice(0,40).map(filaEp).join("");
+
+  const inicial=nombre.trim().charAt(0);
+  const fotoHtml=`<img class="foto" src="${portada}" alt="" loading="lazy" onerror="this.outerHTML='<div class=foto-fallback>${escAttr(inicial)}</div>'">`;
 
   const card=document.createElement("section");
   card.className="card";
+  card.dataset.nombre=nombre.toLowerCase();
+  card.dataset.repo=repo;
   card.innerHTML=`
-    <h2>${nombre}</h2>
+    <div class="cabecera">${fotoHtml}<h2>${escHtml(nombre)}</h2></div>
     <div class="rimon">✦ ✦ ✦</div>
     <div class="nums">
       <div class="num hoy"><b>${hoy}</b><span>hoy</span></div>
-      <div class="num"><b>${mes}</b><span>mes</span>${cmpHTML(mes,mesPas)}</div>
-      <div class="num"><b>${anio}</b><span>año</span>${cmpHTML(anio,anioPas)}</div>
+      <div class="num"><b>${anio}</b><span>este año</span></div>
+      <div class="num"><b>${anioPas}</b><span>año pasado</span></div>
       <div class="num horas"><b>${segFmt(seg)}</b><span>de Torá</span></div>
     </div>
     <div class="chart">${barras}</div>
     <div class="meses">${eti.join("")}</div>
-    <p class="ult">🆕 ${items[0]?.titulo||"—"} · ${items[0]?items[0].fecha.toLocaleDateString("es-MX"):""}</p>
+    <p class="ult">🆕 ${escHtml(items[0]?.titulo||"—")} · ${items[0]?items[0].fecha.toLocaleDateString("es-MX"):""}</p>
     <div class="acciones">
-      <button class="btn principal" data-verep>🎧 Últimos episodios</button>
-      <button class="btn" data-toggle>Estadísticas ▾</button>
-      <button class="btn" data-agregar>➕ Agregar</button>
+      <button class="btn principal" data-verep>🎧 Episodios</button>
+      <button class="btn" data-toggle>📊 Stats</button>
+      <button class="btn" data-agregar>📤 Subir</button>
     </div>
     <div class="acciones" style="margin-top:6px">
+      <button class="btn" data-compartir>📲 Compartir show</button>
+      <a class="btn" href="${spoURL}" target="_blank">🎵 Spotify</a>
       <a class="btn" href="${feedURL}" target="_blank">Feed</a>
-      <a class="btn" href="https://open.spotify.com/search/${encodeURIComponent(nombre)}/shows" target="_blank">Spotify</a>
-      ${op3?`<a class="btn" href="https://op3.dev/show/${op3}" target="_blank">OP3</a>`:``}
     </div>
     <div class="det"><div class="det-inner">
       <div class="mini-stats">
         <div class="ms"><b>${items.length.toLocaleString()}</b><span>episodios totales</span></div>
-        <div class="ms"><b>${dlsNum}</b><span>descargas 30d</span></div>
         <div class="ms"><b>${segFmt(segMes)}</b><span>Torá este mes</span></div>
         <div class="ms"><b>${prom}′</b><span>duración promedio</span></div>
-        <div class="ms"><b>${racha}</b><span>días seguidos publicando</span></div>
+        <div class="ms"><b>${racha}</b><span>días seguidos 🔥</span></div>
         <div class="ms"><b>${items.length?DIAS[diaTop]:"—"}</b><span>día más activo</span></div>
+        <div class="ms"><b>${primero?primero.toLocaleDateString("es-MX",{month:"short",year:"2-digit"}):"—"}</b><span>desde</span></div>
       </div>
-      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">
-        Publicando desde ${primero?primero.toLocaleDateString("es-MX",{month:"long",year:"numeric"}):"—"} · Últimos 8:
-      </p>
+      <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">Últimos 8 (toca ▶ para oír):</p>
       <ul class="ep-lista">${lista}</ul>
     </div></div>`;
+
   card.querySelector("[data-toggle]").addEventListener("click",(ev)=>{
     const det=card.querySelector(".det");
     det.classList.toggle("abierto");
-    ev.target.textContent=det.classList.contains("abierto")?"Cerrar ▴":"Estadísticas ▾";
+    ev.target.textContent=det.classList.contains("abierto")?"✕ Cerrar":"📊 Stats";
   });
   card.querySelector("[data-verep]").addEventListener("click",()=>{
-    abrirModal(`🎧 ${nombre} · últimos episodios`,
-      `<ul class="ep-lista big">${listaLarga}</ul>
-       <p style="margin-top:10px;font-size:.8rem;color:var(--mut)">
-       Escúchalos completos en <a href="${feedURL}" target="_blank" style="color:var(--tchelet)">el feed</a>
-       o en Spotify / Apple Podcasts buscando "${nombre}".</p>`);
+    abrirModal(`🎧 ${escHtml(nombre)}`,`<ul class="ep-lista big">${listaLarga}</ul>
+      <p style="margin-top:10px;font-size:.8rem;color:var(--mut)">Toca ▶ para escuchar aquí, o abre <a href="${feedURL}" target="_blank">el feed</a>.</p>`);
+    activarPlays(document.getElementById("modal"));
   });
   card.querySelector("[data-agregar]").addEventListener("click",()=>{
-    abrirModal(`➕ Agregar un shiur a ${nombre}`,
-      `<p style="font-size:.88rem;line-height:1.6">
-        Para shiurim que llegan por <b>WhatsApp</b> u otras fuentes, súbelos desde tu computadora
-        (donde vive el sistema). Es de 10 segundos:</p>
-       <ol style="font-size:.86rem;line-height:1.9;margin:10px 18px">
-        <li>Guarda el audio del WhatsApp en tu compu.</li>
-        <li>Abre la carpeta <b>${repo}</b> del Escritorio.</li>
-        <li><b>Arrastra el audio ENCIMA</b> del archivo <b>agregar_shiur.py</b>.</li>
-        <li>Se sube solo a Archive + feed. Aparece en Spotify en unas horas. ✅</li>
-       </ol>
-       <p style="font-size:.8rem;color:var(--mut);margin-top:8px">
-        (También sirve arrastrar varios audios a la vez. Convierte formatos raros a MP3 automáticamente.)</p>`);
+    const cd=DRIVE_MAP[repo]||"";
+    const bloque=cd
+      ?`<a href="${cd}" target="_blank" style="display:block;text-align:center;background:var(--zahav);color:#fff;padding:16px;font-size:1.05rem;text-decoration:none;margin:14px 0;font-weight:600;border-radius:8px">📤 Abrir carpeta de ${escHtml(nombre)}</a>
+        <ol style="font-size:.9rem;line-height:1.8;margin:4px 18px;color:var(--klaf)">
+          <li>Se abre la carpeta compartida de este rav.</li>
+          <li><b>Suelta ahí el audio</b> del WhatsApp (celular o compu).</li>
+          <li>El sistema lo publica solo en las próximas horas ✅</li>
+        </ol>`
+      :`<p style="background:var(--crema);border:1px solid var(--zahav);padding:12px;border-radius:8px">⚙️ Carpeta aún no configurada para este show.</p>`;
+    abrirModal(`📤 Subir shiur a ${escHtml(nombre)}`,`<p style="font-size:.9rem;color:var(--mut)">¿Te llegó un shiur por WhatsApp? Súbelo en segundos:</p>${bloque}`);
   });
+  card.querySelector("[data-compartir]").addEventListener("click",()=>{
+    const ultimo=items[0]?items[0].titulo:"";
+    const texto=`🎧 ${nombre}\n${ultimo?"Último shiur: "+ultimo+"\n":""}Escúchalo en Spotify:\n${spoURL}`;
+    copiar(texto,card.querySelector("[data-compartir]"));
+  });
+  activarPlays(card);
   grid.appendChild(card);
   totales();
 }
 
-function abrirModal(titulo, html){
+function activarPlays(scope){
+  scope.querySelectorAll(".ep-play").forEach(b=>{
+    if(b.dataset.listo)return; b.dataset.listo="1";
+    b.addEventListener("click",()=>{
+      if(b.dataset.audio)reproducir(b.dataset.audio,b.dataset.t,b.dataset.s,b.dataset.link);
+    });
+  });
+  scope.querySelectorAll(".ep-copy").forEach(b=>{
+    if(b.dataset.listo)return; b.dataset.listo="1";
+    b.addEventListener("click",()=>{
+      const texto=`${b.dataset.t}\n${b.dataset.link}`;
+      copiar(texto,b);
+    });
+  });
+}
+function copiar(texto,btn){
+  const ok=()=>{
+    if(btn){const o=btn.textContent;btn.textContent="✓";btn.classList.add("copiado");
+      setTimeout(()=>{btn.textContent=o;btn.classList.remove("copiado");},1200);}
+    toast("Copiado para WhatsApp 📋");
+  };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(texto).then(ok).catch(()=>fallbackCopy(texto,ok));
+  }else fallbackCopy(texto,ok);
+}
+function fallbackCopy(texto,ok){
+  const ta=document.createElement("textarea");ta.value=texto;ta.style.position="fixed";
+  ta.style.opacity="0";document.body.appendChild(ta);ta.select();
+  try{document.execCommand("copy");ok();}catch(e){}
+  document.body.removeChild(ta);
+}
+let toastT;
+function toast(msg){
+  let t=document.getElementById("toast");
+  if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t);}
+  t.textContent=msg;t.classList.add("on");
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("on"),1800);
+}
+
+function escHtml(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function escAttr(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");}
+
+function abrirModal(titulo,html){
   let m=document.getElementById("modal");
   if(!m){
-    m=document.createElement("div"); m.id="modal";
-    m.innerHTML=`<div class="modal-bg"></div><div class="modal-box">
-      <button class="modal-x">✕</button><h3 id="modal-t"></h3><div id="modal-c"></div></div>`;
+    m=document.createElement("div");m.id="modal";
+    m.innerHTML=`<div class="modal-bg"></div><div class="modal-box"><button class="modal-x">✕</button><h3 id="modal-t"></h3><div id="modal-c"></div></div>`;
     document.body.appendChild(m);
     m.querySelector(".modal-bg").onclick=()=>m.classList.remove("on");
     m.querySelector(".modal-x").onclick=()=>m.classList.remove("on");
@@ -579,53 +579,90 @@ function abrirModal(titulo, html){
 }
 
 function pintarInsights(){
-  const DIAS_L=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Shabat"];
   const diaCorte=ahora.getDate();
   const semanasAnio=Math.max(1,(ahora-anioIni)/(7*86400000));
-  const ritmo=(T.anio/semanasAnio).toFixed(1);
+  document.getElementById("ins-ritmo").textContent=(T.anio/semanasAnio).toFixed(1);
   const diasMes=new Date(ahora.getFullYear(),ahora.getMonth()+1,0).getDate();
-  const proy=Math.round(T.mes/diaCorte*diasMes);
-  const promMin=T.total?Math.round(T.seg/T.total/60):0;
-  const diaTop=G.porDiaGlobal.indexOf(Math.max(...G.porDiaGlobal));
-  document.getElementById("ins-ritmo").textContent=ritmo;
-  document.getElementById("ins-proy").textContent=proy;
-  document.getElementById("ins-activo").innerHTML=`<span style="font-size:.95rem;direction:rtl;display:block">${G.showMesMax.nombre}</span>`;
-  document.getElementById("ins-prom").textContent=promMin+"′";
-  document.getElementById("ins-dia").textContent=DIAS_L[diaTop];
-  document.getElementById("ins-reciente").innerHTML=G.ultimoGlobal.fecha
-    ? `<span style="font-size:.8rem;direction:rtl;display:block">${G.ultimoGlobal.titulo.slice(0,40)}</span>`
-    : "—";
+  document.getElementById("ins-proy").textContent=Math.round(T.mes/diaCorte*diasMes);
+  document.getElementById("ins-activo").innerHTML=`<span style="font-size:.95rem;direction:rtl;display:block">${escHtml(G.showMesMax.nombre)}</span>`;
+  document.getElementById("ins-prom").textContent=(T.total?Math.round(T.seg/T.total/60):0)+"′";
+  document.getElementById("ins-dia").textContent=DIAS_L[G.porDiaGlobal.indexOf(Math.max(...G.porDiaGlobal))];
+  document.getElementById("ins-racha").textContent=G.rachaMax+" días 🔥";
   document.getElementById("insights").style.display="block";
 }
 
+function pintarDestacado(){
+  if(!TODOS_EPISODIOS.length)return;
+  // shiur del dia: pseudo-aleatorio estable segun el dia
+  const semilla=Math.floor(hoy0.getTime()/86400000);
+  const conAudio=TODOS_EPISODIOS.filter(e=>e.audio);
+  if(!conAudio.length)return;
+  const pick=conAudio[semilla%conAudio.length];
+  document.getElementById("dest-titulo").textContent=pick.titulo;
+  document.getElementById("dest-quien").textContent=pick.show;
+  document.getElementById("dest-play").onclick=()=>reproducir(pick.audio,pick.titulo,pick.show,pick.link);
+  document.getElementById("destacado").classList.remove("oculto");
+}
+
+// buscador
+document.getElementById("busca").addEventListener("input",(e)=>{
+  const q=e.target.value.toLowerCase().trim();
+  document.querySelectorAll(".card").forEach(c=>{
+    c.style.display=(!q||c.dataset.nombre.includes(q)||c.dataset.repo.includes(q))?"":"none";
+  });
+});
+
+// modo noche
+const btnNoche=document.getElementById("btn-noche");
+btnNoche.onclick=()=>{
+  document.body.classList.toggle("noche");
+  btnNoche.textContent=document.body.classList.contains("noche")?"☀️":"🌙";
+};
+
 async function cargar(){
-  T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0};
-  G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, primeraFecha:null};
-  document.getElementById("insights").style.display="none";
+  T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0};
+  G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, rachaMax:0, primeraFecha:null};
+  TODOS_EPISODIOS=[];
   grid.innerHTML="";
+  document.getElementById("insights").style.display="none";
+  document.getElementById("destacado").classList.add("oculto");
   const busc=document.getElementById("buscando");
-  busc.style.display="block"; busc.textContent="🔎 Buscando shows en GitHub…";
-  document.getElementById("fecha").textContent=new Date().toLocaleDateString("es-MX",{weekday:"long",day:"numeric",month:"long"});
+  busc.style.display="block";busc.textContent="🔎 Buscando shows en GitHub…";
   try{
-    const r=await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed&nc=`+Date.now());
+    const r=await fetchT(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed&nc=`+Date.now(),10000);
     const repos=await r.json();
     busc.style.display="none";
     if(!Array.isArray(repos))throw new Error("GitHub no respondió");
-    for(const repo of repos){
-      if(repo.name==="panel")continue;
-      await pintarShow(repo.name, `https://${GITHUB_USER}.github.io/${repo.name}/feed.xml`);
-    }
+    await Promise.allSettled(
+      repos.filter(x=>x.name!=="panel").map(x=>pintarShow(x.name,`https://${GITHUB_USER}.github.io/${x.name}/feed.xml`))
+    );
     if(T.shows===0)grid.innerHTML=`<p class="err">No encontré shows con feed publicado todavía.</p>`;
-    else pintarInsights();
+    else{pintarInsights();pintarDestacado();lanzarConfeti();}
     document.getElementById("auto-info").textContent="· se actualiza solo cada 10 min";
-  }catch(e){
-    busc.textContent="⚠️ No pude consultar GitHub: "+e.message;
-  }
+  }catch(e){busc.textContent="⚠️ No pude consultar GitHub: "+e.message;}
 }
 document.getElementById("btn-refrescar").addEventListener("click",cargar);
-setInterval(cargar, 10*60*1000);   // auto-actualiza cada 10 minutos
+setInterval(cargar,10*60*1000);
 cargar();
+
+// ── CONFETI (al cargar exitoso) ──
+function lanzarConfeti(){
+  const c=document.getElementById("confeti");const ctx=c.getContext("2d");
+  c.width=innerWidth;c.height=innerHeight;
+  const cols=["#B8862F","#6B4E9E","#4A6FA5","#5B8A5A","#D4A84B"];
+  let ps=Array.from({length:80},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height,
+    r:4+Math.random()*5,vy:2+Math.random()*3,vx:-1+Math.random()*2,
+    col:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6}));
+  let t0=Date.now();
+  (function anim(){
+    const dt=Date.now()-t0;
+    ctx.clearRect(0,0,c.width,c.height);
+    ps.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.rot+=.1;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      ctx.fillStyle=p.col;ctx.fillRect(-p.r,-p.r,p.r*2,p.r*1.4);ctx.restore();});
+    if(dt<2600)requestAnimationFrame(anim);else ctx.clearRect(0,0,c.width,c.height);
+  })();
+}
 </script>
-
-
-</body></html>
+</body>
+</html>
