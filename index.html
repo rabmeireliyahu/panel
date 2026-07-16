@@ -205,13 +205,18 @@
   <h1>אוצר התורה</h1>
   <p class="lema">Centro de Control · <span id="fecha"></span> · <span id="hebrea"></span></p>
   <div class="totales">
-    <div class="tot verde"><b id="t-hoy">–</b><span>shiurim hoy</span></div>
-    <div class="tot oro"><b id="t-horasmes">–</b><span>horas de Torá este mes</span></div>
+    <div class="tot verde"><b id="t-hoy">–</b><span>shiurim subidos hoy</span></div>
     <div class="tot"><b id="t-anio">–</b><span>shiurim este año</span></div>
-    <div class="tot"><b id="t-aniopas">–</b><span>a esta fecha 2025</span></div>
+    <div class="tot oro"><b id="t-dls30">–</b><span>▶ escuchas últimos 30 días</span></div>
+    <div class="tot oro"><b id="t-horasmes">–</b><span>horas escuchadas 30 días</span></div>
+    <div class="tot oro"><b id="t-horas">–</b><span>horas escuchadas en total</span></div>
     <div class="tot"><b id="t-total">–</b><span>episodios en total</span></div>
-    <div class="tot oro"><b id="t-horas">–</b><span>horas de Torá en total</span></div>
     <div class="tot joya"><b id="t-shows">–</b><span>shows</span></div>
+    <div class="tot verde"><b id="t-seguidores">–</b><span>💚 seguidores en Spotify</span></div>
+    <div class="tot joya" id="tile-historia" style="cursor:pointer" title="Ver la historia completa">
+      <b id="t-histhoras">–</b><span>🏆 horas oídas en TODA la historia</span></div>
+    <div class="tot joya" id="tile-anios" style="cursor:pointer" title="Ver la historia completa">
+      <b id="t-anios">–</b><span>⏳ AÑOS de Torá sonando sin parar</span></div>
   </div>
 </header>
 
@@ -271,8 +276,70 @@
 <script>
 // ═══════════ CONFIGURACION ═══════════
 const GITHUB_USER = "rabmeireliyahu";
-const OP3_TOKEN = "";
 const OP3_MAP = {};
+// ── STATS DE SPOTIFY FOR CREATORS (baseline manual, se llena una vez) ──
+// plays = reproducciones en total | seguidores = seguidores en Spotify
+// horas30 = tiempo de consumo ultimos 30 dias (opcional, informativo)
+const SPOTIFY_STATS = {
+  // datos REALES de Spotify for Creators - corte 17/jul/2026
+  "ravmeir":          { plays: 731300, plays30: 15446, seguidores: 3207, horas30: 4902, horasAll: 188500 },
+  "musar":            { plays: 45046,  plays30: 1176,  seguidores: 219,  horas30: 334,  horasAll: 9508 },
+  "yechavedaat":      { plays: 36815,  plays30: 1494,  seguidores: 398,  horas30: 212,  horasAll: 6640 },
+  "ravmutzafi":       { plays: 22509,  plays30: 1916,  seguidores: 174,  horas30: 548,  horasAll: 5854 },
+  "ravyitzchakyosef": { plays: 6235,   plays30: 923,   seguidores: 141,  horas30: 284,  horasAll: 1519 },
+  "podcast":          { plays: 5899,   plays30: 229,   seguidores: 73,   horas30: 30,   horasAll: 549 },
+  "yakobov":          { plays: 5262,   plays30: 434,   seguidores: 109,  horas30: 156,  horasAll: 1500 },
+  "abergel":          { plays: 2856,   plays30: 700,   seguidores: 52,   horas30: 207,  horasAll: 694 },
+  "ravshmueli":       { plays: 2302,   plays30: 383,   seguidores: 45,   horas30: 89,   horasAll: 539 },
+  "torahanytime":     { plays: 356,    plays30: 306,   seguidores: 17,   horas30: 21,   horasAll: 24 },
+  "peretz":           { plays: 62,     plays30: 62,    seguidores: 6,    horas30: 19,   horasAll: 19 }
+};
+const HIST_SPOTIFY = new Proxy({}, { get:(_,k)=> (SPOTIFY_STATS[k]?.plays)||0 });
+// ── stats_spotify.json: lo publica el robot de Creators cada dia ──
+// formato: { "fecha":"2026-07-17", "shows": { "ravmeir": {"plays":731100,"seguidores":3206,"horas30":4943}, ... } }
+let SPOTIFY_LIVE=null;
+async function cargarSpotifyLive(){
+  try{
+    const r=await fetchT("stats_spotify.json?nc="+Date.now(),6000);
+    if(!r.ok)return;
+    const j=await r.json();
+    if(j&&j.shows){
+      SPOTIFY_LIVE=j;
+      Object.entries(j.shows).forEach(([k,v])=>{ SPOTIFY_STATS[k]=Object.assign(SPOTIFY_STATS[k]||{},v); });
+      const el=document.getElementById("fecha-spotify");
+      if(el)el.textContent="Datos Spotify: "+(j.fecha||"");
+    }
+  }catch(e){/* aun no existe el archivo */}
+}
+// descargas OP3 acumuladas AL DIA DEL CORTE (17/jul/2026):
+// todo lo que OP3 sume por encima de esto es CRECIMIENTO NUEVO
+// que se agrega solo a la historia, cada dia, sin tocar nada.
+const OP3_BASE = { "ravmeir":166, "yechavedaat":22, "ravyitzchakyosef":0, "yakobov":66 };
+let HISTORIA=[]; // acumulado por show para el modal de historia
+// ── OP3: escuchas/descargas REALES (op3.dev) ──
+// token de prueba publico; se puede cambiar por uno propio de op3.dev/api/keys
+const OP3_TOKEN = "preview07ce";
+function b64url(s){return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");}
+async function op3json(url){
+  const r=await fetchT(url,9000);
+  if(!r.ok)throw new Error("op3 "+r.status);
+  return await r.json();
+}
+async function op3Stats(feedURL, segPorTitulo, segProm){
+  // 1. identificar el show en OP3 por la URL del feed
+  const info=await op3json(`https://op3.dev/api/1/shows/${b64url(feedURL)}?token=${OP3_TOKEN}`);
+  if(!info.showUuid)throw new Error("sin uuid");
+  // 2. descargas por episodio (30 dias y totales)
+  const ep=await op3json(`https://op3.dev/api/1/queries/episode-download-counts?showUuid=${info.showUuid}&token=${OP3_TOKEN}`);
+  let dls30=0,dlsAll=0,hseg30=0,hsegAll=0;
+  (ep.episodes||[]).forEach(e=>{
+    const d30=e.downloads30||0, dAll=e.downloadsAll||0;
+    const dur=segPorTitulo[(e.title||"").trim()]||segProm||0;
+    dls30+=d30; dlsAll+=dAll;
+    hseg30+=d30*dur; hsegAll+=dAll*dur;
+  });
+  return {dls30,dlsAll,hseg30,hsegAll,statsURL:info.statsPageUrl||`https://op3.dev/show/${info.showUuid}`};
+}
 const DRIVE_MAP = {
   "abergel":       "https://drive.google.com/drive/folders/1sjG3NXpLTMB0tCHryYpbisBC6yhlcbZh",
   "podcast":       "https://drive.google.com/drive/folders/1kzDXsHJX-_njVr1KDeZmlwiQpVf38Bng",
@@ -290,8 +357,6 @@ const SPOTIFY_MAP = {
   "ravasherweiss": "https://open.spotify.com/show/7IIbVOhwAcSkPnWO5GXsJG",
   "ravmeir":       "https://open.spotify.com/show/79x4PVsbPAnLZ0mUr1Oa5j",
   "yechavedaat":   "https://open.spotify.com/show/5cSJFLJ1IvapcH5L9i4CSU",
-  "ravyitzchakyosef": "https://open.spotify.com/show/3dNq8BgToKoChJjKw2XCkK",
-  "ravshmueli":    "https://open.spotify.com/show/1mQHhjvlSUJUrAGQbWTIdD",
   // faltan (pásame sus links de Spotify y los pego aquí):
   // "yakobov":    "https://open.spotify.com/show/XXXXXXXX",
   // "ravmutzafi": "https://open.spotify.com/show/XXXXXXXX",
@@ -320,7 +385,7 @@ try{
 }catch(e){}
 
 const grid=document.getElementById("grid");
-let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0};
+let T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0,dls30:0,dlsAll:0,hseg30:0,hsegAll:0,histPlays:0,histSeg:0,seguidores:0};
 let G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, rachaMax:0, primeraFecha:null};
 let TODOS_EPISODIOS=[]; // para shiur del dia y busqueda
 
@@ -334,13 +399,46 @@ function segFmt(s){const h=Math.floor(s/3600);return h>=1?h.toLocaleString()+" h
 
 function totales(){
   animarNum("t-hoy",T.hoy);
-  document.getElementById("t-horasmes").textContent=segFmt(T.segMes);
   animarNum("t-anio",T.anio);
-  animarNum("t-aniopas",T.anioPas);
+  document.getElementById("t-dls30").textContent=T.dls30?T.dls30.toLocaleString():"–";
+  document.getElementById("t-horasmes").textContent=T.hseg30?segFmt(T.hseg30):"–";
+  document.getElementById("t-horas").textContent=T.hsegAll?segFmt(T.hsegAll):"–";
   document.getElementById("t-total").textContent=T.total.toLocaleString();
-  document.getElementById("t-horas").textContent=segFmt(T.seg);
   animarNum("t-shows",T.shows);
+  const histTotalSeg=T.histSeg;
+  document.getElementById("t-histhoras").textContent=histTotalSeg?segFmt(histTotalSeg):"–";
+  const anios=histTotalSeg/31557600; // segundos en un año
+  document.getElementById("t-anios").textContent=histTotalSeg?anios.toFixed(1):"–";
+  document.getElementById("t-seguidores").textContent=T.seguidores?T.seguidores.toLocaleString():"–";
 }
+
+function abrirHistoria(){
+  const totalEsc=HISTORIA.reduce((a,s)=>a+s.escuchas,0);
+  const totalSeg=HISTORIA.reduce((a,s)=>a+s.horasSeg,0);
+  const totalSegrs=HISTORIA.reduce((a,s)=>a+(s.seguidores||0),0);
+  const filas=HISTORIA.filter(s=>s.escuchas>0||s.seguidores>0).sort((a,b)=>b.horasSeg-a.horasSeg).map((s,i)=>
+    `<tr><td style="padding:4px 8px">${i+1}.</td>
+      <td style="padding:4px 8px">${escHtml(s.nombre)}</td>
+      <td style="padding:4px 8px;text-align:right"><b>${s.escuchas.toLocaleString()}</b></td>
+      <td style="padding:4px 8px;text-align:right;color:var(--zahav)"><b>${segFmt(s.horasSeg)}</b></td>
+      <td style="padding:4px 8px;text-align:right;color:var(--olive)">${s.seguidores?("💚 "+s.seguidores.toLocaleString()):""}</td></tr>`).join("");
+  abrirModal("🏆 Historia completa de Otzar HaTorah",`
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:2rem;font-weight:800">${segFmt(totalSeg)}</div>
+      <div style="color:var(--mut)">de Torá escuchada en toda la historia</div>
+      <div style="margin-top:6px;font-size:1.2rem"><b>${totalEsc.toLocaleString()}</b> <span style="color:var(--mut)">escuchas totales</span> &nbsp;·&nbsp; <b>💚 ${totalSegrs.toLocaleString()}</b> <span style="color:var(--mut)">seguidores</span></div>
+      <div style="margin-top:12px;padding:10px;border:1px solid var(--zahav);border-radius:12px">
+        <div style="font-size:1.6rem;font-weight:800;color:var(--zahav)">⏳ ${(totalSeg/31557600).toFixed(1)} AÑOS</div>
+        <div style="font-size:.8rem;color:var(--mut)">de Torá sonando sin parar, día y noche, desde que empezó Otzar HaTorah — ¡y sumando solo cada día! בזכותך</div>
+      </div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+      <tr style="color:var(--mut)"><th></th><th style="text-align:left;padding:4px 8px">Show</th><th style="text-align:right;padding:4px 8px">▶ Escuchas</th><th style="text-align:right;padding:4px 8px">Horas</th><th style="text-align:right;padding:4px 8px">Seguidores</th></tr>
+      ${filas||"<tr><td colspan=4 style='padding:10px'>Aún sin datos…</td></tr>"}
+    </table>
+    <p style="margin-top:10px;font-size:.72rem;color:var(--mut)">Horas reales de Spotify for Creators (corte 17 jul 2026) + el crecimiento que OP3 mide solo cada día desde entonces. Este número solo puede subir.</p>`);
+}
+document.addEventListener("click",e=>{if(e.target.closest("#tile-historia")||e.target.closest("#tile-anios"))abrirHistoria();});
 function animarNum(id,fin){
   const el=document.getElementById(id); if(!el)return;
   const ini=parseInt(el.textContent.replace(/\D/g,""))||0;
@@ -434,8 +532,35 @@ async function pintarShow(repo, feedURL){
   if(racha>G.rachaMax)G.rachaMax=racha;
   if(primero && (!G.primeraFecha || primero<G.primeraFecha))G.primeraFecha=primero;
 
-  const op3=OP3_MAP[repo]||"";
-  let dlsNum="–";
+  // ── escuchas reales via OP3 ──
+  const segPorTitulo={};
+  items.forEach(e=>{segPorTitulo[e.titulo.trim()]=e.seg;});
+  let O={dls30:0,dlsAll:0,hseg30:0,hsegAll:0,statsURL:""},op3ok=false;
+  try{
+    O=await op3Stats(feedURL,segPorTitulo,prom*60);
+    op3ok=true;
+  }catch(e){/* show sin datos OP3 todavia */}
+  // ── datos reales de Spotify Creators + crecimiento automatico OP3 ──
+  const SP = SPOTIFY_STATS[repo]||{};
+  const durProm = items.length ? seg/items.length : ((prom||30)*60);
+  const crec = op3ok ? Math.max(0, O.dlsAll - (OP3_BASE[repo]||0)) : 0;
+  const crecSeg = crec * durProm;
+  // 30 dias: OP3 en vivo si ya tiene datos; si no, el corte de Spotify
+  const seg30Real  = (op3ok&&O.hseg30>0) ? O.hseg30 : (SP.horas30 ? SP.horas30*3600 : 0);
+  const esc30Real  = (op3ok&&O.dls30>0)  ? O.dls30  : (SP.plays30||0);
+  // historia: corte real de Spotify + lo nuevo que suma OP3 solo
+  const segAllReal = (SP.horasAll ? SP.horasAll*3600 : 0) + (SP.horasAll ? crecSeg : (op3ok?O.hsegAll:0));
+  const escAllReal = (SP.plays||0) + (SP.plays ? crec : (op3ok?O.dlsAll:0));
+  T.hseg30 += seg30Real; T.hsegAll += segAllReal;
+  T.dls30  += esc30Real;
+  T.histPlays += escAllReal; T.histSeg += segAllReal;
+  const segrs = SP.seguidores||0;
+  T.seguidores += segrs;
+  HISTORIA.push({nombre, repo, seguidores: segrs,
+    escuchas: escAllReal, horasSeg: segAllReal,
+    op3: op3ok?O.dlsAll:0, hist: SP.plays||0});
+  O = { dls30: esc30Real, dlsAll: escAllReal, hseg30: seg30Real, hsegAll: segAllReal, statsURL: O.statsURL };
+  const op3okCard = op3ok || !!SP.plays;
 
   const maxM=Math.max(...m12,1);
   const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.2}" title="${v}"></div>`).join("");
@@ -458,13 +583,13 @@ async function pintarShow(repo, feedURL){
   card.dataset.nombre=nombre.toLowerCase();
   card.dataset.repo=repo;
   card.innerHTML=`
-    <div class="cabecera">${fotoHtml}<h2>${escHtml(nombre)}</h2></div>
+    <div class="cabecera">${fotoHtml}<h2>${escHtml(nombre)}</h2>${(SPOTIFY_STATS[repo]?.seguidores)?`<span style="font-size:.72rem;color:var(--olive);white-space:nowrap">💚 ${SPOTIFY_STATS[repo].seguidores.toLocaleString()}</span>`:""}</div>
     <div class="rimon">✦ ✦ ✦</div>
     <div class="nums">
-      <div class="num hoy"><b>${hoy}</b><span>hoy</span></div>
-      <div class="num"><b>${anio}</b><span>este año</span></div>
-      <div class="num"><b>${anioPas}</b><span>año pasado</span></div>
-      <div class="num horas"><b>${segFmt(seg)}</b><span>de Torá</span></div>
+      <div class="num hoy"><b>${hoy}</b><span>subidos hoy</span></div>
+      <div class="num"><b>${anio}</b><span>subidos este año</span></div>
+      <div class="num horas"><b>${op3okCard?segFmt(O.hseg30):"–"}</b><span>h escuchadas mes</span></div>
+      <div class="num horas"><b>${op3okCard?segFmt(O.hsegAll):"–"}</b><span>h escuchadas total</span></div>
     </div>
     <div class="chart">${barras}</div>
     <div class="meses">${eti.join("")}</div>
@@ -481,13 +606,14 @@ async function pintarShow(repo, feedURL){
     </div>
     <div class="det"><div class="det-inner">
       <div class="mini-stats">
+        <div class="ms"><b>${op3okCard?O.dls30.toLocaleString():"–"}</b><span>▶ escuchas 30 días</span></div>
+        <div class="ms"><b>${op3okCard?O.dlsAll.toLocaleString():"–"}</b><span>▶ escuchas totales</span></div>
         <div class="ms"><b>${items.length.toLocaleString()}</b><span>episodios totales</span></div>
-        <div class="ms"><b>${segFmt(segMes)}</b><span>Torá este mes</span></div>
-        <div class="ms"><b>${prom}′</b><span>duración promedio</span></div>
+        <div class="ms"><b>${segFmt(seg)}</b><span>h de contenido</span></div>
+        <div class="ms"><b>${anioPas}</b><span>subidos año pasado</span></div>
         <div class="ms"><b>${racha}</b><span>días seguidos 🔥</span></div>
-        <div class="ms"><b>${items.length?DIAS[diaTop]:"—"}</b><span>día más activo</span></div>
-        <div class="ms"><b>${primero?primero.toLocaleDateString("es-MX",{month:"short",year:"2-digit"}):"—"}</b><span>desde</span></div>
       </div>
+      ${op3ok?`<p style="font-size:.72rem;margin-bottom:8px"><a href="${O.statsURL}" target="_blank">📈 Ver escuchas reales completas (OP3)</a></p>`:`<p style="font-size:.7rem;color:var(--mut);margin-bottom:8px">Sin datos de escuchas aún (OP3 tarda ~24h con shows nuevos)</p>`}
       <p style="font-size:.72rem;color:var(--mut);margin-bottom:6px">Últimos 8 (toca ▶ para oír):</p>
       <ul class="ep-lista">${lista}</ul>
     </div></div>`;
@@ -622,7 +748,9 @@ btnNoche.onclick=()=>{
 };
 
 async function cargar(){
-  T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0};
+  await cargarSpotifyLive();
+  T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0,dls30:0,dlsAll:0,hseg30:0,hsegAll:0,histPlays:0,histSeg:0,seguidores:0};
+  HISTORIA=[];
   G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, rachaMax:0, primeraFecha:null};
   TODOS_EPISODIOS=[];
   grid.innerHTML="";
