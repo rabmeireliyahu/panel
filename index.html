@@ -353,15 +353,24 @@ const DRIVE_MAP = {
 // Link del show en Spotify (pagina publica del podcast). Cuando lo tengas, pegalo aqui.
 // Si esta vacio, se usa una busqueda de Spotify con el nombre del rav.
 const SPOTIFY_MAP = {
-  "torahanytime":  "https://open.spotify.com/show/033fyjMvhujvDj4I9z69hG",
-  "ravasherweiss": "https://open.spotify.com/show/7IIbVOhwAcSkPnWO5GXsJG",
-  "ravmeir":       "https://open.spotify.com/show/79x4PVsbPAnLZ0mUr1Oa5j",
-  "yechavedaat":   "https://open.spotify.com/show/5cSJFLJ1IvapcH5L9i4CSU",
-  // faltan (pásame sus links de Spotify y los pego aquí):
-  // "yakobov":    "https://open.spotify.com/show/XXXXXXXX",
-  // "ravmutzafi": "https://open.spotify.com/show/XXXXXXXX",
-  // "abergel":    "https://open.spotify.com/show/XXXXXXXX",
-  // "podcast":    "https://open.spotify.com/show/XXXXXXXX",
+  // --- red original ---
+  "ravmeir":          "https://open.spotify.com/show/79x4PVsbPAnLZ0mUr1Oa5j",
+  "musar":            "https://open.spotify.com/show/6iRarANnjovh39suhYLemM",
+  "yechavedaat":      "https://open.spotify.com/show/5cSJFLJ1IvapcH5L9i4CSU",
+  "ravmutzafi":       "https://open.spotify.com/show/06h5PQpd2N5lwUTNHMpRDD",
+  "ravyitzchakyosef": "https://open.spotify.com/show/3dNq8BgToKoChJjKw2XCkK",
+  "yakobov":          "https://open.spotify.com/show/6WduLqEwPHFfddsQYC7qoe",
+  "abergel":          "https://open.spotify.com/show/0GX6Bc4S6BHSWlamYgrAb2",
+  "podcast":          "https://open.spotify.com/show/1YDvt19tObIvqsaptHK0zK",
+  "ravshmueli":       "https://open.spotify.com/show/1mQHhjvlSUJUrAGQbWTIdD",
+  "torahanytime":     "https://open.spotify.com/show/033fyjMvhujvDj4I9z69hG",
+  "peretz":           "https://open.spotify.com/show/5QoEze3h1lRPgsdUOGLOQP",
+  "ravasherweiss":    "https://open.spotify.com/show/7IIbVOhwAcSkPnWO5GXsJG",
+  // --- shows nuevos (julio 2026) ---
+  "bensoussan":       "https://open.spotify.com/show/033XnfqUvY5NTtUx68kaWP",
+  "musayof":          "https://open.spotify.com/show/033Xn7o4U4umJiIWMcwDDl",
+  "abuhatzeira":      "https://open.spotify.com/show/033Xnc9ELU8FF1ibMhiyrL",
+  // "kavas":         "https://open.spotify.com/show/XXXXXXXX",  <- falta su ID
 };
 function spotifyLink(repo, nombre){
   return SPOTIFY_MAP[repo] || `https://open.spotify.com/search/${encodeURIComponent(nombre)}/shows`;
