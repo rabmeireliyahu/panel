@@ -121,13 +121,16 @@ async function procesarShow(repo) {
     res.desdeOp3 = ep.minDownloadHour || null;
   } catch (e) { res.errorTotales = e.message.slice(0, 120); }
 
-  // 3. descargas una por una, ultimos 60 dias → por dia, por app, horas exactas
-  // una "escucha" = misma persona (audienceId) + mismo episodio + mismo dia.
-  // Asi un adelantar/pausar (varias peticiones) no cuenta doble, y se quitan robots.
-  const porDia = {}; const apps = {}; const paises = {}; const tipos = {}; const refs = {}; const picos = {};
-  const vistosDl = new Set(); const oyentes30 = new Set();
-  const hoy0 = Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate());
-  let token, paginas = 0, filas = 0, sinMatch = 0, robots = 0, repetidas = 0;
+  // 3. descargas una por una desde el inicio → por dia, por app, horas exactas
+  // OP3 ya entrega cada descarga depurada (misma persona + mismo episodio no se repite).
+  // Aqui ademas se quitan:
+  //   · robots declarados (agentType bot, "crawler", "downloader"...)
+  //   · DESCARGAS MASIVAS: un mismo navegador/programa que en un solo dia baja
+  //     20+ episodios distintos con menos de 3 bajadas por episodio. Eso es alguien
+  //     (o un robot) jalando el archivo completo, no gente escuchando.
+  //     Un shiur compartido por WhatsApp que muchos abren NO cae aqui (es 1 episodio).
+  const filasOk = []; const tipos = {}; const refs = {};
+  let token, paginas = 0, filas = 0, sinMatch = 0, robots = 0;
   do {
     const p = await op3(`/downloads/show/${info.showUuid}`, {
       format: "json", start: inicio.toISOString(), limit: 20000, continuationToken: token,
@@ -137,42 +140,51 @@ async function procesarShow(repo) {
       const dia = (d.time || "").slice(0, 10); if (!dia) continue;
       const tipo = d.agentType || "?"; tipos[tipo] = (tipos[tipo] || 0) + 1;
       if (tipo === "bot" || ES_ROBOT.test(d.agentName || "")) { robots++; continue; }
-      const llave = (d.audienceId || Math.random()) + "|" + llaveAudio(d.url) + "|" + dia;
-      if (vistosDl.has(llave)) { repetidas++; continue; }
-      vistosDl.add(llave);
-      if (Date.parse(dia + "T00:00:00Z") >= hoy0 - 30 * diaMs && d.audienceId) oyentes30.add(d.audienceId);
-      let seg = durPorAudio.get(llaveAudio(d.url));
+      const ep = llaveAudio(d.url);
+      let seg = durPorAudio.get(ep);
       if (seg === undefined) { seg = durProm; sinMatch++; }
-      const x = porDia[dia] || (porDia[dia] = { d: 0, s: 0, sApp: 0, sWeb: 0 });
-      x.d++; x.s += seg; if (tipo === "browser") x.sWeb += seg; else x.sApp += seg;
-      const app = d.agentName || d.agentType || "Desconocido";
       const ref = d.referrerName || d.referrerType; if (ref) refs[ref] = (refs[ref] || 0) + 1;
-      const pk = dia + " " + app; picos[pk] = (picos[pk] || 0) + 1;
-      apps[app] = (apps[app] || 0) + 1;
-      if (d.countryCode) paises[d.countryCode] = (paises[d.countryCode] || 0) + 1;
+      filasOk.push({ dia, ep, seg, tipo, app: d.agentName || d.agentType || "Desconocido", aud: d.audienceId, pais: d.countryCode });
     }
     filas += rows.length; token = p.continuationToken; paginas++;
     if (!rows.length) break;
-  } while (token && paginas < 50);
+  } while (token && paginas < 100);
+
+  const grupos = {};
+  for (const f of filasOk) {
+    if (f.tipo === "app") continue; // apps de podcast: siempre cuentan
+    const g = grupos[f.dia + "|" + f.app] || (grupos[f.dia + "|" + f.app] = { n: 0, eps: new Set() });
+    g.n++; g.eps.add(f.ep);
+  }
+  const masivo = new Set(Object.entries(grupos).filter(([, g]) => g.eps.size >= 20 && g.n / g.eps.size < 3).map(([k]) => k));
+
+  const porDia = {}; const apps = {}; const paises = {}; const oyentes30 = new Set(); const picos = {};
+  const hoy0 = Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate());
+  let masivas = 0;
+  for (const f of filasOk) {
+    const x = porDia[f.dia] || (porDia[f.dia] = { d: 0, s: 0, sApp: 0, sWeb: 0, sMas: 0 });
+    if (masivo.has(f.dia + "|" + f.app)) { x.sMas += f.seg; masivas++; continue; }
+    x.d++; x.s += f.seg; if (f.tipo === "app") x.sApp += f.seg; else x.sWeb += f.seg;
+    apps[f.app] = (apps[f.app] || 0) + 1;
+    if (f.pais) paises[f.pais] = (paises[f.pais] || 0) + 1;
+    const pk = f.dia + " " + f.app; picos[pk] = (picos[pk] || 0) + 1;
+    if (Date.parse(f.dia + "T00:00:00Z") >= hoy0 - 30 * diaMs && f.aud) oyentes30.add(f.aud);
+  }
 
   const dias = {};
   for (const [k, v] of Object.entries(porDia)) dias[k] = { descargas: v.d, horas: +(v.s / 3600).toFixed(1),
-    hApp: +(v.sApp / 3600).toFixed(1), hWeb: +(v.sWeb / 3600).toFixed(1) };
-  const suma = (desde, hasta) => Object.entries(porDia).reduce((a, [k, v]) => {
-    const t = Date.parse(k + "T00:00:00Z"); if (t >= desde && t < hasta) { a.d += v.d; a.s += v.s; } return a;
-  }, { d: 0, s: 0 });
+    hApp: +(v.sApp / 3600).toFixed(1), hWeb: +(v.sWeb / 3600).toFixed(1), hMasiva: +(v.sMas / 3600).toFixed(1) };
   const sumaK = (k, desde, hasta) => Object.entries(porDia).reduce((a, [d, v]) => {
     const t = Date.parse(d + "T00:00:00Z"); return t >= desde && t < hasta ? a + v[k] : a; }, 0);
-  const u30 = suma(hoy0 - 30 * diaMs, hoy0 + diaMs), p30 = suma(hoy0 - 60 * diaMs, hoy0 - 30 * diaMs);
+  const U = [hoy0 - 30 * diaMs, hoy0 + diaMs], P = [hoy0 - 60 * diaMs, hoy0 - 30 * diaMs];
+  const h = (k, r) => Math.round(sumaK(k, ...r) / 3600);
   Object.assign(res, {
-    dls30: u30.d, horas30: Math.round(u30.s / 3600),
-    dlsPrev30: p30.d, horasPrev30: Math.round(p30.s / 3600),
-    horasApp30: Math.round(sumaK("sApp", hoy0 - 30 * diaMs, hoy0 + diaMs) / 3600),
-    horasWeb30: Math.round(sumaK("sWeb", hoy0 - 30 * diaMs, hoy0 + diaMs) / 3600),
-    horasAppPrev30: Math.round(sumaK("sApp", hoy0 - 60 * diaMs, hoy0 - 30 * diaMs) / 3600),
-    horasWebPrev30: Math.round(sumaK("sWeb", hoy0 - 60 * diaMs, hoy0 - 30 * diaMs) / 3600),
+    dls30: sumaK("d", ...U), horas30: h("s", U),
+    dlsPrev30: sumaK("d", ...P), horasPrev30: h("s", P),
+    horasApp30: h("sApp", U), horasWeb30: h("sWeb", U), horasMasiva30: h("sMas", U),
+    horasAppPrev30: h("sApp", P), horasWebPrev30: h("sWeb", P), horasMasivaPrev30: h("sMas", P),
     picos: Object.entries(picos).sort((a, b) => b[1] - a[1]).slice(0, 5),
-    refs, oyentes30: oyentes30.size, dias, apps, paises, tipos, filas, robots, repetidas, sinMatch,
+    masivas, refs, oyentes30: oyentes30.size, dias, apps, paises, tipos, filas, robots, sinMatch,
   });
   return res;
 }
@@ -197,7 +209,7 @@ async function main() {
       else if (s.showUuid) vistos.set(s.showUuid, repo);
       shows[repo] = s;
       if (s.picos?.length) console.log(`    picos (dia app = descargas): ${s.picos.map(([k, n]) => k + "=" + n).join(" · ")} | refs ${JSON.stringify(s.refs)}`);
-      console.log(`✓ ${repo.padEnd(18)} oyentes30 ${String(s.oyentes30 ?? "–").padStart(5)} · peticiones ${s.filas ?? "–"} (robots ${s.robots ?? "–"}, repetidas ${s.repetidas ?? "–"}) · 30d: ${String(s.dls30 ?? "–").padStart(6)} desc · ${String(s.horas30 ?? "–").padStart(5)} h | 30d previos: ${String(s.dlsPrev30 ?? "–").padStart(6)} desc · ${String(s.horasPrev30 ?? "–").padStart(5)} h | total ${s.dlsAll ?? "–"} desc · ${s.horasAll ?? "–"} h${s.sinOp3 ? ` | ⚠ ${s.sinOp3} episodios SIN op3` : ""}${s.errorOp3 ? " | ⚠ " + s.errorOp3 : ""}${s.duplicadoDe ? " | duplicado de " + s.duplicadoDe : ""}`);
+      console.log(`✓ ${repo.padEnd(18)} oyentes30 ${String(s.oyentes30 ?? "–").padStart(5)} · peticiones ${s.filas ?? "–"} (robots ${s.robots ?? "–"}, masivas ${s.masivas ?? "–"}) · 30d: ${String(s.dls30 ?? "–").padStart(6)} desc · ${String(s.horas30 ?? "–").padStart(5)} h | 30d previos: ${String(s.dlsPrev30 ?? "–").padStart(6)} desc · ${String(s.horasPrev30 ?? "–").padStart(5)} h | total ${s.dlsAll ?? "–"} desc · ${s.horasAll ?? "–"} h${s.sinOp3 ? ` | ⚠ ${s.sinOp3} episodios SIN op3` : ""}${s.errorOp3 ? " | ⚠ " + s.errorOp3 : ""}${s.duplicadoDe ? " | duplicado de " + s.duplicadoDe : ""}`);
     } catch (e) {
       shows[repo] = { repo, error: e.message.slice(0, 200) };
       console.log(`✗ ${repo}: ${e.message}`);
@@ -207,16 +219,16 @@ async function main() {
 
   // totales (sin contar duplicados)
   const SUMAR = ["oyentes30", "dls30", "horas30", "dlsPrev30", "horasPrev30", "dlsAll", "horasAll",
-    "horasApp30", "horasWeb30", "horasAppPrev30", "horasWebPrev30"];
+    "horasApp30", "horasWeb30", "horasAppPrev30", "horasWebPrev30", "horasMasiva30", "horasMasivaPrev30"];
   const T = { apps: {}, dias: {} }; for (const k of SUMAR) T[k] = 0;
   for (const s of Object.values(shows)) {
     if (s.duplicadoDe || !s.showUuid) continue;
     for (const k of SUMAR) T[k] += s[k] || 0;
     for (const [a, n] of Object.entries(s.apps || {})) T.apps[a] = (T.apps[a] || 0) + n;
     for (const [d, v] of Object.entries(s.dias || {})) {
-      const x = T.dias[d] || (T.dias[d] = { descargas: 0, horas: 0, hApp: 0, hWeb: 0 });
+      const x = T.dias[d] || (T.dias[d] = { descargas: 0, horas: 0, hApp: 0, hWeb: 0, hMasiva: 0 });
       x.descargas += v.descargas;
-      for (const k of ["horas", "hApp", "hWeb"]) x[k] = +(x[k] + v[k]).toFixed(1);
+      for (const k of ["horas", "hApp", "hWeb", "hMasiva"]) x[k] = +(x[k] + v[k]).toFixed(1);
     }
   }
   const cambio = T.horasPrev30 ? Math.round((T.horas30 / T.horasPrev30 - 1) * 100) : null;
@@ -229,7 +241,7 @@ async function main() {
 
   const salida = { generado: ahora.toISOString(), fecha: hoyISO, ventanaDias: DIAS,
     token: TOKEN === "preview07ce" ? "preview" : "propio", total: { ...T, cambioPct: cambio }, shows };
-  console.log(`Apps de podcast 30d: ${T.horasApp30} h (antes ${T.horasAppPrev30} h) · Navegador 30d: ${T.horasWeb30} h (antes ${T.horasWebPrev30} h)`);
+  console.log(`Apps de podcast 30d: ${T.horasApp30} h (antes ${T.horasAppPrev30} h) · Navegador 30d: ${T.horasWeb30} h (antes ${T.horasWebPrev30} h) · Masivas filtradas 30d: ${T.horasMasiva30} h (antes ${T.horasMasivaPrev30} h)`);
 
   // historial permanente: un renglon por dia, nunca se borra
   hist[hoyISO] = { dls30: T.dls30, horas30: T.horas30, dlsAll: T.dlsAll, horasAll: T.horasAll,
