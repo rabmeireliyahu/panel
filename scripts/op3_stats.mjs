@@ -15,6 +15,7 @@ const TOKEN = process.env.OP3_TOKEN || "preview07ce";
 const GH_TOKEN = process.env.GITHUB_TOKEN || "";
 const DIAS = 60;
 const API = "https://op3.dev/api/1";
+const ES_ROBOT = /bot|crawl|spider|research|downloader|curl|wget|python|go-http|node-fetch|headless/i;
 const IGNORAR = new Set(["panel", "charts", "torre-autenta", "midot"]);
 
 const ahora = new Date();
@@ -119,8 +120,12 @@ async function procesarShow(repo) {
   } catch (e) { res.errorTotales = e.message.slice(0, 120); }
 
   // 3. descargas una por una, ultimos 60 dias → por dia, por app, horas exactas
-  const porDia = {}; const apps = {}; const paises = {};
-  let token, paginas = 0, filas = 0, sinMatch = 0;
+  // una "escucha" = misma persona (audienceId) + mismo episodio + mismo dia.
+  // Asi un adelantar/pausar (varias peticiones) no cuenta doble, y se quitan robots.
+  const porDia = {}; const apps = {}; const paises = {}; const tipos = {};
+  const vistosDl = new Set(); const oyentes30 = new Set();
+  const hoy0 = Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate());
+  let token, paginas = 0, filas = 0, sinMatch = 0, robots = 0, repetidas = 0;
   do {
     const p = await op3(`/downloads/show/${info.showUuid}`, {
       format: "json", start: inicio.toISOString(), limit: 20000, continuationToken: token,
@@ -128,6 +133,12 @@ async function procesarShow(repo) {
     const rows = p.rows || [];
     for (const d of rows) {
       const dia = (d.time || "").slice(0, 10); if (!dia) continue;
+      const tipo = d.agentType || "?"; tipos[tipo] = (tipos[tipo] || 0) + 1;
+      if (tipo === "bot" || ES_ROBOT.test(d.agentName || "")) { robots++; continue; }
+      const llave = (d.audienceId || Math.random()) + "|" + llaveAudio(d.url) + "|" + dia;
+      if (vistosDl.has(llave)) { repetidas++; continue; }
+      vistosDl.add(llave);
+      if (Date.parse(dia + "T00:00:00Z") >= hoy0 - 30 * diaMs && d.audienceId) oyentes30.add(d.audienceId);
       let seg = durPorAudio.get(llaveAudio(d.url));
       if (seg === undefined) { seg = durProm; sinMatch++; }
       const x = porDia[dia] || (porDia[dia] = { d: 0, s: 0 });
@@ -145,12 +156,11 @@ async function procesarShow(repo) {
   const suma = (desde, hasta) => Object.entries(porDia).reduce((a, [k, v]) => {
     const t = Date.parse(k + "T00:00:00Z"); if (t >= desde && t < hasta) { a.d += v.d; a.s += v.s; } return a;
   }, { d: 0, s: 0 });
-  const hoy0 = Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate());
   const u30 = suma(hoy0 - 30 * diaMs, hoy0 + diaMs), p30 = suma(hoy0 - 60 * diaMs, hoy0 - 30 * diaMs);
   Object.assign(res, {
     dls30: u30.d, horas30: Math.round(u30.s / 3600),
     dlsPrev30: p30.d, horasPrev30: Math.round(p30.s / 3600),
-    dias, apps, paises, filas, sinMatch,
+    oyentes30: oyentes30.size, dias, apps, paises, tipos, filas, robots, repetidas, sinMatch,
   });
   return res;
 }
@@ -166,7 +176,7 @@ async function main() {
       if (s.showUuid && vistos.has(s.showUuid)) { s.duplicadoDe = vistos.get(s.showUuid); }
       else if (s.showUuid) vistos.set(s.showUuid, repo);
       shows[repo] = s;
-      console.log(`✓ ${repo.padEnd(18)} 30d: ${String(s.dls30 ?? "–").padStart(6)} desc · ${String(s.horas30 ?? "–").padStart(5)} h | 30d previos: ${String(s.dlsPrev30 ?? "–").padStart(6)} desc · ${String(s.horasPrev30 ?? "–").padStart(5)} h | total ${s.dlsAll ?? "–"} desc · ${s.horasAll ?? "–"} h${s.sinOp3 ? ` | ⚠ ${s.sinOp3} episodios SIN op3` : ""}${s.errorOp3 ? " | ⚠ " + s.errorOp3 : ""}${s.duplicadoDe ? " | duplicado de " + s.duplicadoDe : ""}`);
+      console.log(`✓ ${repo.padEnd(18)} oyentes30 ${String(s.oyentes30 ?? "–").padStart(5)} · peticiones ${s.filas ?? "–"} (robots ${s.robots ?? "–"}, repetidas ${s.repetidas ?? "–"}) · 30d: ${String(s.dls30 ?? "–").padStart(6)} desc · ${String(s.horas30 ?? "–").padStart(5)} h | 30d previos: ${String(s.dlsPrev30 ?? "–").padStart(6)} desc · ${String(s.horasPrev30 ?? "–").padStart(5)} h | total ${s.dlsAll ?? "–"} desc · ${s.horasAll ?? "–"} h${s.sinOp3 ? ` | ⚠ ${s.sinOp3} episodios SIN op3` : ""}${s.errorOp3 ? " | ⚠ " + s.errorOp3 : ""}${s.duplicadoDe ? " | duplicado de " + s.duplicadoDe : ""}`);
     } catch (e) {
       shows[repo] = { repo, error: e.message.slice(0, 200) };
       console.log(`✗ ${repo}: ${e.message}`);
@@ -175,10 +185,10 @@ async function main() {
   }
 
   // totales (sin contar duplicados)
-  const T = { dls30: 0, horas30: 0, dlsPrev30: 0, horasPrev30: 0, dlsAll: 0, horasAll: 0, apps: {}, dias: {} };
+  const T = { oyentes30: 0, dls30: 0, horas30: 0, dlsPrev30: 0, horasPrev30: 0, dlsAll: 0, horasAll: 0, apps: {}, dias: {} };
   for (const s of Object.values(shows)) {
     if (s.duplicadoDe || !s.showUuid) continue;
-    for (const k of ["dls30", "horas30", "dlsPrev30", "horasPrev30", "dlsAll", "horasAll"]) T[k] += s[k] || 0;
+    for (const k of ["oyentes30", "dls30", "horas30", "dlsPrev30", "horasPrev30", "dlsAll", "horasAll"]) T[k] += s[k] || 0;
     for (const [a, n] of Object.entries(s.apps || {})) T.apps[a] = (T.apps[a] || 0) + n;
     for (const [d, v] of Object.entries(s.dias || {})) {
       const x = T.dias[d] || (T.dias[d] = { descargas: 0, horas: 0 });
@@ -189,6 +199,8 @@ async function main() {
   console.log(`\nTOTAL ultimos 30 dias: ${T.dls30} descargas · ${T.horas30} horas`);
   console.log(`TOTAL 30 dias previos: ${T.dlsPrev30} descargas · ${T.horasPrev30} horas  (cambio ${cambio ?? "–"}%)`);
   console.log(`TOTAL historico OP3:   ${T.dlsAll} descargas · ${T.horasAll} horas`);
+  const tiposT = {}; for (const x of Object.values(shows)) for (const [k, n] of Object.entries(x.tipos || {})) tiposT[k] = (tiposT[k] || 0) + n;
+  console.log("Tipos de peticion 60d:", JSON.stringify(tiposT), "· oyentes unicos 30d (suma por show):", T.oyentes30);
   console.log("Plataformas 60d:", Object.entries(T.apps).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([a, n]) => `${a}=${n}`).join(", "));
 
   const salida = { generado: ahora.toISOString(), fecha: hoyISO, ventanaDias: DIAS,
