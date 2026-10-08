@@ -86,6 +86,26 @@
                  font-weight:700;color:var(--zahav)}
   .ins-card em{font-style:normal;font-size:.72rem;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
 
+  /* ── CONSUMO REAL ── */
+  #consumo{max-width:1200px;margin:0 auto 20px;display:none}
+  #consumo h2{font-family:'Frank Ruhl Libre',serif;font-size:1.2rem;text-align:center;margin-bottom:12px;color:var(--klaf)}
+  .consumo-chart{display:flex;align-items:flex-end;gap:2px;height:110px;margin-top:14px;padding:8px;
+                 background:var(--card);border:1px solid var(--linea);border-radius:8px}
+  .consumo-chart .cb{flex:1;background:var(--tchelet);opacity:.55;border-radius:2px 2px 0 0;min-height:2px}
+  .consumo-chart .cb.u30{background:var(--zahav);opacity:.95}
+  .consumo-eje{display:flex;justify-content:space-between;font-size:.62rem;color:var(--mut);padding:3px 4px 0}
+  .consumo-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
+  .consumo-box{background:var(--card);border:1px solid var(--linea);border-radius:8px;padding:12px 14px}
+  .consumo-box h4{font-size:.8rem;color:var(--mut);margin-bottom:8px;font-weight:600}
+  .consumo-box ul{list-style:none;max-height:260px;overflow:auto}
+  .consumo-box li{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:4px 0;border-bottom:1px dashed var(--linea)}
+  .consumo-box li .n{direction:rtl;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .consumo-box li b{white-space:nowrap;color:var(--zahav)}
+  .consumo-box li .sube{color:var(--olive)} .consumo-box li .baja{color:var(--adom)}
+  .alerta{margin-top:10px;background:var(--crema);border:1px solid var(--adom);border-radius:8px;padding:10px 14px;font-size:.8rem}
+  .alerta b{color:var(--adom)}
+  .consumo-nota{font-size:.72rem;color:var(--mut);margin-top:8px;text-align:center;line-height:1.5}
+
   /* ── GRID DE SHOWS ── */
   .grid{max-width:1200px;margin:0 auto;display:grid;
         grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
@@ -208,7 +228,7 @@
     <div class="tot verde"><b id="t-hoy">–</b><span>shiurim subidos hoy</span></div>
     <div class="tot"><b id="t-anio">–</b><span>shiurim este año</span></div>
     <div class="tot oro"><b id="t-dls30">–</b><span>▶ escuchas últimos 30 días</span></div>
-    <div class="tot oro"><b id="t-horasmes">–</b><span>horas escuchadas 30 días</span></div>
+    <div class="tot oro"><b id="t-horasmes">–</b><span id="t-horasmes-l">horas escuchadas 30 días</span></div>
     <div class="tot oro"><b id="t-horas">–</b><span>horas escuchadas en total</span></div>
     <div class="tot"><b id="t-total">–</b><span>episodios en total</span></div>
     <div class="tot joya"><b id="t-shows">–</b><span>shows</span></div>
@@ -250,6 +270,27 @@
     <div class="ins-card"><span id="ins-dia">–</span><em>día más productivo</em></div>
     <div class="ins-card"><span id="ins-racha">–</span><em>mejor racha activa</em></div>
   </div>
+</section>
+
+<!-- CONSUMO REAL (robot OP3) -->
+<section id="consumo">
+  <h2>🎧 Consumo real · todas las apps (Spotify aparte)</h2>
+  <div class="ins-grid">
+    <div class="ins-card"><span id="c-h30">–</span><em>horas últimos 30 días</em></div>
+    <div class="ins-card"><span id="c-hprev">–</span><em>horas 30 días anteriores</em></div>
+    <div class="ins-card"><span id="c-cambio">–</span><em>cambio vs. mes anterior</em></div>
+    <div class="ins-card"><span id="c-d30">–</span><em>▶ escuchas últimos 30 días</em></div>
+    <div class="ins-card"><span id="c-app">–</span><em>📱 horas en apps de podcast (30d)</em></div>
+    <div class="ins-card"><span id="c-web">–</span><em>🌐 horas en navegador / web (30d)</em></div>
+  </div>
+  <div class="consumo-chart" id="c-chart"></div>
+  <div class="consumo-eje"><span id="c-eje-ini"></span><span>← hace 30 días →</span><span>hoy</span></div>
+  <div class="consumo-cols">
+    <div class="consumo-box"><h4>📱 Desde dónde escuchan (desde 17 jul)</h4><ul id="c-apps"></ul></div>
+    <div class="consumo-box"><h4>📊 Por show · últimos 30 días</h4><ul id="c-shows"></ul></div>
+  </div>
+  <div id="c-alertas"></div>
+  <p class="consumo-nota" id="c-nota"></p>
 </section>
 
 <p class="buscando" id="buscando">🔎 Buscando shows en GitHub…</p>
@@ -310,6 +351,19 @@ async function cargarSpotifyLive(){
       if(el)el.textContent="Datos Spotify: "+(j.fecha||"");
     }
   }catch(e){/* aun no existe el archivo */}
+}
+// ── stats_op3.json: lo publica el robot diario (.github/workflows/stats.yml) ──
+// Escuchas REALES de TODAS las plataformas (Spotify, Apple, YouTube, navegador...)
+// porque cada audio de cada feed pasa por op3.dev/e/. Horas = descarga x duracion
+// de ese episodio. Asi el panel no depende del token compartido de OP3.
+let ROBOT=null;
+async function cargarRobot(){
+  try{
+    const r=await fetchT("stats_op3.json?nc="+Date.now(),8000);
+    if(!r.ok)return;
+    const j=await r.json();
+    if(j&&j.shows)ROBOT=j;
+  }catch(e){/* el robot aun no corre */}
 }
 // descargas OP3 acumuladas AL DIA DEL CORTE (17/jul/2026):
 // todo lo que OP3 sume por encima de esto es CRECIMIENTO NUEVO
@@ -411,6 +465,7 @@ function totales(){
   animarNum("t-anio",T.anio);
   document.getElementById("t-dls30").textContent=T.dls30?T.dls30.toLocaleString():"–";
   document.getElementById("t-horasmes").textContent=T.hseg30?segFmt(T.hseg30):"–";
+  document.getElementById("t-horasmes-l").textContent=T.spo30?"horas escuchadas 30 días (todas + Spotify)":"horas escuchadas 30 días (sin Spotify)";
   document.getElementById("t-horas").textContent=T.hsegAll?segFmt(T.hsegAll):"–";
   document.getElementById("t-total").textContent=T.total.toLocaleString();
   animarNum("t-shows",T.shows);
@@ -488,6 +543,7 @@ async function fetchT(url,ms){
 }
 
 async function pintarShow(repo, feedURL){
+  if(ROBOT?.shows?.[repo]?.duplicadoDe)return; // mismo feed que otro repo: no contar doble
   let xml;
   try{
     const r=await fetchT(feedURL+"?nc="+Date.now(),8000);
@@ -545,21 +601,34 @@ async function pintarShow(repo, feedURL){
   const segPorTitulo={};
   items.forEach(e=>{segPorTitulo[e.titulo.trim()]=e.seg;});
   let O={dls30:0,dlsAll:0,hseg30:0,hsegAll:0,statsURL:""},op3ok=false;
-  try{
+  const R=ROBOT?.shows?.[repo];
+  if(R&&R.showUuid){
+    O={dls30:R.dls30||0,dlsAll:R.dlsAll||0,hseg30:(R.horas30||0)*3600,hsegAll:(R.horasAll||0)*3600,statsURL:R.statsURL};
+    op3ok=true;
+  }else try{
     O=await op3Stats(feedURL,segPorTitulo,prom*60);
     op3ok=true;
   }catch(e){/* show sin datos OP3 todavia */}
   // ── datos reales de Spotify Creators + crecimiento automatico OP3 ──
   const SP = SPOTIFY_STATS[repo]||{};
   const durProm = items.length ? seg/items.length : ((prom||30)*60);
-  const crec = op3ok ? Math.max(0, O.dlsAll - (OP3_BASE[repo]||0)) : 0;
-  const crecSeg = crec * durProm;
-  // 30 dias: OP3 en vivo si ya tiene datos; si no, el corte de Spotify
-  const seg30Real  = (op3ok&&O.hseg30>0) ? O.hseg30 : (SP.horas30 ? SP.horas30*3600 : 0);
-  const esc30Real  = (op3ok&&O.dls30>0)  ? O.dls30  : (SP.plays30||0);
+  // crecimiento desde el corte de Spotify: con el robot es exacto (suma dia por dia
+  // de cada escucha x duracion de su episodio); sin robot, estimado como antes
+  const conRobot = !!(R && R.showUuid && R.dlsCorte!=null);
+  const crec = conRobot ? R.dlsCorte : (op3ok ? Math.max(0, O.dlsAll - (OP3_BASE[repo]||0)) : 0);
+  const crecSeg = conRobot ? R.horasCorte*3600 : crec * durProm;
+  // 30 dias: lo que OP3 midio de verdad (aunque sea 0). El corte viejo de
+  // Spotify (julio) solo se usa si OP3 todavia no conoce el show.
+  // Spotify NO pasa por op3.dev/e/ (guarda su copia del audio): sus horas solo
+  // se suman si stats_spotify.json trae un dato de Creators de hace menos de 35 dias
+  const spoFresco = SPOTIFY_LIVE && SPOTIFY_LIVE.shows?.[repo] && (Date.now()-Date.parse(SPOTIFY_LIVE.fecha||0))<35*86400000;
+  const spo30 = spoFresco ? (SP.horas30||0)*3600 : 0;
+  const seg30Real  = op3ok ? O.hseg30 + spo30 : (SP.horas30 ? SP.horas30*3600 : 0);
+  const esc30Real  = op3ok ? O.dls30 + (spoFresco ? (SP.plays30||0) : 0) : (SP.plays30||0);
+  if(spoFresco) T.spo30 = (T.spo30||0) + spo30;
   // historia: corte real de Spotify + lo nuevo que suma OP3 solo
-  const segAllReal = (SP.horasAll ? SP.horasAll*3600 : 0) + (SP.horasAll ? crecSeg : (op3ok?O.hsegAll:0));
-  const escAllReal = (SP.plays||0) + (SP.plays ? crec : (op3ok?O.dlsAll:0));
+  const segAllReal = (SP.horasAll ? SP.horasAll*3600 : 0) + (SP.horasAll||conRobot ? crecSeg : (op3ok?O.hsegAll:0));
+  const escAllReal = (SP.plays||0) + (SP.plays||conRobot ? crec : (op3ok?O.dlsAll:0));
   T.hseg30 += seg30Real; T.hsegAll += segAllReal;
   T.dls30  += esc30Real;
   T.histPlays += escAllReal; T.histSeg += segAllReal;
@@ -728,6 +797,63 @@ function pintarInsights(){
   document.getElementById("insights").style.display="block";
 }
 
+function pintarConsumo(){
+  if(!ROBOT||!ROBOT.total)return;
+  const T2=ROBOT.total, shows=Object.values(ROBOT.shows||{});
+  const fmt=n=>Math.round(n||0).toLocaleString();
+  document.getElementById("c-h30").textContent=fmt(T2.horas30)+" h";
+  document.getElementById("c-hprev").textContent=fmt(T2.horasPrev30)+" h";
+  const c=T2.cambioPct;
+  const el=document.getElementById("c-cambio");
+  el.textContent=c==null?"–":(c>0?"▲ +":c<0?"▼ ":"")+c+"%";
+  el.style.color=c==null?"":c>=0?"var(--olive)":"var(--adom)";
+  document.getElementById("c-d30").textContent=fmt(T2.dls30);
+  const vs=(a,b)=>b?` <small style="font-size:.7rem;color:${a>=b?"var(--olive)":"var(--adom)"}">${a>=b?"▲":"▼"}${Math.abs(Math.round((a/b-1)*100))}%</small>`:"";
+  document.getElementById("c-app").innerHTML=fmt(T2.horasApp30)+" h"+vs(T2.horasApp30,T2.horasAppPrev30);
+  document.getElementById("c-web").innerHTML=fmt(T2.horasWeb30)+" h"+vs(T2.horasWeb30,T2.horasWebPrev30);
+  // grafica diaria (60 dias): azul = 30 dias anteriores, dorado = ultimos 30
+  const hoyU=new Date(ROBOT.generado||Date.now()); const dias=[];
+  for(let i=ROBOT.ventanaDias||60;i>=1;i--){
+    const d=new Date(Date.UTC(hoyU.getUTCFullYear(),hoyU.getUTCMonth(),hoyU.getUTCDate())-i*86400000).toISOString().slice(0,10);
+    dias.push([d,(T2.dias?.[d]?.horas)||0,(T2.dias?.[d]?.descargas)||0,i<=30]);
+  }
+  const max=Math.max(1,...dias.map(x=>x[1]));
+  document.getElementById("c-chart").innerHTML=dias.map(([d,h,n,u])=>
+    `<div class="cb ${u?"u30":""}" style="height:${Math.max(2,h/max*100)}%" title="${d}: ${Math.round(h)} h · ${n} escuchas"></div>`).join("");
+  document.getElementById("c-eje-ini").textContent=dias[0]?.[0]||"";
+  // plataformas
+  const grupo=a=>/exoplayer|stagefright|androiddownload|okhttp|dalvik/i.test(a)?"Android (reproductor)":/applecoremedia|itunes/i.test(a)?"Apple Podcasts":a;
+  const ag={};Object.entries(T2.apps||{}).forEach(([a,n])=>{const g=grupo(a);ag[g]=(ag[g]||0)+n;});
+  const apps=Object.entries(ag).sort((a,b)=>b[1]-a[1]);
+  const totApps=apps.reduce((a,x)=>a+x[1],0)||1;
+  document.getElementById("c-apps").innerHTML=apps.slice(0,15).map(([a,n])=>
+    `<li><span>${escHtml(a)}</span><b>${n.toLocaleString()} · ${Math.round(n/totApps*100)}%</b></li>`).join("")||"<li>Sin datos aún</li>";
+  // por show
+  const lista=shows.filter(s=>s.showUuid&&!s.duplicadoDe).sort((a,b)=>(b.horas30||0)-(a.horas30||0));
+  document.getElementById("c-shows").innerHTML=lista.map(s=>{
+    const p=s.horasPrev30?Math.round((s.horas30/s.horasPrev30-1)*100):null;
+    const tag=p==null?"":`<span class="${p>=0?"sube":"baja"}">${p>=0?"▲":"▼"}${Math.abs(p)}%</span> `;
+    return `<li><span class="n">${escHtml(s.nombre||s.repo)}</span><b>${tag}${fmt(s.horas30)} h</b></li>`;}).join("");
+  // alertas: lo que impide contar TODO
+  const al=[];
+  const sinPref=shows.filter(s=>s.sinOp3>0);
+  if(sinPref.length)al.push(`<b>⚠ Episodios que NO se cuentan</b> (su audio no pasa por op3.dev/e/): `+
+    sinPref.map(s=>`${escHtml(s.nombre||s.repo)} (${s.sinOp3} de ${s.episodios})`).join(", "));
+  const noOp3=shows.filter(s=>!s.showUuid&&!s.sinFeed);
+  if(noOp3.length)al.push(`<b>⚠ OP3 aún no reconoce estos feeds</b> (sus escuchas no salen en el panel): `+
+    noOp3.map(s=>escHtml(s.nombre||s.repo)).join(", "));
+  if(T2.horasMasiva30)al.push(`<b>🧹 Filtradas ${fmt(T2.horasMasiva30)} h</b> de descargas masivas en 30 días (un navegador o programa bajando 20+ episodios distintos el mismo día: no es gente escuchando, no se cuentan).`);
+  const dup=shows.filter(s=>s.duplicadoDe);
+  if(dup.length)al.push(`<b>ℹ Repos duplicados</b> (mismo feed, se cuentan una sola vez): `+
+    dup.map(s=>`${escHtml(s.repo)} = ${escHtml(s.duplicadoDe)}`).join(", "));
+  document.getElementById("c-alertas").innerHTML=al.map(a=>`<div class="alerta">${a}</div>`).join("");
+  document.getElementById("c-nota").textContent=
+    `Medido por OP3: cada vez que alguien baja o reproduce un audio por el link op3.dev/e/ (Apple, Amazon, Pocket Casts, Overcast, Android, navegador…). `+
+    `⚠ Spotify NO pasa por ese link (guarda su propia copia del audio), así que sus escuchas solo se ven en Spotify for Creators. `+
+    `Horas = cada escucha × la duración de ese episodio. Robot actualizado: ${new Date(ROBOT.generado).toLocaleString("es-MX")}.`;
+  document.getElementById("consumo").style.display="block";
+}
+
 function pintarDestacado(){
   if(!TODOS_EPISODIOS.length)return;
   // shiur del dia: pseudo-aleatorio estable segun el dia
@@ -757,13 +883,14 @@ btnNoche.onclick=()=>{
 };
 
 async function cargar(){
-  await cargarSpotifyLive();
+  await Promise.all([cargarSpotifyLive(),cargarRobot()]);
   T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0,dls30:0,dlsAll:0,hseg30:0,hsegAll:0,histPlays:0,histSeg:0,seguidores:0};
   HISTORIA=[];
   G={porDiaGlobal:Array(7).fill(0), showMesMax:{nombre:"—",n:0}, ultimoGlobal:{titulo:"—",fecha:null,show:""}, rachaMax:0, primeraFecha:null};
   TODOS_EPISODIOS=[];
   grid.innerHTML="";
   document.getElementById("insights").style.display="none";
+  document.getElementById("consumo").style.display="none";
   document.getElementById("destacado").classList.add("oculto");
   const busc=document.getElementById("buscando");
   busc.style.display="block";busc.textContent="🔎 Buscando shows en GitHub…";
@@ -776,7 +903,7 @@ async function cargar(){
       repos.filter(x=>x.name!=="panel").map(x=>pintarShow(x.name,`https://${GITHUB_USER}.github.io/${x.name}/feed.xml`))
     );
     if(T.shows===0)grid.innerHTML=`<p class="err">No encontré shows con feed publicado todavía.</p>`;
-    else{pintarInsights();pintarDestacado();lanzarConfeti();}
+    else{pintarInsights();pintarConsumo();pintarDestacado();lanzarConfeti();}
     document.getElementById("auto-info").textContent="· se actualiza solo cada 10 min";
   }catch(e){busc.textContent="⚠️ No pude consultar GitHub: "+e.message;}
 }
