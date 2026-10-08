@@ -228,7 +228,7 @@
     <div class="tot verde"><b id="t-hoy">–</b><span>shiurim subidos hoy</span></div>
     <div class="tot"><b id="t-anio">–</b><span>shiurim este año</span></div>
     <div class="tot oro"><b id="t-dls30">–</b><span>▶ escuchas últimos 30 días</span></div>
-    <div class="tot oro"><b id="t-horasmes">–</b><span>horas escuchadas 30 días</span></div>
+    <div class="tot oro"><b id="t-horasmes">–</b><span id="t-horasmes-l">horas escuchadas 30 días</span></div>
     <div class="tot oro"><b id="t-horas">–</b><span>horas escuchadas en total</span></div>
     <div class="tot"><b id="t-total">–</b><span>episodios en total</span></div>
     <div class="tot joya"><b id="t-shows">–</b><span>shows</span></div>
@@ -274,7 +274,7 @@
 
 <!-- CONSUMO REAL (robot OP3) -->
 <section id="consumo">
-  <h2>🎧 Consumo real · todas las plataformas</h2>
+  <h2>🎧 Consumo real · todas las apps (Spotify aparte)</h2>
   <div class="ins-grid">
     <div class="ins-card"><span id="c-h30">–</span><em>horas últimos 30 días</em></div>
     <div class="ins-card"><span id="c-hprev">–</span><em>horas 30 días anteriores</em></div>
@@ -286,7 +286,7 @@
   <div class="consumo-chart" id="c-chart"></div>
   <div class="consumo-eje"><span id="c-eje-ini"></span><span>← hace 30 días →</span><span>hoy</span></div>
   <div class="consumo-cols">
-    <div class="consumo-box"><h4>📱 Desde dónde escuchan (60 días)</h4><ul id="c-apps"></ul></div>
+    <div class="consumo-box"><h4>📱 Desde dónde escuchan (desde 17 jul)</h4><ul id="c-apps"></ul></div>
     <div class="consumo-box"><h4>📊 Por show · últimos 30 días</h4><ul id="c-shows"></ul></div>
   </div>
   <div id="c-alertas"></div>
@@ -465,6 +465,7 @@ function totales(){
   animarNum("t-anio",T.anio);
   document.getElementById("t-dls30").textContent=T.dls30?T.dls30.toLocaleString():"–";
   document.getElementById("t-horasmes").textContent=T.hseg30?segFmt(T.hseg30):"–";
+  document.getElementById("t-horasmes-l").textContent=T.spo30?"horas escuchadas 30 días (todas + Spotify)":"horas escuchadas 30 días (sin Spotify)";
   document.getElementById("t-horas").textContent=T.hsegAll?segFmt(T.hsegAll):"–";
   document.getElementById("t-total").textContent=T.total.toLocaleString();
   animarNum("t-shows",T.shows);
@@ -618,8 +619,13 @@ async function pintarShow(repo, feedURL){
   const crecSeg = conRobot ? R.horasCorte*3600 : crec * durProm;
   // 30 dias: lo que OP3 midio de verdad (aunque sea 0). El corte viejo de
   // Spotify (julio) solo se usa si OP3 todavia no conoce el show.
-  const seg30Real  = op3ok ? O.hseg30 : (SP.horas30 ? SP.horas30*3600 : 0);
-  const esc30Real  = op3ok ? O.dls30  : (SP.plays30||0);
+  // Spotify NO pasa por op3.dev/e/ (guarda su copia del audio): sus horas solo
+  // se suman si stats_spotify.json trae un dato de Creators de hace menos de 35 dias
+  const spoFresco = SPOTIFY_LIVE && SPOTIFY_LIVE.shows?.[repo] && (Date.now()-Date.parse(SPOTIFY_LIVE.fecha||0))<35*86400000;
+  const spo30 = spoFresco ? (SP.horas30||0)*3600 : 0;
+  const seg30Real  = op3ok ? O.hseg30 + spo30 : (SP.horas30 ? SP.horas30*3600 : 0);
+  const esc30Real  = op3ok ? O.dls30 + (spoFresco ? (SP.plays30||0) : 0) : (SP.plays30||0);
+  if(spoFresco) T.spo30 = (T.spo30||0) + spo30;
   // historia: corte real de Spotify + lo nuevo que suma OP3 solo
   const segAllReal = (SP.horasAll ? SP.horasAll*3600 : 0) + (SP.horasAll||conRobot ? crecSeg : (op3ok?O.hsegAll:0));
   const escAllReal = (SP.plays||0) + (SP.plays||conRobot ? crec : (op3ok?O.dlsAll:0));
