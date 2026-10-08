@@ -1,0 +1,408 @@
+{
+ "2026-10-08": {
+  "dls30": 21134,
+  "horas30": 12398,
+  "dlsAll": 1299,
+  "horasAll": 745,
+  "shows": {
+   "abergel": {
+    "dls30": 283,
+    "horas30": 172,
+    "dlsAll": 9,
+    "horasAll": 2
+   },
+   "abuhatzeira": {
+    "dls30": 253,
+    "horas30": 87,
+    "dlsAll": 38,
+    "horasAll": 23
+   },
+   "ahavatjesed": {
+    "dls30": 2,
+    "horas30": 0,
+    "dlsAll": 13,
+    "horasAll": 1
+   },
+   "bensoussan": {
+    "dls30": 6,
+    "horas30": 5,
+    "dlsAll": 22,
+    "horasAll": 10
+   },
+   "chazaq": {
+    "dls30": 0,
+    "horas30": 0,
+    "dlsAll": 19,
+    "horasAll": 10
+   },
+   "credi": {
+    "dls30": 3,
+    "horas30": 0,
+    "dlsAll": 3,
+    "horasAll": 0
+   },
+   "efshar": {
+    "dls30": 0,
+    "horas30": 0,
+    "dlsAll": 18,
+    "horasAll": 5
+   },
+   "hilu": {
+    "dls30": 0,
+    "horas30": 0,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "isaaccredi": {
+    "dls30": 0,
+    "horas30": 0,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "musar": {
+    "dls30": 370,
+    "horas30": 329,
+    "dlsAll": 27,
+    "horasAll": 22
+   },
+   "musayof": {
+    "dls30": 143,
+    "horas30": 110,
+    "dlsAll": 9,
+    "horasAll": 6
+   },
+   "nacash": {
+    "dls30": 0,
+    "horas30": 0,
+    "dlsAll": 4,
+    "horasAll": 0
+   },
+   "ofirmalka": {
+    "dls30": 8,
+    "horas30": 5,
+    "dlsAll": 16,
+    "horasAll": 12
+   },
+   "peretz": {
+    "dls30": 151,
+    "horas30": 24,
+    "dlsAll": 11,
+    "horasAll": 3
+   },
+   "podcast": {
+    "dls30": 780,
+    "horas30": 152,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "ravasherweiss": {
+    "dls30": 2081,
+    "horas30": 1340,
+    "dlsAll": 461,
+    "horasAll": 230
+   },
+   "ravmeir": {
+    "dls30": 1749,
+    "horas30": 1686,
+    "dlsAll": 317,
+    "horasAll": 288
+   },
+   "ravmutzafi": {
+    "dls30": 371,
+    "horas30": 396,
+    "dlsAll": 16,
+    "horasAll": 17
+   },
+   "ravshmueli": {
+    "dls30": 1059,
+    "horas30": 1639,
+    "dlsAll": 13,
+    "horasAll": 5
+   },
+   "ravyitzchakyosef": {
+    "dls30": 130,
+    "horas30": 130,
+    "dlsAll": 8,
+    "horasAll": 14
+   },
+   "shaked": {
+    "dls30": 507,
+    "horas30": 335,
+    "dlsAll": 42,
+    "horasAll": 27
+   },
+   "tefila": {
+    "dls30": 1,
+    "horas30": 0,
+    "dlsAll": 1,
+    "horasAll": 0
+   },
+   "torahanytime": {
+    "dls30": 481,
+    "horas30": 39,
+    "dlsAll": 67,
+    "horasAll": 4
+   },
+   "yakobov": {
+    "dls30": 11617,
+    "horas30": 5438,
+    "dlsAll": 120,
+    "horasAll": 31
+   },
+   "yalkutyosef": {
+    "dls30": 0,
+    "horas30": 0,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "yechavedaat": {
+    "dls30": 1139,
+    "horas30": 511,
+    "dlsAll": 65,
+    "horasAll": 35
+   }
+  }
+ },
+ "_dias": {
+  "2026-08-13": {
+   "descargas": 103,
+   "horas": 70
+  },
+  "2026-08-14": {
+   "descargas": 90,
+   "horas": 49.4
+  },
+  "2026-08-15": {
+   "descargas": 23,
+   "horas": 7
+  },
+  "2026-08-16": {
+   "descargas": 89,
+   "horas": 44.1
+  },
+  "2026-08-24": {
+   "descargas": 823,
+   "horas": 567
+  },
+  "2026-08-25": {
+   "descargas": 868,
+   "horas": 667
+  },
+  "2026-08-26": {
+   "descargas": 2144,
+   "horas": 1969.3
+  },
+  "2026-08-27": {
+   "descargas": 1522,
+   "horas": 1371.6
+  },
+  "2026-08-28": {
+   "descargas": 952,
+   "horas": 919.1
+  },
+  "2026-08-29": {
+   "descargas": 1668,
+   "horas": 1464.2
+  },
+  "2026-08-30": {
+   "descargas": 1956,
+   "horas": 1503
+  },
+  "2026-08-31": {
+   "descargas": 1154,
+   "horas": 842.7
+  },
+  "2026-09-01": {
+   "descargas": 768,
+   "horas": 527.7
+  },
+  "2026-09-03": {
+   "descargas": 778,
+   "horas": 467.8
+  },
+  "2026-09-04": {
+   "descargas": 1228,
+   "horas": 723.7
+  },
+  "2026-09-07": {
+   "descargas": 1349,
+   "horas": 757.7
+  },
+  "2026-09-08": {
+   "descargas": 674,
+   "horas": 390.6
+  },
+  "2026-09-09": {
+   "descargas": 1272,
+   "horas": 923.8
+  },
+  "2026-09-10": {
+   "descargas": 965,
+   "horas": 603.2
+  },
+  "2026-09-14": {
+   "descargas": 1048,
+   "horas": 598.4
+  },
+  "2026-09-15": {
+   "descargas": 1042,
+   "horas": 634.7
+  },
+  "2026-09-16": {
+   "descargas": 1104,
+   "horas": 636.9
+  },
+  "2026-09-17": {
+   "descargas": 799,
+   "horas": 490.1
+  },
+  "2026-09-22": {
+   "descargas": 436,
+   "horas": 290.4
+  },
+  "2026-09-25": {
+   "descargas": 446,
+   "horas": 220
+  },
+  "2026-09-28": {
+   "descargas": 486,
+   "horas": 274.9
+  },
+  "2026-09-30": {
+   "descargas": 408,
+   "horas": 216.5
+  },
+  "2026-10-01": {
+   "descargas": 361,
+   "horas": 193.1
+  },
+  "2026-10-02": {
+   "descargas": 2236,
+   "horas": 1062.3
+  },
+  "2026-10-03": {
+   "descargas": 557,
+   "horas": 324.7
+  },
+  "2026-10-04": {
+   "descargas": 611,
+   "horas": 402.1
+  },
+  "2026-10-05": {
+   "descargas": 671,
+   "horas": 410.3
+  },
+  "2026-10-06": {
+   "descargas": 500,
+   "horas": 306.3
+  },
+  "2026-10-07": {
+   "descargas": 852,
+   "horas": 573
+  },
+  "2026-08-10": {
+   "descargas": 107,
+   "horas": 62.5
+  },
+  "2026-08-17": {
+   "descargas": 84,
+   "horas": 49.5
+  },
+  "2026-08-18": {
+   "descargas": 190,
+   "horas": 89.9
+  },
+  "2026-08-19": {
+   "descargas": 131,
+   "horas": 89.1
+  },
+  "2026-08-20": {
+   "descargas": 253,
+   "horas": 167.7
+  },
+  "2026-08-21": {
+   "descargas": 217,
+   "horas": 134.6
+  },
+  "2026-08-22": {
+   "descargas": 133,
+   "horas": 148.3
+  },
+  "2026-08-23": {
+   "descargas": 686,
+   "horas": 360.9
+  },
+  "2026-09-02": {
+   "descargas": 500,
+   "horas": 338.9
+  },
+  "2026-09-06": {
+   "descargas": 998,
+   "horas": 597.1
+  },
+  "2026-09-11": {
+   "descargas": 600,
+   "horas": 343.2
+  },
+  "2026-09-12": {
+   "descargas": 1014,
+   "horas": 696.7
+  },
+  "2026-09-18": {
+   "descargas": 1161,
+   "horas": 613.5
+  },
+  "2026-09-20": {
+   "descargas": 866,
+   "horas": 546.2
+  },
+  "2026-09-21": {
+   "descargas": 142,
+   "horas": 83.1
+  },
+  "2026-09-23": {
+   "descargas": 544,
+   "horas": 274.8
+  },
+  "2026-09-24": {
+   "descargas": 252,
+   "horas": 132.1
+  },
+  "2026-09-26": {
+   "descargas": 413,
+   "horas": 208.4
+  },
+  "2026-09-27": {
+   "descargas": 279,
+   "horas": 156.1
+  },
+  "2026-09-29": {
+   "descargas": 261,
+   "horas": 158.4
+  },
+  "2026-08-09": {
+   "descargas": 121,
+   "horas": 79
+  },
+  "2026-08-12": {
+   "descargas": 99,
+   "horas": 51.2
+  },
+  "2026-08-11": {
+   "descargas": 135,
+   "horas": 93.1
+  },
+  "2026-09-05": {
+   "descargas": 512,
+   "horas": 344.7
+  },
+  "2026-09-13": {
+   "descargas": 366,
+   "horas": 204.7
+  },
+  "2026-09-19": {
+   "descargas": 768,
+   "horas": 428.4
+  }
+ }
+}
