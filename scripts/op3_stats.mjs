@@ -21,7 +21,9 @@ const IGNORAR = new Set(["panel", "charts", "torre-autenta", "midot"]);
 const ahora = new Date();
 const hoyISO = ahora.toISOString().slice(0, 10);
 const diaMs = 86400000;
-const inicio = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()) - DIAS * diaMs);
+// corte de Spotify for Creators: desde aqui todo lo nuevo lo mide OP3
+const CORTE = "2026-07-17";
+let inicio = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()) - DIAS * diaMs);
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const b64url = (s) => Buffer.from(s, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -122,7 +124,7 @@ async function procesarShow(repo) {
   // 3. descargas una por una, ultimos 60 dias → por dia, por app, horas exactas
   // una "escucha" = misma persona (audienceId) + mismo episodio + mismo dia.
   // Asi un adelantar/pausar (varias peticiones) no cuenta doble, y se quitan robots.
-  const porDia = {}; const apps = {}; const paises = {}; const tipos = {};
+  const porDia = {}; const apps = {}; const paises = {}; const tipos = {}; const refs = {}; const picos = {};
   const vistosDl = new Set(); const oyentes30 = new Set();
   const hoy0 = Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate());
   let token, paginas = 0, filas = 0, sinMatch = 0, robots = 0, repetidas = 0;
@@ -141,9 +143,11 @@ async function procesarShow(repo) {
       if (Date.parse(dia + "T00:00:00Z") >= hoy0 - 30 * diaMs && d.audienceId) oyentes30.add(d.audienceId);
       let seg = durPorAudio.get(llaveAudio(d.url));
       if (seg === undefined) { seg = durProm; sinMatch++; }
-      const x = porDia[dia] || (porDia[dia] = { d: 0, s: 0 });
-      x.d++; x.s += seg;
+      const x = porDia[dia] || (porDia[dia] = { d: 0, s: 0, sApp: 0, sWeb: 0 });
+      x.d++; x.s += seg; if (tipo === "browser") x.sWeb += seg; else x.sApp += seg;
       const app = d.agentName || d.agentType || "Desconocido";
+      const ref = d.referrerName || d.referrerType; if (ref) refs[ref] = (refs[ref] || 0) + 1;
+      const pk = dia + " " + app; picos[pk] = (picos[pk] || 0) + 1;
       apps[app] = (apps[app] || 0) + 1;
       if (d.countryCode) paises[d.countryCode] = (paises[d.countryCode] || 0) + 1;
     }
@@ -152,20 +156,36 @@ async function procesarShow(repo) {
   } while (token && paginas < 50);
 
   const dias = {};
-  for (const [k, v] of Object.entries(porDia)) dias[k] = { descargas: v.d, horas: +(v.s / 3600).toFixed(1) };
+  for (const [k, v] of Object.entries(porDia)) dias[k] = { descargas: v.d, horas: +(v.s / 3600).toFixed(1),
+    hApp: +(v.sApp / 3600).toFixed(1), hWeb: +(v.sWeb / 3600).toFixed(1) };
   const suma = (desde, hasta) => Object.entries(porDia).reduce((a, [k, v]) => {
     const t = Date.parse(k + "T00:00:00Z"); if (t >= desde && t < hasta) { a.d += v.d; a.s += v.s; } return a;
   }, { d: 0, s: 0 });
+  const sumaK = (k, desde, hasta) => Object.entries(porDia).reduce((a, [d, v]) => {
+    const t = Date.parse(d + "T00:00:00Z"); return t >= desde && t < hasta ? a + v[k] : a; }, 0);
   const u30 = suma(hoy0 - 30 * diaMs, hoy0 + diaMs), p30 = suma(hoy0 - 60 * diaMs, hoy0 - 30 * diaMs);
   Object.assign(res, {
     dls30: u30.d, horas30: Math.round(u30.s / 3600),
     dlsPrev30: p30.d, horasPrev30: Math.round(p30.s / 3600),
-    oyentes30: oyentes30.size, dias, apps, paises, tipos, filas, robots, repetidas, sinMatch,
+    horasApp30: Math.round(sumaK("sApp", hoy0 - 30 * diaMs, hoy0 + diaMs) / 3600),
+    horasWeb30: Math.round(sumaK("sWeb", hoy0 - 30 * diaMs, hoy0 + diaMs) / 3600),
+    horasAppPrev30: Math.round(sumaK("sApp", hoy0 - 60 * diaMs, hoy0 - 30 * diaMs) / 3600),
+    horasWebPrev30: Math.round(sumaK("sWeb", hoy0 - 60 * diaMs, hoy0 - 30 * diaMs) / 3600),
+    picos: Object.entries(picos).sort((a, b) => b[1] - a[1]).slice(0, 5),
+    refs, oyentes30: oyentes30.size, dias, apps, paises, tipos, filas, robots, repetidas, sinMatch,
   });
   return res;
 }
 
 async function main() {
+  let hist = {};
+  try { hist = JSON.parse(await readFile("historial_op3.json", "utf8")); } catch { /* primera vez */ }
+  // si todavia no hay historial desde el corte, la primera vez se baja todo desde el corte
+  const diaAntes = new Date(inicio.getTime() - diaMs).toISOString().slice(0, 10);
+  if (!hist._diasShow || (diaAntes >= CORTE && !Object.values(hist._diasShow).some((x) => x[diaAntes]))) {
+    inicio = new Date(CORTE + "T00:00:00Z");
+    console.log("Primera vez: bajando todo desde el corte " + CORTE);
+  }
   const repos = await listarRepos();
   console.log(`Shows encontrados: ${repos.length} · token ${TOKEN === "preview07ce" ? "PREVIEW (compartido)" : "propio"}`);
   const shows = {}; const vistos = new Map();
@@ -176,6 +196,7 @@ async function main() {
       if (s.showUuid && vistos.has(s.showUuid)) { s.duplicadoDe = vistos.get(s.showUuid); }
       else if (s.showUuid) vistos.set(s.showUuid, repo);
       shows[repo] = s;
+      if (s.picos?.length) console.log(`    picos (dia app = descargas): ${s.picos.map(([k, n]) => k + "=" + n).join(" · ")} | refs ${JSON.stringify(s.refs)}`);
       console.log(`✓ ${repo.padEnd(18)} oyentes30 ${String(s.oyentes30 ?? "–").padStart(5)} · peticiones ${s.filas ?? "–"} (robots ${s.robots ?? "–"}, repetidas ${s.repetidas ?? "–"}) · 30d: ${String(s.dls30 ?? "–").padStart(6)} desc · ${String(s.horas30 ?? "–").padStart(5)} h | 30d previos: ${String(s.dlsPrev30 ?? "–").padStart(6)} desc · ${String(s.horasPrev30 ?? "–").padStart(5)} h | total ${s.dlsAll ?? "–"} desc · ${s.horasAll ?? "–"} h${s.sinOp3 ? ` | ⚠ ${s.sinOp3} episodios SIN op3` : ""}${s.errorOp3 ? " | ⚠ " + s.errorOp3 : ""}${s.duplicadoDe ? " | duplicado de " + s.duplicadoDe : ""}`);
     } catch (e) {
       shows[repo] = { repo, error: e.message.slice(0, 200) };
@@ -185,14 +206,17 @@ async function main() {
   }
 
   // totales (sin contar duplicados)
-  const T = { oyentes30: 0, dls30: 0, horas30: 0, dlsPrev30: 0, horasPrev30: 0, dlsAll: 0, horasAll: 0, apps: {}, dias: {} };
+  const SUMAR = ["oyentes30", "dls30", "horas30", "dlsPrev30", "horasPrev30", "dlsAll", "horasAll",
+    "horasApp30", "horasWeb30", "horasAppPrev30", "horasWebPrev30"];
+  const T = { apps: {}, dias: {} }; for (const k of SUMAR) T[k] = 0;
   for (const s of Object.values(shows)) {
     if (s.duplicadoDe || !s.showUuid) continue;
-    for (const k of ["oyentes30", "dls30", "horas30", "dlsPrev30", "horasPrev30", "dlsAll", "horasAll"]) T[k] += s[k] || 0;
+    for (const k of SUMAR) T[k] += s[k] || 0;
     for (const [a, n] of Object.entries(s.apps || {})) T.apps[a] = (T.apps[a] || 0) + n;
     for (const [d, v] of Object.entries(s.dias || {})) {
-      const x = T.dias[d] || (T.dias[d] = { descargas: 0, horas: 0 });
-      x.descargas += v.descargas; x.horas = +(x.horas + v.horas).toFixed(1);
+      const x = T.dias[d] || (T.dias[d] = { descargas: 0, horas: 0, hApp: 0, hWeb: 0 });
+      x.descargas += v.descargas;
+      for (const k of ["horas", "hApp", "hWeb"]) x[k] = +(x[k] + v[k]).toFixed(1);
     }
   }
   const cambio = T.horasPrev30 ? Math.round((T.horas30 / T.horasPrev30 - 1) * 100) : null;
@@ -205,17 +229,36 @@ async function main() {
 
   const salida = { generado: ahora.toISOString(), fecha: hoyISO, ventanaDias: DIAS,
     token: TOKEN === "preview07ce" ? "preview" : "propio", total: { ...T, cambioPct: cambio }, shows };
-  await writeFile("stats_op3.json", JSON.stringify(salida));
+  console.log(`Apps de podcast 30d: ${T.horasApp30} h (antes ${T.horasAppPrev30} h) · Navegador 30d: ${T.horasWeb30} h (antes ${T.horasWebPrev30} h)`);
 
   // historial permanente: un renglon por dia, nunca se borra
-  let hist = {};
-  try { hist = JSON.parse(await readFile("historial_op3.json", "utf8")); } catch { /* primera vez */ }
   hist[hoyISO] = { dls30: T.dls30, horas30: T.horas30, dlsAll: T.dlsAll, horasAll: T.horasAll,
     shows: Object.fromEntries(Object.entries(shows).filter(([, s]) => s.showUuid && !s.duplicadoDe)
       .map(([k, s]) => [k, { dls30: s.dls30, horas30: s.horas30, dlsAll: s.dlsAll, horasAll: s.horasAll }])) };
   // tambien guarda cada dia ya cerrado (descargas/horas reales de ese dia)
   hist._dias = Object.assign(hist._dias || {}, Object.fromEntries(
     Object.entries(T.dias).filter(([d]) => d < hoyISO)));
+  // por show y por dia, permanente: con esto se suma TODO lo oido desde el corte
+  hist._diasShow = hist._diasShow || {};
+  for (const [k, sh] of Object.entries(shows)) {
+    if (!sh.showUuid || sh.duplicadoDe) continue;
+    const h = hist._diasShow[k] || (hist._diasShow[k] = {});
+    for (const [d, v] of Object.entries(sh.dias || {})) if (d < hoyISO && d >= CORTE) h[d] = [v.descargas, v.horas];
+  }
+  // total desde el corte por show (lo usa el panel para la historia)
+  for (const [k, sh] of Object.entries(shows)) {
+    const h = hist._diasShow[k]; if (!h) continue;
+    const v = Object.entries(h).filter(([d]) => d >= CORTE).reduce((a, [, x]) => [a[0] + x[0], a[1] + x[1]], [0, 0]);
+    sh.dlsCorte = v[0]; sh.horasCorte = Math.round(v[1]);
+    delete sh.dias; // el detalle diario ya vive en el historial; aqui solo el total
+  }
+  salida.corte = CORTE;
+  const limite = new Date(Date.parse(hoyISO) - DIAS * diaMs).toISOString().slice(0, 10);
+  salida.total.dias = Object.fromEntries(Object.entries(T.dias).filter(([d]) => d >= limite));
+  salida.total.dlsCorte = Object.values(shows).reduce((a, x) => a + (x.duplicadoDe ? 0 : x.dlsCorte || 0), 0);
+  salida.total.horasCorte = Object.values(shows).reduce((a, x) => a + (x.duplicadoDe ? 0 : x.horasCorte || 0), 0);
+  console.log(`Desde el corte ${CORTE}: ${salida.total.dlsCorte} descargas · ${salida.total.horasCorte} h`);
+  await writeFile("stats_op3.json", JSON.stringify(salida));
   await writeFile("historial_op3.json", JSON.stringify(hist, null, 1));
 }
 
