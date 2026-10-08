@@ -1,24 +1,24 @@
 {
  "2026-10-08": {
-  "dls30": 21134,
-  "horas30": 12398,
+  "dls30": 20731,
+  "horas30": 12079,
   "dlsAll": 1299,
   "horasAll": 745,
   "shows": {
    "abergel": {
-    "dls30": 283,
-    "horas30": 172,
+    "dls30": 243,
+    "horas30": 153,
     "dlsAll": 9,
     "horasAll": 2
    },
    "abuhatzeira": {
-    "dls30": 253,
-    "horas30": 87,
+    "dls30": 240,
+    "horas30": 82,
     "dlsAll": 38,
     "horasAll": 23
    },
    "ahavatjesed": {
-    "dls30": 2,
+    "dls30": 0,
     "horas30": 0,
     "dlsAll": 13,
     "horasAll": 1
@@ -84,8 +84,8 @@
     "horasAll": 12
    },
    "peretz": {
-    "dls30": 151,
-    "horas30": 24,
+    "dls30": 137,
+    "horas30": 22,
     "dlsAll": 11,
     "horasAll": 3
    },
@@ -96,38 +96,38 @@
     "horasAll": 0
    },
    "ravasherweiss": {
-    "dls30": 2081,
-    "horas30": 1340,
+    "dls30": 2027,
+    "horas30": 1302,
     "dlsAll": 461,
     "horasAll": 230
    },
    "ravmeir": {
-    "dls30": 1749,
-    "horas30": 1686,
+    "dls30": 1726,
+    "horas30": 1666,
     "dlsAll": 317,
     "horasAll": 288
    },
    "ravmutzafi": {
-    "dls30": 371,
-    "horas30": 396,
+    "dls30": 329,
+    "horas30": 351,
     "dlsAll": 16,
     "horasAll": 17
    },
    "ravshmueli": {
-    "dls30": 1059,
-    "horas30": 1639,
+    "dls30": 1034,
+    "horas30": 1622,
     "dlsAll": 13,
     "horasAll": 5
    },
    "ravyitzchakyosef": {
-    "dls30": 130,
-    "horas30": 130,
+    "dls30": 1,
+    "horas30": 3,
     "dlsAll": 8,
     "horasAll": 14
    },
    "shaked": {
-    "dls30": 507,
-    "horas30": 335,
+    "dls30": 471,
+    "horas30": 301,
     "dlsAll": 42,
     "horasAll": 27
    },
@@ -156,8 +156,8 @@
     "horasAll": 0
    },
    "yechavedaat": {
-    "dls30": 1139,
-    "horas30": 511,
+    "dls30": 1114,
+    "horas30": 499,
     "dlsAll": 65,
     "horasAll": 35
    }
@@ -281,24 +281,24 @@
    "horas": 1062.3
   },
   "2026-10-03": {
-   "descargas": 557,
-   "horas": 324.7
+   "descargas": 556,
+   "horas": 324.5
   },
   "2026-10-04": {
-   "descargas": 611,
-   "horas": 402.1
+   "descargas": 380,
+   "horas": 237.1
   },
   "2026-10-05": {
-   "descargas": 671,
-   "horas": 410.3
+   "descargas": 631,
+   "horas": 384.7
   },
   "2026-10-06": {
-   "descargas": 500,
-   "horas": 306.3
+   "descargas": 499,
+   "horas": 305
   },
   "2026-10-07": {
-   "descargas": 852,
-   "horas": 573
+   "descargas": 722,
+   "horas": 444.9
   },
   "2026-08-10": {
    "descargas": 107,
@@ -325,8 +325,8 @@
    "horas": 134.6
   },
   "2026-08-22": {
-   "descargas": 133,
-   "horas": 148.3
+   "descargas": 132,
+   "horas": 146.9
   },
   "2026-08-23": {
    "descargas": 686,
