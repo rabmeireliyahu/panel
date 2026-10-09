@@ -60,6 +60,8 @@ class CookiesVencidas extends Error {}
 
 // ── login: el mismo flujo PKCE que hace la pagina de Creators ──
 export async function autenticar(sp_dc, sp_key, pedir = fetch) {
+  // sp_key a veces ya no existe en las cuentas nuevas: se manda solo si la hay
+  const galleta = sp_key ? `sp_dc=${sp_dc}; sp_key=${sp_key}` : `sp_dc=${sp_dc}`;
   const state = b64url(randomBytes(24));
   const verifier = b64url(randomBytes(48));
   const challenge = b64url(createHash("sha256").update(verifier).digest());
@@ -70,7 +72,7 @@ export async function autenticar(sp_dc, sp_key, pedir = fetch) {
     redirect_uri: "https://podcasters.spotify.com", code_challenge: challenge,
     code_challenge_method: "S256", state, response_mode: "web_message", prompt: "none",
   }).forEach(([k, v]) => u.searchParams.set(k, v));
-  const r1 = await pedir(u, { headers: { Cookie: `sp_dc=${sp_dc}; sp_key=${sp_key}`, "User-Agent": "Mozilla/5.0" } });
+  const r1 = await pedir(u, { headers: { Cookie: galleta, "User-Agent": "Mozilla/5.0" } });
   const html = await r1.text();
   if (!r1.ok) throw new Error("Spotify login HTTP " + r1.status);
   if (/login_required/.test(html)) throw new CookiesVencidas("Spotify pide iniciar sesion: las cookies vencieron");
@@ -216,7 +218,12 @@ async function main() {
     await writeFile("stats_spotify.json", JSON.stringify(salida));
     console.log("⚠ " + msg);
   };
-  if (!SP_DC || !SP_KEY) {
+  if (SP_COOKIE) {
+    // diagnostico SIN valores: solo nombres de cookies y largo (el repo es publico)
+    const nombres = SP_COOKIE.replace(/^\s*cookie\s*:\s*/i, "").split(";").map((c) => c.split("=")[0].trim()).filter(Boolean);
+    console.log(`SPOTIFY_COOKIE: ${SP_COOKIE.length} caracteres · cookies: ${nombres.join(", ") || "(ninguna con formato nombre=valor)"}`);
+  }
+  if (!SP_DC) {
     console.log(SP_COOKIE ? "Spotify: el secret SPOTIFY_COOKIE no trae sp_dc y sp_key (¿se copio la linea completa?). Se omite."
       : "Spotify: falta el secret SPOTIFY_COOKIE (o SPOTIFY_SP_DC / SPOTIFY_SP_KEY) en GitHub. Se omite.");
     if (previo) await guardarError("Faltan las cookies de Spotify (secret SPOTIFY_COOKIE)");
