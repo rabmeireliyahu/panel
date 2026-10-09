@@ -15,8 +15,15 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { createHash, randomBytes } from "node:crypto";
 
-const SP_DC = (process.env.SPOTIFY_SP_DC || "").trim();
-const SP_KEY = (process.env.SPOTIFY_SP_KEY || "").trim();
+// Se aceptan las dos cookies por separado (SPOTIFY_SP_DC / SPOTIFY_SP_KEY) o, mas facil,
+// la linea "cookie:" completa copiada de la pestaña Network (secret SPOTIFY_COOKIE).
+export function sacarCookie(linea, nombre) {
+  const m = (linea || "").replace(/^\s*cookie\s*:\s*/i, "").match(new RegExp("(?:^|;)\\s*" + nombre + "=([^;\\s]+)"));
+  return m ? m[1].trim() : "";
+}
+const SP_COOKIE = process.env.SPOTIFY_COOKIE || "";
+const SP_DC = ((process.env.SPOTIFY_SP_DC || "").trim() || sacarCookie(SP_COOKIE, "sp_dc")).replace(/^sp_dc=/, "");
+const SP_KEY = ((process.env.SPOTIFY_SP_KEY || "").trim() || sacarCookie(SP_COOKIE, "sp_key")).replace(/^sp_key=/, "");
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || "05a1371ee5194c27860b3ff3ff3979d2";
 const BASE = process.env.SPOTIFY_BASE_URL || "https://generic.wg.spotify.com/podcasters/v0";
 const CORTE = "2026-07-17";
@@ -210,8 +217,9 @@ async function main() {
     console.log("⚠ " + msg);
   };
   if (!SP_DC || !SP_KEY) {
-    console.log("Spotify: faltan los secrets SPOTIFY_SP_DC / SPOTIFY_SP_KEY en GitHub. Se omite.");
-    if (previo) await guardarError("Faltan las cookies de Spotify (secrets SPOTIFY_SP_DC y SPOTIFY_SP_KEY)");
+    console.log(SP_COOKIE ? "Spotify: el secret SPOTIFY_COOKIE no trae sp_dc y sp_key (¿se copio la linea completa?). Se omite."
+      : "Spotify: falta el secret SPOTIFY_COOKIE (o SPOTIFY_SP_DC / SPOTIFY_SP_KEY) en GitHub. Se omite.");
+    if (previo) await guardarError("Faltan las cookies de Spotify (secret SPOTIFY_COOKIE)");
     return;
   }
 

@@ -34,6 +34,7 @@ jobs:
         env:
           SPOTIFY_SP_DC: ${{ secrets.SPOTIFY_SP_DC }}
           SPOTIFY_SP_KEY: ${{ secrets.SPOTIFY_SP_KEY }}
+          SPOTIFY_COOKIE: ${{ secrets.SPOTIFY_COOKIE }}
         run: node scripts/spotify_stats.mjs
       # 2. Todas las demas apps (OP3)
       - name: Escuchas de todas las demas apps (OP3)
