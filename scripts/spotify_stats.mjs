@@ -22,7 +22,9 @@ export function sacarCookie(linea, nombre) {
   return m ? m[1].trim() : "";
 }
 const SP_COOKIE = process.env.SPOTIFY_COOKIE || "";
-const SP_DC = ((process.env.SPOTIFY_SP_DC || "").trim() || sacarCookie(SP_COOKIE, "sp_dc")).replace(/^sp_dc=/, "");
+// si SPOTIFY_COOKIE trae solo el valor suelto de sp_dc (copiado con Cookie-Editor), tambien sirve
+const soloValor = /^[A-Za-z0-9_\-]{60,}$/.test(SP_COOKIE.trim()) ? SP_COOKIE.trim() : "";
+const SP_DC = ((process.env.SPOTIFY_SP_DC || "").trim() || sacarCookie(SP_COOKIE, "sp_dc") || soloValor).replace(/^sp_dc=/, "");
 const SP_KEY = ((process.env.SPOTIFY_SP_KEY || "").trim() || sacarCookie(SP_COOKIE, "sp_key")).replace(/^sp_key=/, "");
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID || "05a1371ee5194c27860b3ff3ff3979d2";
 const BASE = process.env.SPOTIFY_BASE_URL || "https://generic.wg.spotify.com/podcasters/v0";
