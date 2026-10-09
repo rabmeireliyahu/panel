@@ -1,4 +1,4 @@
-name: Estadisticas reales (OP3)
+name: Estadisticas reales (OP3 + Spotify)
 
 on:
   schedule:
@@ -7,6 +7,7 @@ on:
   push:
     paths:
       - "scripts/op3_stats.mjs"
+      - "scripts/spotify_stats.mjs"
       - ".github/workflows/stats.yml"
 
 permissions:
@@ -19,13 +20,23 @@ concurrency:
 jobs:
   stats:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Contar escuchas reales de todos los shows
+      # 1. Spotify for Creators (si estan los secrets SPOTIFY_SP_DC y SPOTIFY_SP_KEY).
+      #    Va primero porque de aqui sale el % que la gente realmente oye de cada show.
+      - name: Escuchas de Spotify (Creators)
+        id: spotify
+        continue-on-error: true
+        env:
+          SPOTIFY_SP_DC: ${{ secrets.SPOTIFY_SP_DC }}
+          SPOTIFY_SP_KEY: ${{ secrets.SPOTIFY_SP_KEY }}
+        run: node scripts/spotify_stats.mjs
+      # 2. Todas las demas apps (OP3)
+      - name: Escuchas de todas las demas apps (OP3)
         env:
           OP3_TOKEN: ${{ secrets.OP3_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -34,8 +45,17 @@ jobs:
         run: |
           git config user.name "robot-estadisticas"
           git config user.email "actions@users.noreply.github.com"
-          git add stats_op3.json historial_op3.json
+          for f in stats_op3.json historial_op3.json stats_spotify.json historial_spotify.json; do
+            [ -f "$f" ] && git add "$f"
+          done
           git diff --cached --quiet && exit 0
-          git commit -m "Robot: estadisticas OP3 $(date -u +%F)"
+          git commit -m "Robot: estadisticas $(date -u +%F)"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
+      # Si Spotify fallo (p. ej. cookies vencidas) el robot se marca en rojo y
+      # GitHub te manda un correo. Lo de OP3 ya quedo guardado arriba.
+      - name: Avisar si Spotify fallo
+        if: steps.spotify.outcome == 'failure'
+        run: |
+          echo "::error::El robot de Spotify fallo. Si dice 'cookies vencieron', copia de nuevo sp_dc y sp_key de creators.spotify.com a los secrets del repo."
+          exit 1

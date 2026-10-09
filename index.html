@@ -91,8 +91,10 @@
   #consumo h2{font-family:'Frank Ruhl Libre',serif;font-size:1.2rem;text-align:center;margin-bottom:12px;color:var(--klaf)}
   .consumo-chart{display:flex;align-items:flex-end;gap:2px;height:110px;margin-top:14px;padding:8px;
                  background:var(--card);border:1px solid var(--linea);border-radius:8px}
-  .consumo-chart .cb{flex:1;background:var(--tchelet);opacity:.55;border-radius:2px 2px 0 0;min-height:2px}
+  .consumo-chart .cb-col{flex:1;height:100%;display:flex;flex-direction:column-reverse;gap:1px}
+  .consumo-chart .cb{background:var(--tchelet);opacity:.55;border-radius:2px 2px 0 0;min-height:1px}
   .consumo-chart .cb.u30{background:var(--zahav);opacity:.95}
+  .consumo-chart .cb.spo{background:var(--olive);opacity:.9}
   .consumo-eje{display:flex;justify-content:space-between;font-size:.62rem;color:var(--mut);padding:3px 4px 0}
   .consumo-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
   .consumo-box{background:var(--card);border:1px solid var(--linea);border-radius:8px;padding:12px 14px}
@@ -274,20 +276,21 @@
 
 <!-- CONSUMO REAL (robot OP3) -->
 <section id="consumo">
-  <h2>🎧 Consumo real · todas las apps (Spotify aparte)</h2>
+  <h2 id="consumo-titulo">🎧 Consumo real</h2>
   <div class="ins-grid">
     <div class="ins-card"><span id="c-h30">–</span><em>horas últimos 30 días</em></div>
     <div class="ins-card"><span id="c-hprev">–</span><em>horas 30 días anteriores</em></div>
     <div class="ins-card"><span id="c-cambio">–</span><em>cambio vs. mes anterior</em></div>
     <div class="ins-card"><span id="c-d30">–</span><em>▶ escuchas últimos 30 días</em></div>
+    <div class="ins-card"><span id="c-spo">–</span><em>💚 horas en Spotify (30d)</em></div>
     <div class="ins-card"><span id="c-app">–</span><em>📱 horas en apps de podcast (30d)</em></div>
     <div class="ins-card"><span id="c-web">–</span><em>🌐 horas en navegador / web (30d)</em></div>
   </div>
   <div class="consumo-chart" id="c-chart"></div>
-  <div class="consumo-eje"><span id="c-eje-ini"></span><span>← hace 30 días →</span><span>hoy</span></div>
+  <div class="consumo-eje"><span id="c-eje-ini"></span><span>← hace 30 días → · <span style="color:var(--olive)">■</span> Spotify <span style="color:var(--zahav)">■</span> demás apps</span><span>hoy</span></div>
   <div class="consumo-cols">
     <div class="consumo-box"><h4>📱 Desde dónde escuchan (desde 17 jul)</h4><ul id="c-apps"></ul></div>
-    <div class="consumo-box"><h4>📊 Por show · últimos 30 días</h4><ul id="c-shows"></ul></div>
+    <div class="consumo-box"><h4>📊 Por show · últimos 30 días (Spotify + demás apps)</h4><ul id="c-shows"></ul></div>
   </div>
   <div id="c-alertas"></div>
   <p class="consumo-nota" id="c-nota"></p>
@@ -336,22 +339,26 @@ const SPOTIFY_STATS = {
   "peretz":           { plays: 62,     plays30: 62,    seguidores: 6,    horas30: 19,   horasAll: 19 }
 };
 const HIST_SPOTIFY = new Proxy({}, { get:(_,k)=> (SPOTIFY_STATS[k]?.plays)||0 });
-// ── stats_spotify.json: lo publica el robot de Creators cada dia ──
-// formato: { "fecha":"2026-07-17", "shows": { "ravmeir": {"plays":731100,"seguidores":3206,"horas30":4943}, ... } }
-let SPOTIFY_LIVE=null;
+// ── stats_spotify.json: lo publica el robot de Spotify for Creators cada noche ──
+// (scripts/spotify_stats.mjs). Va APARTE de SPOTIFY_STATS: el corte de julio es la
+// base historica y no se toca; lo del robot es lo nuevo desde el corte.
+// shows[repo] = { plays30, playsPrev30, horas30, horasPrev30, seguidores, fraccionOida,
+//                 minutosPorPlay, playsCorte, horasCorte, dias:{fecha:[plays,horas]} }
+let SPOTIFY_LIVE=null, SPOTIFY_FRESCO=false;
 async function cargarSpotifyLive(){
+  SPOTIFY_LIVE=null; SPOTIFY_FRESCO=false;
   try{
     const r=await fetchT("stats_spotify.json?nc="+Date.now(),6000);
     if(!r.ok)return;
     const j=await r.json();
     if(j&&j.shows){
       SPOTIFY_LIVE=j;
-      Object.entries(j.shows).forEach(([k,v])=>{ SPOTIFY_STATS[k]=Object.assign(SPOTIFY_STATS[k]||{},v); });
-      const el=document.getElementById("fecha-spotify");
-      if(el)el.textContent="Datos Spotify: "+(j.fecha||"");
+      // datos de hace mas de 3 dias = el robot no pudo entrar (cookies vencidas?)
+      SPOTIFY_FRESCO=!!j.generado && (Date.now()-Date.parse(j.generado))<3*86400000;
     }
   }catch(e){/* aun no existe el archivo */}
 }
+function spotifyDe(repo){ return SPOTIFY_FRESCO ? (SPOTIFY_LIVE.shows?.[repo]||null) : null; }
 // ── stats_op3.json: lo publica el robot diario (.github/workflows/stats.yml) ──
 // Escuchas REALES de TODAS las plataformas (Spotify, Apple, YouTube, navegador...)
 // porque cada audio de cada feed pasa por op3.dev/e/. Horas = descarga x duracion
@@ -500,7 +507,7 @@ function abrirHistoria(){
       <tr style="color:var(--mut)"><th></th><th style="text-align:left;padding:4px 8px">Show</th><th style="text-align:right;padding:4px 8px">▶ Escuchas</th><th style="text-align:right;padding:4px 8px">Horas</th><th style="text-align:right;padding:4px 8px">Seguidores</th></tr>
       ${filas||"<tr><td colspan=4 style='padding:10px'>Aún sin datos…</td></tr>"}
     </table>
-    <p style="margin-top:10px;font-size:.72rem;color:var(--mut)">Horas reales de Spotify for Creators (corte 17 jul 2026) + el crecimiento que OP3 mide solo cada día desde entonces. Este número solo puede subir.</p>`);
+    <p style="margin-top:10px;font-size:.72rem;color:var(--mut)">Horas reales de Spotify for Creators hasta el corte (17 jul 2026) + lo que desde entonces miden cada día los robots: Spotify for Creators y OP3 (todas las demás apps, ajustado a los minutos que de verdad se oyen). Este número solo puede subir.</p>`);
 }
 document.addEventListener("click",e=>{if(e.target.closest("#tile-historia")||e.target.closest("#tile-anios"))abrirHistoria();});
 function animarNum(id,fin){
@@ -607,6 +614,8 @@ async function pintarShow(repo, feedURL){
     op3ok=true;
   }else try{
     O=await op3Stats(feedURL,segPorTitulo,prom*60);
+    // OP3 solo sabe que dieron play: se ajusta con el % que en promedio se oye
+    const f=ROBOT?.fraccionDefecto||0.33; O.hseg30*=f; O.hsegAll*=f;
     op3ok=true;
   }catch(e){/* show sin datos OP3 todavia */}
   // ── datos reales de Spotify Creators + crecimiento automatico OP3 ──
@@ -617,28 +626,32 @@ async function pintarShow(repo, feedURL){
   const conRobot = !!(R && R.showUuid && R.dlsCorte!=null);
   const crec = conRobot ? R.dlsCorte : (op3ok ? Math.max(0, O.dlsAll - (OP3_BASE[repo]||0)) : 0);
   const crecSeg = conRobot ? R.horasCorte*3600 : crec * durProm;
-  // 30 dias: lo que OP3 midio de verdad (aunque sea 0). El corte viejo de
-  // Spotify (julio) solo se usa si OP3 todavia no conoce el show.
-  // Spotify NO pasa por op3.dev/e/ (guarda su copia del audio): sus horas solo
-  // se suman si stats_spotify.json trae un dato de Creators de hace menos de 35 dias
-  const spoFresco = SPOTIFY_LIVE && SPOTIFY_LIVE.shows?.[repo] && (Date.now()-Date.parse(SPOTIFY_LIVE.fecha||0))<35*86400000;
-  const spo30 = spoFresco ? (SP.horas30||0)*3600 : 0;
-  const seg30Real  = op3ok ? O.hseg30 + spo30 : (SP.horas30 ? SP.horas30*3600 : 0);
-  const esc30Real  = op3ok ? O.dls30 + (spoFresco ? (SP.plays30||0) : 0) : (SP.plays30||0);
-  if(spoFresco) T.spo30 = (T.spo30||0) + spo30;
-  // historia: corte real de Spotify + lo nuevo que suma OP3 solo
-  const segAllReal = (SP.horasAll ? SP.horasAll*3600 : 0) + (SP.horasAll||conRobot ? crecSeg : (op3ok?O.hsegAll:0));
-  const escAllReal = (SP.plays||0) + (SP.plays||conRobot ? crec : (op3ok?O.dlsAll:0));
+  // 30 dias = lo medido de verdad: OP3 (todas las apps menos Spotify, ya ajustado
+  // al % que se oye) + Spotify for Creators (robot de Spotify). Ya no se usa el
+  // corte viejo de julio para los 30 dias.
+  const SPL = spotifyDe(repo);
+  const spo30 = SPL ? (SPL.horas30||0)*3600 : 0;
+  const seg30Real  = (op3ok ? O.hseg30 : 0) + spo30;
+  const esc30Real  = (op3ok ? O.dls30 : 0) + (SPL ? (SPL.plays30||0) : 0);
+  if(SPL) T.spo30 = (T.spo30||0) + spo30;
+  // historia: corte real de Spotify (julio) + lo que OP3 midio desde el corte
+  //           + lo que Spotify midio desde el corte
+  // (para la historia y seguidores vale el ultimo dato bueno aunque ya tenga dias:
+  //  lo ya oido no se des-oye, asi la historia nunca baja si las cookies vencen)
+  const SPU = SPOTIFY_LIVE?.shows?.[repo] || null;
+  const spoCorteSeg = SPU ? (SPU.horasCorte||0)*3600 : 0, spoCortePlays = SPU ? (SPU.playsCorte||0) : 0;
+  const segAllReal = (SP.horasAll ? SP.horasAll*3600 : 0) + (SP.horasAll||conRobot ? crecSeg : (op3ok?O.hsegAll:0)) + spoCorteSeg;
+  const escAllReal = (SP.plays||0) + (SP.plays||conRobot ? crec : (op3ok?O.dlsAll:0)) + spoCortePlays;
   T.hseg30 += seg30Real; T.hsegAll += segAllReal;
   T.dls30  += esc30Real;
   T.histPlays += escAllReal; T.histSeg += segAllReal;
-  const segrs = SP.seguidores||0;
+  const segrs = (SPU && SPU.seguidores!=null) ? SPU.seguidores : (SP.seguidores||0);
   T.seguidores += segrs;
   HISTORIA.push({nombre, repo, seguidores: segrs,
     escuchas: escAllReal, horasSeg: segAllReal,
     op3: op3ok?O.dlsAll:0, hist: SP.plays||0});
   O = { dls30: esc30Real, dlsAll: escAllReal, hseg30: seg30Real, hsegAll: segAllReal, statsURL: O.statsURL };
-  const op3okCard = op3ok || !!SP.plays;
+  const op3okCard = op3ok || !!SPL || !!SP.plays;
 
   const maxM=Math.max(...m12,1);
   const barras=m12.map((v,i)=>`<div class="bar ${i===11?"actual":""}" style="height:${Math.max(5,v/maxM*100)}%;opacity:${v?0.95:0.2}" title="${v}"></div>`).join("");
@@ -661,7 +674,7 @@ async function pintarShow(repo, feedURL){
   card.dataset.nombre=nombre.toLowerCase();
   card.dataset.repo=repo;
   card.innerHTML=`
-    <div class="cabecera">${fotoHtml}<h2>${escHtml(nombre)}</h2>${(SPOTIFY_STATS[repo]?.seguidores)?`<span style="font-size:.72rem;color:var(--olive);white-space:nowrap">💚 ${SPOTIFY_STATS[repo].seguidores.toLocaleString()}</span>`:""}</div>
+    <div class="cabecera">${fotoHtml}<h2>${escHtml(nombre)}</h2>${segrs?`<span style="font-size:.72rem;color:var(--olive);white-space:nowrap">💚 ${segrs.toLocaleString()}</span>`:""}</div>
     <div class="rimon">✦ ✦ ✦</div>
     <div class="nums">
       <div class="num hoy"><b>${hoy}</b><span>subidos hoy</span></div>
@@ -800,47 +813,64 @@ function pintarInsights(){
 function pintarConsumo(){
   if(!ROBOT||!ROBOT.total)return;
   const T2=ROBOT.total, shows=Object.values(ROBOT.shows||{});
+  const S=SPOTIFY_FRESCO?SPOTIFY_LIVE:null, ST=S?.total||{};
   const fmt=n=>Math.round(n||0).toLocaleString();
-  document.getElementById("c-h30").textContent=fmt(T2.horas30)+" h";
-  document.getElementById("c-hprev").textContent=fmt(T2.horasPrev30)+" h";
-  const c=T2.cambioPct;
+  const vs=(a,b)=>b?` <small style="font-size:.7rem;color:${a>=b?"var(--olive)":"var(--adom)"}">${a>=b?"▲":"▼"}${Math.abs(Math.round((a/b-1)*100))}%</small>`:"";
+  // totales = OP3 (todas las apps menos Spotify, ajustado al % oido) + Spotify (Creators)
+  const h30=(T2.horas30||0)+(ST.horas30||0), hPrev=(T2.horasPrev30||0)+(ST.horasPrev30||0);
+  document.getElementById("consumo-titulo").textContent=S
+    ?"🎧 Consumo real · Spotify + todas las apps":"🎧 Consumo real · todas las apps (falta Spotify)";
+  document.getElementById("c-h30").textContent=fmt(h30)+" h";
+  document.getElementById("c-hprev").textContent=fmt(hPrev)+" h";
+  const c=hPrev?Math.round((h30/hPrev-1)*100):null;
   const el=document.getElementById("c-cambio");
   el.textContent=c==null?"–":(c>0?"▲ +":c<0?"▼ ":"")+c+"%";
   el.style.color=c==null?"":c>=0?"var(--olive)":"var(--adom)";
-  document.getElementById("c-d30").textContent=fmt(T2.dls30);
-  const vs=(a,b)=>b?` <small style="font-size:.7rem;color:${a>=b?"var(--olive)":"var(--adom)"}">${a>=b?"▲":"▼"}${Math.abs(Math.round((a/b-1)*100))}%</small>`:"";
+  document.getElementById("c-d30").textContent=fmt((T2.dls30||0)+(ST.plays30||0));
+  document.getElementById("c-spo").innerHTML=S?fmt(ST.horas30)+" h"+vs(ST.horas30,ST.horasPrev30):"–";
   document.getElementById("c-app").innerHTML=fmt(T2.horasApp30)+" h"+vs(T2.horasApp30,T2.horasAppPrev30);
   document.getElementById("c-web").innerHTML=fmt(T2.horasWeb30)+" h"+vs(T2.horasWeb30,T2.horasWebPrev30);
-  // grafica diaria (60 dias): azul = 30 dias anteriores, dorado = ultimos 30
+  // grafica diaria (60 dias): verde = Spotify, dorado/azul = demas apps
   const hoyU=new Date(ROBOT.generado||Date.now()); const dias=[];
   for(let i=ROBOT.ventanaDias||60;i>=1;i--){
     const d=new Date(Date.UTC(hoyU.getUTCFullYear(),hoyU.getUTCMonth(),hoyU.getUTCDate())-i*86400000).toISOString().slice(0,10);
-    dias.push([d,(T2.dias?.[d]?.horas)||0,(T2.dias?.[d]?.descargas)||0,i<=30]);
+    const o=(T2.dias?.[d]?.horas)||0, sp=(ST.dias?.[d]?.[1])||0;
+    dias.push([d,o,sp,((T2.dias?.[d]?.descargas)||0)+((ST.dias?.[d]?.[0])||0),i<=30]);
   }
-  const max=Math.max(1,...dias.map(x=>x[1]));
-  document.getElementById("c-chart").innerHTML=dias.map(([d,h,n,u])=>
-    `<div class="cb ${u?"u30":""}" style="height:${Math.max(2,h/max*100)}%" title="${d}: ${Math.round(h)} h · ${n} escuchas"></div>`).join("");
+  const max=Math.max(1,...dias.map(x=>x[1]+x[2]));
+  document.getElementById("c-chart").innerHTML=dias.map(([d,o,sp,n,u])=>
+    `<div class="cb-col" title="${d}: ${Math.round(o+sp)} h${S?` (Spotify ${Math.round(sp)} h)`:""} · ${n} escuchas">`+
+    `<div class="cb ${u?"u30":""}" style="height:${o/max*100}%"></div>`+
+    (sp?`<div class="cb spo" style="height:${sp/max*100}%"></div>`:"")+`</div>`).join("");
   document.getElementById("c-eje-ini").textContent=dias[0]?.[0]||"";
-  // plataformas
+  // plataformas (desde el corte de julio)
   const grupo=a=>/exoplayer|stagefright|androiddownload|okhttp|dalvik/i.test(a)?"Android (reproductor)":/applecoremedia|itunes/i.test(a)?"Apple Podcasts":a;
   const ag={};Object.entries(T2.apps||{}).forEach(([a,n])=>{const g=grupo(a);ag[g]=(ag[g]||0)+n;});
+  if(S&&ST.playsCorte)ag["Spotify"]=ST.playsCorte;
   const apps=Object.entries(ag).sort((a,b)=>b[1]-a[1]);
   const totApps=apps.reduce((a,x)=>a+x[1],0)||1;
   document.getElementById("c-apps").innerHTML=apps.slice(0,15).map(([a,n])=>
-    `<li><span>${escHtml(a)}</span><b>${n.toLocaleString()} · ${Math.round(n/totApps*100)}%</b></li>`).join("")||"<li>Sin datos aún</li>";
-  // por show
-  const lista=shows.filter(s=>s.showUuid&&!s.duplicadoDe).sort((a,b)=>(b.horas30||0)-(a.horas30||0));
-  document.getElementById("c-shows").innerHTML=lista.map(s=>{
-    const p=s.horasPrev30?Math.round((s.horas30/s.horasPrev30-1)*100):null;
+    `<li><span>${a==="Spotify"?"💚 ":""}${escHtml(a)}</span><b>${n.toLocaleString()} · ${Math.round(n/totApps*100)}%</b></li>`).join("")||"<li>Sin datos aún</li>";
+  // por show: OP3 + Spotify
+  const porShow={};
+  shows.filter(s=>s.showUuid&&!s.duplicadoDe).forEach(s=>porShow[s.repo]={nombre:s.nombre||s.repo,h:s.horas30||0,p:s.horasPrev30||0,f:s.fraccionOida});
+  Object.entries(S?.shows||{}).forEach(([k,v])=>{const x=porShow[k]||(porShow[k]={nombre:v.nombre||k,h:0,p:0});
+    x.h+=v.horas30||0;x.p+=v.horasPrev30||0;if(v.fraccionOida!=null)x.f=v.fraccionOida;x.spo=v.horas30||0;});
+  document.getElementById("c-shows").innerHTML=Object.values(porShow).sort((a,b)=>b.h-a.h).map(x=>{
+    const p=x.p?Math.round((x.h/x.p-1)*100):null;
     const tag=p==null?"":`<span class="${p>=0?"sube":"baja"}">${p>=0?"▲":"▼"}${Math.abs(p)}%</span> `;
-    return `<li><span class="n">${escHtml(s.nombre||s.repo)}</span><b>${tag}${fmt(s.horas30)} h</b></li>`;}).join("");
+    const oido=x.f!=null?` <small style="color:var(--mut);font-weight:400" title="% que en promedio se oye de cada shiur">· oyen ${Math.round(x.f*100)}%</small>`:"";
+    return `<li><span class="n">${escHtml(x.nombre)}</span><b>${tag}${fmt(x.h)} h${oido}</b></li>`;}).join("");
   // alertas: lo que impide contar TODO
   const al=[];
+  if(!SPOTIFY_LIVE)al.push(`<b>💚 Falta conectar Spotify</b>: pon las cookies <code>sp_dc</code> y <code>sp_key</code> de creators.spotify.com en GitHub → repo panel → Settings → Secrets and variables → Actions (<code>SPOTIFY_SP_DC</code> y <code>SPOTIFY_SP_KEY</code>). Mientras, el total NO incluye Spotify.`);
+  else if(!SPOTIFY_FRESCO)al.push(`<b>💚 Spotify no se pudo actualizar</b>${SPOTIFY_LIVE.error?": "+escHtml(SPOTIFY_LIVE.error):""}. Último dato bueno: ${escHtml(SPOTIFY_LIVE.fecha||"—")}. El total de 30 días NO incluye Spotify hasta que se arregle.`);
+  else if(SPOTIFY_LIVE.sinRepo?.length)al.push(`<b>ℹ Shows de Spotify sin canal en el panel</b>: ${SPOTIFY_LIVE.sinRepo.map(escHtml).join(", ")}`);
   const sinPref=shows.filter(s=>s.sinOp3>0);
-  if(sinPref.length)al.push(`<b>⚠ Episodios que NO se cuentan</b> (su audio no pasa por op3.dev/e/): `+
+  if(sinPref.length)al.push(`<b>⚠ Episodios que NO se cuentan</b> fuera de Spotify (su audio no pasa por op3.dev/e/): `+
     sinPref.map(s=>`${escHtml(s.nombre||s.repo)} (${s.sinOp3} de ${s.episodios})`).join(", "));
   const noOp3=shows.filter(s=>!s.showUuid&&!s.sinFeed);
-  if(noOp3.length)al.push(`<b>⚠ OP3 aún no reconoce estos feeds</b> (sus escuchas no salen en el panel): `+
+  if(noOp3.length)al.push(`<b>⚠ OP3 aún no reconoce estos feeds</b> (sus escuchas fuera de Spotify no salen en el panel): `+
     noOp3.map(s=>escHtml(s.nombre||s.repo)).join(", "));
   if(T2.horasMasiva30)al.push(`<b>🧹 Filtradas ${fmt(T2.horasMasiva30)} h</b> de descargas masivas en 30 días (un navegador o programa bajando 20+ episodios distintos el mismo día: no es gente escuchando, no se cuentan).`);
   const dup=shows.filter(s=>s.duplicadoDe);
@@ -848,9 +878,11 @@ function pintarConsumo(){
     dup.map(s=>`${escHtml(s.repo)} = ${escHtml(s.duplicadoDe)}`).join(", "));
   document.getElementById("c-alertas").innerHTML=al.map(a=>`<div class="alerta">${a}</div>`).join("");
   document.getElementById("c-nota").textContent=
-    `Medido por OP3: cada vez que alguien baja o reproduce un audio por el link op3.dev/e/ (Apple, Amazon, Pocket Casts, Overcast, Android, navegador…). `+
-    `⚠ Spotify NO pasa por ese link (guarda su propia copia del audio), así que sus escuchas solo se ven en Spotify for Creators. `+
-    `Horas = cada escucha × la duración de ese episodio. Robot actualizado: ${new Date(ROBOT.generado).toLocaleString("es-MX")}.`;
+    `Cómo se mide: 💚 Spotify = Spotify for Creators (plays reales × los minutos que de verdad se oyen de cada episodio, según su curva de retención). `+
+    `Demás apps = OP3, que cuenta cada vez que alguien da play por el link op3.dev/e/ (Apple, Amazon, Pocket Casts, Overcast, Android, navegador…); `+
+    `como OP3 no sabe cuántos minutos oyó cada quien, sus horas se ajustan al % que la gente realmente oye de ese show en Spotify `+
+    `(si oyeran todo serían ${fmt(T2.horasMax30)} h, no ${fmt(T2.horas30)} h). `+
+    `Actualizado: OP3 ${new Date(ROBOT.generado).toLocaleString("es-MX")}${SPOTIFY_LIVE?.generado?` · Spotify ${new Date(SPOTIFY_LIVE.generado).toLocaleString("es-MX")}`:""}.`;
   document.getElementById("consumo").style.display="block";
 }
 
