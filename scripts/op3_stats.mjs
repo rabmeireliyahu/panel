@@ -4,7 +4,12 @@
 //   2. baja de OP3 las descargas REALES de los ultimos 60 dias, una por una.
 //      OP3 cuenta TODAS las plataformas (Spotify, Apple, YouTube Music,
 //      Pocket Casts, navegador...) porque cada audio pasa por op3.dev/e/
-//   3. horas = suma de (descarga x duracion de ESE episodio)
+//   3. horas MAXIMAS = suma de (descarga x duracion de ESE episodio)
+//      horas REALES  = horas maximas x % que la gente realmente oye de ese show.
+//      OP3 solo sabe que alguien dio play, no cuantos minutos oyo; ese % sale de
+//      la curva de retencion de Spotify (stats_spotify.json, robot de Spotify).
+//      Si aun no hay dato fresco de Spotify, se usa el % real de julio 2026
+//      (horas30 / plays30 de Creators), y si el show no tiene, la mediana.
 //   4. guarda stats_op3.json (lo lee el panel) y suma el dia a
 //      historial_op3.json, que nunca se borra (aunque OP3 cambie o se caiga).
 // Uso local:  OP3_TOKEN=xxxx node scripts/op3_stats.mjs
@@ -24,6 +29,27 @@ const diaMs = 86400000;
 // corte de Spotify for Creators: desde aqui todo lo nuevo lo mide OP3
 const CORTE = "2026-07-17";
 let inicio = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate()) - DIAS * diaMs);
+
+// % oido por play segun Spotify for Creators, corte 17/jul/2026 (horas30×60 / plays30 / duracion media)
+const FRACCION_JULIO = { ravmeir: 0.33, musar: 0.39, yechavedaat: 0.22, ravmutzafi: 0.27, ravyitzchakyosef: 0.31,
+  podcast: 0.67, yakobov: 0.76, abergel: 0.55, ravshmueli: 0.29, torahanytime: 0.79, peretz: 1 };
+const FACTORES = new Map(); let FACTOR_DEFECTO = 0.33; const FUENTE_FACTOR = {};
+async function cargarFactores() {
+  const vals = {};
+  for (const [k, v] of Object.entries(FRACCION_JULIO)) { vals[k] = v; FUENTE_FACTOR[k] = "spotify-julio"; }
+  try {
+    const sp = JSON.parse(await readFile("stats_spotify.json", "utf8"));
+    const fresco = sp.generado && Date.now() - Date.parse(sp.generado) < 35 * diaMs;
+    if (fresco) for (const [k, v] of Object.entries(sp.shows || {})) {
+      if (v.fraccionOida > 0 && (v.episodiosConCurva || 0) >= 3) { vals[k] = v.fraccionOida; FUENTE_FACTOR[k] = "spotify"; }
+    }
+  } catch { /* aun no corre el robot de Spotify */ }
+  const lista = Object.values(vals).map((v) => Math.min(1, Math.max(0.05, v))).sort((a, b) => a - b);
+  if (lista.length) FACTOR_DEFECTO = lista[Math.floor(lista.length / 2)];
+  for (const [k, v] of Object.entries(vals)) FACTORES.set(k, Math.min(1, Math.max(0.05, v)));
+  console.log(`% oido por show: ${[...FACTORES].map(([k, v]) => `${k}=${Math.round(v * 100)}%`).join(" ")} · resto ${Math.round(FACTOR_DEFECTO * 100)}%`);
+}
+const factorDe = (repo) => FACTORES.get(repo) ?? FACTOR_DEFECTO;
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
 const b64url = (s) => Buffer.from(s, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -97,6 +123,8 @@ async function procesarShow(repo) {
   const durProm = conDur.length ? conDur.reduce((a, e) => a + e.seg, 0) / conDur.length : 1800;
   const durPorAudio = new Map(items.map((e) => [llaveAudio(e.url), e.seg || durProm]));
   const durPorTitulo = new Map(items.map((e) => [e.titulo.trim(), e.seg || durProm]));
+  const factor = factorDe(repo);
+  res.fraccionOida = +factor.toFixed(3); res.fuenteFraccion = FUENTE_FACTOR[repo] || "mediana";
   Object.assign(res, {
     nombre, episodios: items.length, horasContenido: Math.round(segTot / 3600),
     durProm: Math.round(durProm), sinOp3: items.filter((e) => e.url && !e.op3).length,
@@ -117,7 +145,7 @@ async function procesarShow(repo) {
       const d = e.downloadsAll || 0;
       dlsAll += d; segAll += d * (durPorTitulo.get((e.title || "").trim()) || durProm);
     }
-    res.dlsAll = dlsAll; res.horasAll = Math.round(segAll / 3600);
+    res.dlsAll = dlsAll; res.horasAll = Math.round(segAll * factor / 3600);
     res.desdeOp3 = ep.minDownloadHour || null;
   } catch (e) { res.errorTotales = e.message.slice(0, 120); }
 
@@ -143,6 +171,7 @@ async function procesarShow(repo) {
       const ep = llaveAudio(d.url);
       let seg = durPorAudio.get(ep);
       if (seg === undefined) { seg = durProm; sinMatch++; }
+      seg *= factor; // horas reales estimadas (lo que en promedio se oye de cada play)
       const ref = d.referrerName || d.referrerType; if (ref) refs[ref] = (refs[ref] || 0) + 1;
       filasOk.push({ dia, ep, seg, tipo, app: d.agentName || d.agentType || "Desconocido", aud: d.audienceId, pais: d.countryCode });
     }
@@ -168,7 +197,8 @@ async function procesarShow(repo) {
     apps[f.app] = (apps[f.app] || 0) + 1;
     if (f.pais) paises[f.pais] = (paises[f.pais] || 0) + 1;
     const pk = f.dia + " " + f.app; picos[pk] = (picos[pk] || 0) + 1;
-    if (Date.parse(f.dia + "T00:00:00Z") >= hoy0 - 30 * diaMs && f.aud) oyentes30.add(f.aud);
+    const tf = Date.parse(f.dia + "T00:00:00Z");
+    if (tf >= hoy0 - 30 * diaMs && tf < hoy0 && f.aud) oyentes30.add(f.aud);
   }
 
   const dias = {};
@@ -176,10 +206,11 @@ async function procesarShow(repo) {
     hApp: +(v.sApp / 3600).toFixed(1), hWeb: +(v.sWeb / 3600).toFixed(1), hMasiva: +(v.sMas / 3600).toFixed(1) };
   const sumaK = (k, desde, hasta) => Object.entries(porDia).reduce((a, [d, v]) => {
     const t = Date.parse(d + "T00:00:00Z"); return t >= desde && t < hasta ? a + v[k] : a; }, 0);
-  const U = [hoy0 - 30 * diaMs, hoy0 + diaMs], P = [hoy0 - 60 * diaMs, hoy0 - 30 * diaMs];
+  // 30 dias completos (sin el dia de hoy, que va a medias) contra los 30 anteriores
+  const U = [hoy0 - 30 * diaMs, hoy0], P = [hoy0 - 60 * diaMs, hoy0 - 30 * diaMs];
   const h = (k, r) => Math.round(sumaK(k, ...r) / 3600);
   Object.assign(res, {
-    dls30: sumaK("d", ...U), horas30: h("s", U),
+    dls30: sumaK("d", ...U), horas30: h("s", U), horasMax30: Math.round(sumaK("s", ...U) / factor / 3600),
     dlsPrev30: sumaK("d", ...P), horasPrev30: h("s", P),
     horasApp30: h("sApp", U), horasWeb30: h("sWeb", U), horasMasiva30: h("sMas", U),
     horasAppPrev30: h("sApp", P), horasWebPrev30: h("sWeb", P), horasMasivaPrev30: h("sMas", P),
@@ -190,8 +221,24 @@ async function procesarShow(repo) {
 }
 
 async function main() {
+  await cargarFactores();
   let hist = {};
   try { hist = JSON.parse(await readFile("historial_op3.json", "utf8")); } catch { /* primera vez */ }
+  // historial viejo (antes de la correccion por % oido) guardaba horas maximas: se convierten una vez
+  if (hist._diasShow && (hist._version || 1) < 2) {
+    for (const [k, h] of Object.entries(hist._diasShow)) {
+      const f = factorDe(k);
+      for (const [d, v] of Object.entries(h)) h[d] = [v[0], +(v[1] * f).toFixed(1)];
+    }
+    // el total por dia se rehace desde el detalle por show (ya corregido)
+    hist._dias = {};
+    for (const h of Object.values(hist._diasShow)) for (const [d, [n, hr]] of Object.entries(h)) {
+      const x = hist._dias[d] || (hist._dias[d] = { descargas: 0, horas: 0 });
+      x.descargas += n; x.horas = +(x.horas + hr).toFixed(1);
+    }
+    console.log("Historial convertido a horas reales (x % oido de cada show)");
+  }
+  hist._version = 2;
   // si todavia no hay historial desde el corte, la primera vez se baja todo desde el corte
   const diaAntes = new Date(inicio.getTime() - diaMs).toISOString().slice(0, 10);
   if (!hist._diasShow || (diaAntes >= CORTE && !Object.values(hist._diasShow).some((x) => x[diaAntes]))) {
@@ -219,7 +266,7 @@ async function main() {
 
   // totales (sin contar duplicados)
   const SUMAR = ["oyentes30", "dls30", "horas30", "dlsPrev30", "horasPrev30", "dlsAll", "horasAll",
-    "horasApp30", "horasWeb30", "horasAppPrev30", "horasWebPrev30", "horasMasiva30", "horasMasivaPrev30"];
+    "horasApp30", "horasWeb30", "horasAppPrev30", "horasWebPrev30", "horasMasiva30", "horasMasivaPrev30", "horasMax30"];
   const T = { apps: {}, dias: {} }; for (const k of SUMAR) T[k] = 0;
   for (const s of Object.values(shows)) {
     if (s.duplicadoDe || !s.showUuid) continue;
@@ -232,7 +279,7 @@ async function main() {
     }
   }
   const cambio = T.horasPrev30 ? Math.round((T.horas30 / T.horasPrev30 - 1) * 100) : null;
-  console.log(`\nTOTAL ultimos 30 dias: ${T.dls30} descargas · ${T.horas30} horas`);
+  console.log(`\nTOTAL ultimos 30 dias: ${T.dls30} descargas · ${T.horas30} horas reales estimadas (maximo si oyeran todo: ${T.horasMax30} h)`);
   console.log(`TOTAL 30 dias previos: ${T.dlsPrev30} descargas · ${T.horasPrev30} horas  (cambio ${cambio ?? "–"}%)`);
   console.log(`TOTAL historico OP3:   ${T.dlsAll} descargas · ${T.horasAll} horas`);
   const tiposT = {}; for (const x of Object.values(shows)) for (const [k, n] of Object.entries(x.tipos || {})) tiposT[k] = (tiposT[k] || 0) + n;
@@ -240,7 +287,8 @@ async function main() {
   console.log("Plataformas 60d:", Object.entries(T.apps).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([a, n]) => `${a}=${n}`).join(", "));
 
   const salida = { generado: ahora.toISOString(), fecha: hoyISO, ventanaDias: DIAS,
-    token: TOKEN === "preview07ce" ? "preview" : "propio", total: { ...T, cambioPct: cambio }, shows };
+    token: TOKEN === "preview07ce" ? "preview" : "propio", total: { ...T, cambioPct: cambio },
+    fraccionDefecto: FACTOR_DEFECTO, shows };
   console.log(`Apps de podcast 30d: ${T.horasApp30} h (antes ${T.horasAppPrev30} h) · Navegador 30d: ${T.horasWeb30} h (antes ${T.horasWebPrev30} h) · Masivas filtradas 30d: ${T.horasMasiva30} h (antes ${T.horasMasivaPrev30} h)`);
 
   // historial permanente: un renglon por dia, nunca se borra
