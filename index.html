@@ -353,9 +353,9 @@ async function cargarSpotifyLive(){
     const j=await r.json();
     if(j&&j.shows){
       SPOTIFY_LIVE=j;
-      // datos de hace mas de 3 dias = el robot no pudo entrar (cookies vencidas?)
-      // y si el robot anoto un error, tampoco se usa como dato del mes
-      SPOTIFY_FRESCO=!!j.generado && !j.error && (Date.now()-Date.parse(j.generado))<3*86400000;
+      // se usa el ultimo dato bueno de Spotify hasta 10 dias (si la cookie vence, el robot
+      // recupera los dias faltantes en cuanto vuelve a entrar; nada se pierde)
+      SPOTIFY_FRESCO=!!j.generado && (Date.now()-Date.parse(j.generado))<10*86400000;
     }
   }catch(e){/* aun no existe el archivo */}
 }
@@ -865,6 +865,7 @@ function pintarConsumo(){
   // alertas: lo que impide contar TODO
   const al=[];
   if(!SPOTIFY_LIVE)al.push(`<b>💚 Falta conectar Spotify</b>: copia la línea <code>cookie</code> de open.spotify.com (pestaña Network) y guárdala en GitHub → repo panel → Settings → Secrets and variables → Actions como <code>SPOTIFY_COOKIE</code>. Mientras, el total NO incluye Spotify.`);
+  else if(SPOTIFY_FRESCO&&SPOTIFY_LIVE.error)al.push(`<b>💚 Spotify al ${escHtml(SPOTIFY_LIVE.fecha||"—")}</b> (no se pudo actualizar hoy: ${escHtml(SPOTIFY_LIVE.error)}). Cuando se renueve la cookie se recuperan solos los días que falten.`);
   else if(!SPOTIFY_FRESCO)al.push(`<b>💚 Spotify no se pudo actualizar</b>${SPOTIFY_LIVE.error?": "+escHtml(SPOTIFY_LIVE.error):""}. Último dato bueno: ${escHtml(SPOTIFY_LIVE.fecha||"—")}. El total de 30 días NO incluye Spotify hasta que se arregle.`);
   else if(SPOTIFY_LIVE.sinRepo?.length)al.push(`<b>ℹ Shows de Spotify sin canal en el panel</b>: ${SPOTIFY_LIVE.sinRepo.map(escHtml).join(", ")}`);
   const sinPref=shows.filter(s=>s.sinOp3>0);
