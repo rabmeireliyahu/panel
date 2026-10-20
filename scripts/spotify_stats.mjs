@@ -314,6 +314,15 @@ async function main() {
       const x = T.dias[d] || (T.dias[d] = [0, 0]); x[0] += n; x[1] = +(x[1] + h).toFixed(1);
     }
   }
+  // Si entro pero TODO viene en cero, Spotify cambio algo en su respuesta: no se guardan
+  // ceros como si fueran reales (el panel avisaria "0 h en Spotify"); se queda lo ultimo bueno.
+  if (Object.keys(shows).length && !T.plays30 && !T.playsPrev30 && !T.playsCorte) {
+    console.log("\nDiagnostico de rutas de Spotify:");
+    for (const [t, d] of Object.entries(DIAG)) console.log(`  ${t} ${JSON.stringify(d.codigos)} ${d.muestra || ""}`);
+    await guardarError("Spotify contesto pero sin plays (cambio su formato): se conserva el ultimo dato bueno");
+    process.exitCode = 1;
+    return;
+  }
   T.cambioPct = T.horasPrev30 ? Math.round((T.horas30 / T.horasPrev30 - 1) * 100) : null;
   console.log(`\nSPOTIFY 30 dias: ${T.plays30} plays · ${T.horas30} h | 30 dias antes: ${T.playsPrev30} plays · ${T.horasPrev30} h (${T.cambioPct ?? "–"}%) | desde corte ${T.horasCorte} h`);
 
