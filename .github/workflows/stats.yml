@@ -28,6 +28,8 @@ jobs:
           node-version: 20
       # 1. Spotify for Creators (si estan los secrets SPOTIFY_SP_DC y SPOTIFY_SP_KEY).
       #    Va primero porque de aqui sale el % que la gente realmente oye de cada show.
+      #    Si falla (cookie vencida) no detiene nada ni manda correos: el panel lo avisa y,
+      #    al volver a entrar, el robot recupera los dias que falten.
       - name: Escuchas de Spotify (Creators)
         id: spotify
         continue-on-error: true
@@ -53,10 +55,3 @@ jobs:
           git commit -m "Robot: estadisticas $(date -u +%F)"
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
-      # Si Spotify fallo (p. ej. cookies vencidas) el robot se marca en rojo y
-      # GitHub te manda un correo. Lo de OP3 ya quedo guardado arriba.
-      - name: Avisar si Spotify fallo
-        if: steps.spotify.outcome == 'failure'
-        run: |
-          echo "::error::El robot de Spotify fallo. Si dice 'cookies vencieron', copia de nuevo sp_dc y sp_key de creators.spotify.com a los secrets del repo."
-          exit 1
