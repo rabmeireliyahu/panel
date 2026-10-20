@@ -94,6 +94,23 @@ export async function autenticar(sp_dc, sp_key, pedir = fetch) {
   return j.access_token;
 }
 
+// diagnostico: que contesta Spotify en cada ruta (codigo HTTP y forma de la respuesta,
+// sin tokens ni cookies) → se imprime al final para poder ajustar si Spotify cambia algo
+export const DIAG = {};
+function forma(x, prof = 0) {
+  if (Array.isArray(x)) return x.length ? `[${x.length}× ${forma(x[0], prof + 1)}]` : "[]";
+  if (x && typeof x === "object") {
+    if (prof > 2) return "{…}";
+    return "{" + Object.entries(x).slice(0, 25).map(([k, v]) => `${k}:${typeof v === "number" ? v : typeof v === "string" ? JSON.stringify(v.slice(0, 24)) : forma(v, prof + 1)}`).join(", ") + "}";
+  }
+  return String(x);
+}
+function anotar(path, status, cuerpo) {
+  const tipo = path.replace(/\/(shows|episodes)\/[A-Za-z0-9]+/g, "/$1/:id");
+  const d = DIAG[tipo] || (DIAG[tipo] = { codigos: {}, muestra: null });
+  d.codigos[status] = (d.codigos[status] || 0) + 1;
+  if (cuerpo !== undefined && !d.muestra) d.muestra = forma(cuerpo).slice(0, 700);
+}
 export function crearApi(token, pedir = fetch) {
   return async function api(path, params = {}, intentos = 6) {
     const u = new URL(BASE + path);
@@ -104,11 +121,14 @@ export function crearApi(token, pedir = fetch) {
       try { r = await pedir(u, { headers: { Authorization: "Bearer " + token, Accept: "application/json" } }); }
       catch (e) { if (i === intentos - 1) throw e; await espera(pausa *= 2); continue; }
       if ([429, 500, 502, 503, 504].includes(r.status)) { await espera(pausa *= 2); continue; }
+      if (!r.ok) anotar(path, r.status);
       if (r.status === 401) throw new CookiesVencidas(`Spotify 401 en ${path}`);
       if (r.status === 403) throw new Error(`sin permiso en Spotify para ${path} (¿el show es de otra cuenta?)`);
       if (r.status === 404) return null;
       if (!r.ok) throw new Error(`Spotify ${r.status} en ${path}`);
-      return r.json();
+      const j = await r.json();
+      anotar(path, r.status, j);
+      return j;
     }
     throw new Error("Spotify no respondio: " + path);
   };
@@ -284,6 +304,8 @@ async function main() {
     await espera(500);
   }
   if (sinRepo.length) console.log("Shows de Spotify sin repo en el panel: " + sinRepo.join(", "));
+  console.log("\nDiagnostico de rutas de Spotify (codigo HTTP → veces · forma de la respuesta):");
+  for (const [t, d] of Object.entries(DIAG)) console.log(`  ${t} ${JSON.stringify(d.codigos)} ${d.muestra || ""}`);
 
   const T = { plays30: 0, playsPrev30: 0, horas30: 0, horasPrev30: 0, seguidores: 0, playsCorte: 0, horasCorte: 0, dias: {} };
   for (const s of Object.values(shows)) {
@@ -291,6 +313,15 @@ async function main() {
     for (const [d, [n, h]] of Object.entries(s.dias || {})) {
       const x = T.dias[d] || (T.dias[d] = [0, 0]); x[0] += n; x[1] = +(x[1] + h).toFixed(1);
     }
+  }
+  // Si entro pero TODO viene en cero, Spotify cambio algo en su respuesta: no se guardan
+  // ceros como si fueran reales (el panel avisaria "0 h en Spotify"); se queda lo ultimo bueno.
+  if (Object.keys(shows).length && !T.plays30 && !T.playsPrev30 && !T.playsCorte) {
+    console.log("\nDiagnostico de rutas de Spotify:");
+    for (const [t, d] of Object.entries(DIAG)) console.log(`  ${t} ${JSON.stringify(d.codigos)} ${d.muestra || ""}`);
+    await guardarError("Spotify contesto pero sin plays (cambio su formato): se conserva el ultimo dato bueno");
+    process.exitCode = 1;
+    return;
   }
   T.cambioPct = T.horasPrev30 ? Math.round((T.horas30 / T.horasPrev30 - 1) * 100) : null;
   console.log(`\nSPOTIFY 30 dias: ${T.plays30} plays · ${T.horas30} h | 30 dias antes: ${T.playsPrev30} plays · ${T.horasPrev30} h (${T.cambioPct ?? "–"}%) | desde corte ${T.horasCorte} h`);

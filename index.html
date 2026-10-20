@@ -354,7 +354,8 @@ async function cargarSpotifyLive(){
     if(j&&j.shows){
       SPOTIFY_LIVE=j;
       // datos de hace mas de 3 dias = el robot no pudo entrar (cookies vencidas?)
-      SPOTIFY_FRESCO=!!j.generado && (Date.now()-Date.parse(j.generado))<3*86400000;
+      // y si el robot anoto un error, tampoco se usa como dato del mes
+      SPOTIFY_FRESCO=!!j.generado && !j.error && (Date.now()-Date.parse(j.generado))<3*86400000;
     }
   }catch(e){/* aun no existe el archivo */}
 }
