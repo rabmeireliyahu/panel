@@ -255,7 +255,7 @@ export async function procesarShow(api, showId, ahora, desdeDias) {
     for (const e of eps) {
       const seg = segundosOidos(await api(`/episodes/${e.id}/performance`), durEnSeg(e.duration));
       if (seg) { sumSeg += seg * e.starts; sumStarts += e.starts; conCurva++; }
-      await espera(120);
+      await espera(process.env.PRUEBA ? 0 : 120);
     }
     if (sumStarts) segPorPlay = sumSeg / sumStarts;
   } catch (e) { if (e instanceof CookiesVencidas) throw e; }
@@ -364,7 +364,7 @@ async function recalcularSinConexion(previo, hist, ahora) {
   await guardarTodo(shows, previo?.sinRepo || [], hist, ahora, { recalculadoSinConexion: true });
 }
 
-async function main() {
+export async function main() {
   const ahora = new Date();
   const hoyISO = iso(ahora);
   let previo = null, hist = {};
@@ -435,13 +435,13 @@ async function main() {
       delete s.diasPlays;
       completarShow(s, repo, hist, hoyISO);
       shows[repo] = s;
-      console.log(`✓ ${repo.padEnd(18)} total Creators ${String(s.playsTotalCreators ?? "–").padStart(7)} · plays30 ${String(s.plays30 ?? "–").padStart(6)} [${s.fuente}] (antes ${s.playsPrev30 ?? "–"}) · ${String(s.horas30 ?? "–").padStart(5)} h · ${min} min/play (${s.fuenteMinutos}) · seguidores ${s.seguidores ?? "–"} · desde corte ${s.playsCorte} plays = ${s.horasCorte} h`);
+      console.log(`✓ ${repo.padEnd(18)} total Creators ${String(s.playsTotalCreators ?? "–").padStart(7)} · plays30 ${String(s.plays30 ?? "–").padStart(6)} [${s.fuente}] (antes ${s.playsPrev30 ?? "–"}) · ${String(s.horas30 ?? "–").padStart(5)} h · ${s.minutosPorPlay} min/play (${s.fuenteMinutos}) · seguidores ${s.seguidores ?? "–"} · desde corte ${s.playsCorte} plays = ${s.horasCorte} h`);
     } catch (e) {
       if (e instanceof CookiesVencidas) { await guardarError("Las cookies de Spotify vencieron: hay que copiarlas de nuevo"); process.exitCode = 2; return; }
       console.log(`✗ ${repo}: ${e.message}`);
       if (previo?.shows?.[repo]) shows[repo] = { ...previo.shows[repo], viejo: true };
     }
-    await espera(500);
+    await espera(process.env.PRUEBA ? 0 : 500);
   }
   if (sinRepo.length) console.log("Shows de Spotify sin repo en el panel: " + sinRepo.join(", "));
   console.log("\nDiagnostico de rutas de Spotify (codigo HTTP → veces · forma de la respuesta):");
