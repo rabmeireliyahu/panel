@@ -18,6 +18,19 @@ import { createHash, randomBytes } from "node:crypto";
 // Se aceptan las dos cookies por separado (SPOTIFY_SP_DC / SPOTIFY_SP_KEY) o, mas facil,
 // la linea "cookie:" completa copiada de la pestaña Network (secret SPOTIFY_COOKIE).
 export function sacarCookie(linea, nombre) {
+  // formato "Export" de Cookie-Editor (JSON): [{ "name": "sp_dc", "value": "..." }, ...]
+  const t = (linea || "").trim();
+  if (t.startsWith("[") || t.startsWith("{")) {
+    try {
+      const j = JSON.parse(t);
+      const lista = Array.isArray(j) ? j : j.cookies || [];
+      const c = lista.find((x) => x && x.name === nombre);
+      return c ? String(c.value || "").trim() : "";
+    } catch { return ""; }
+  }
+  // formato Netscape (cookies.txt): ...\tsp_dc\tVALOR
+  const net = t.split(/\r?\n/).map((l) => l.split("\t")).find((p) => p.length >= 7 && p[5] === nombre);
+  if (net) return net[6].trim();
   const m = (linea || "").replace(/^\s*cookie\s*:\s*/i, "").match(new RegExp("(?:^|;)\\s*" + nombre + "=([^;\\s]+)"));
   return m ? m[1].trim() : "";
 }
@@ -366,8 +379,7 @@ async function main() {
   };
   if (SP_COOKIE) {
     // diagnostico SIN valores: solo nombres de cookies y largo (el repo es publico)
-    const nombres = SP_COOKIE.replace(/^\s*cookie\s*:\s*/i, "").split(";").map((c) => c.split("=")[0].trim()).filter(Boolean);
-    console.log(`SPOTIFY_COOKIE: ${SP_COOKIE.length} caracteres · cookies: ${nombres.join(", ") || "(ninguna con formato nombre=valor)"}`);
+    console.log(`SPOTIFY_COOKIE: ${SP_COOKIE.length} caracteres · trae sp_dc: ${SP_DC ? "si" : "NO"} · trae sp_key: ${SP_KEY ? "si" : "NO"}`);
   }
   if (process.env.SPOTIFY_OFFLINE) return await recalcularSinConexion(previo, hist, ahora);
   if (!SP_DC) {
@@ -380,7 +392,10 @@ async function main() {
   let token;
   try { token = await autenticar(SP_DC, SP_KEY); }
   catch (e) {
-    await guardarError(e instanceof CookiesVencidas ? "Las cookies de Spotify vencieron: hay que copiarlas de nuevo" : "No pude entrar a Spotify: " + e.message);
+    await guardarError(e instanceof CookiesVencidas
+      ? (SP_KEY ? "Las cookies de Spotify vencieron: hay que copiarlas de nuevo"
+        : "Spotify no dejo entrar solo con sp_dc: falta sp_key (usa Export en Cookie-Editor y pega todo)")
+      : "No pude entrar a Spotify: " + e.message);
     process.exitCode = e instanceof CookiesVencidas ? 2 : 1;
     return;
   }
