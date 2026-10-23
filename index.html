@@ -348,9 +348,8 @@ let SPOTIFY_LIVE=null, SPOTIFY_FRESCO=false;
 async function cargarSpotifyLive(){
   SPOTIFY_LIVE=null; SPOTIFY_FRESCO=false;
   try{
-    const r=await fetchT("stats_spotify.json?nc="+Date.now(),6000);
-    if(!r.ok)return;
-    const j=await r.json();
+    const j=await cargarDatos("stats_spotify.json");
+    if(!j)return;
     if(j&&j.shows){
       SPOTIFY_LIVE=j;
       // se usa el ultimo dato bueno de Spotify hasta 10 dias (si la cookie vence, el robot
@@ -367,9 +366,8 @@ function spotifyDe(repo){ return SPOTIFY_FRESCO ? (SPOTIFY_LIVE.shows?.[repo]||n
 let ROBOT=null;
 async function cargarRobot(){
   try{
-    const r=await fetchT("stats_op3.json?nc="+Date.now(),8000);
-    if(!r.ok)return;
-    const j=await r.json();
+    const j=await cargarDatos("stats_op3.json");
+    if(!j)return;
     if(j&&j.shows)ROBOT=j;
   }catch(e){/* el robot aun no corre */}
 }
@@ -545,6 +543,17 @@ document.getElementById("p-copy").onclick=()=>{
   copiar(`${epActual.titulo}\n${link}`,document.getElementById("p-copy"));
 };
 
+// Los datos los escribe el robot cada mañana en GitHub. Se leen DIRECTO de GitHub, así el
+// panel muestra el dato del día en cualquier lugar donde esté publicado (GitHub Pages o
+// Netlify), aunque ese sitio no se haya vuelto a publicar. Si GitHub no responde, se usa la
+// copia que viene junto a la página. Siempre gana la versión más reciente de las dos.
+const DATOS_GITHUB="https://raw.githubusercontent.com/"+GITHUB_USER+"/panel/main/";
+async function cargarDatos(nombre){
+  const leer=async(url)=>{try{const r=await fetchT(url+"?nc="+Date.now(),8000);return r.ok?await r.json():null;}catch(e){return null;}};
+  const [remoto,local]=await Promise.all([leer(DATOS_GITHUB+nombre),leer(nombre)]);
+  if(!remoto)return local; if(!local)return remoto;
+  return Date.parse(remoto.generado||0)>=Date.parse(local.generado||0)?remoto:local;
+}
 async function fetchT(url,ms){
   const c=new AbortController();const id=setTimeout(()=>c.abort(),ms||8000);
   try{return await fetch(url,{signal:c.signal});}finally{clearTimeout(id);}
