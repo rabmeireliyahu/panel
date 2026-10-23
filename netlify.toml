@@ -1,0 +1,6 @@
+# Netlify: no volver a publicar cuando el robot solo actualiza los datos (stats_*.json /
+# historial_*.json). El panel lee esos datos directo de GitHub, asi que no hace falta, y
+# cada publicacion gasta creditos del plan gratis (por eso Netlify se habia quedado parado).
+[build]
+  publish = "."
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ':(exclude)stats_*.json' ':(exclude)historial_*.json'"
