@@ -100,6 +100,13 @@
   .consumo-box{background:var(--card);border:1px solid var(--linea);border-radius:8px;padding:12px 14px}
   .consumo-box h4{font-size:.8rem;color:var(--mut);margin-bottom:8px;font-weight:600}
   .consumo-box ul{list-style:none;max-height:260px;overflow:auto}
+  .meses-box{margin-top:12px}
+  .meses-tabla{overflow-x:auto}
+  .meses-tabla table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:520px}
+  .meses-tabla th,.meses-tabla td{padding:6px 8px;border-bottom:1px dashed var(--linea);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .meses-tabla th:first-child,.meses-tabla td:first-child{text-align:start}
+  .meses-tabla thead th{color:var(--mut);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
+  .meses-tabla td.tot{font-weight:800;color:var(--zahav)}
   .consumo-box li{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:4px 0;border-bottom:1px dashed var(--linea)}
   .consumo-box li .n{direction:rtl;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
   .consumo-box li b{white-space:nowrap;color:var(--zahav)}
@@ -111,6 +118,12 @@
   /* ── GRID DE SHOWS ── */
   .grid{max-width:1200px;margin:0 auto;display:grid;
         grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px}
+  #solo-spotify{max-width:1200px;margin:28px auto 0}
+  #solo-spotify .titulo-spo{font-family:'Frank Ruhl Libre',serif;font-size:1.3rem;text-align:center;color:var(--klaf)}
+  #solo-spotify .titulo-spo small{font-size:.8rem;color:var(--mut)}
+  #solo-spotify .spo-nota{text-align:center;color:var(--mut);font-size:.82rem;margin:4px 0 14px}
+  .card.spo{border-top-color:var(--olive)}
+  .card.spo h2{font-size:1rem}
   .card{background:var(--card);border:1px solid var(--linea);border-top:3px solid var(--zahav);
         padding:18px 18px 14px;animation:ap .5s ease both;border-radius:12px;
         box-shadow:0 4px 16px rgba(42,36,64,.07);transition:transform .2s,box-shadow .2s}
@@ -292,12 +305,20 @@
     <div class="consumo-box"><h4>📱 Desde dónde escuchan (desde 17 jul)</h4><ul id="c-apps"></ul></div>
     <div class="consumo-box"><h4>📊 Por show · últimos 30 días (Spotify + demás apps)</h4><ul id="c-shows"></ul></div>
   </div>
+  <div class="consumo-box meses-box"><h4>🗓 Por mes hebreo · para los reportes (Spotify + todas las apps)</h4>
+    <div class="meses-tabla"><table id="c-meses"><tbody><tr><td>Cargando…</td></tr></tbody></table></div>
+    <p class="consumo-nota" id="c-meses-nota"></p></div>
   <div id="c-alertas"></div>
   <p class="consumo-nota" id="c-nota"></p>
 </section>
 
 <p class="buscando" id="buscando">🔎 Buscando shows en GitHub…</p>
 <main class="grid" id="grid"></main>
+<section id="solo-spotify" style="display:none">
+  <h2 class="titulo-spo">💚 Todos los shows en Spotify <small id="spo-cuenta"></small></h2>
+  <p class="spo-nota">Cada show de tu cuenta de Spotify for Creators con sus números (los que tienen feed propio también salen arriba con su tarjeta).</p>
+  <main class="grid" id="grid-spo"></main>
+</section>
 
 <p class="pie">
   Los shows se detectan solos: cualquier repositorio con feed.xml aparece aquí automáticamente.<br>
@@ -925,6 +946,61 @@ btnNoche.onclick=()=>{
   btnNoche.textContent=document.body.classList.contains("noche")?"☀️":"🌙";
 };
 
+// ── POR MES HEBREO (nov/2026): suma por dia Spotify (stats_spotify.total.dias = [plays, horas])
+// y las demas apps (historial_op3._dias = {descargas, horas, hApp, hWeb}); el mes sale del
+// calendario hebreo del navegador. Es lo que se presenta en el reporte de cada mes.
+async function pintarMesesHebreos(){
+  const tb=document.getElementById("c-meses"); if(!tb)return;
+  let H=null; try{const r=await fetchT(DATOS_GITHUB+"historial_op3.json?nc="+Date.now(),10000); if(r.ok)H=await r.json();}catch(e){}
+  const S=SPOTIFY_LIVE?.total?.dias||{}, O=H?._dias||{};
+  const fMes=new Intl.DateTimeFormat("he-u-ca-hebrew",{month:"long",year:"numeric",timeZone:"UTC"});
+  const meses={}, orden=[];
+  const de=d=>{const k=fMes.format(new Date(d+"T12:00:00Z")); if(!meses[k]){meses[k]={k,ini:d,fin:d,sp:0,spp:0,app:0,web:0,dls:0,diasS:0,diasO:0};orden.push(k);} const m=meses[k]; if(d<m.ini)m.ini=d; if(d>m.fin)m.fin=d; return m;};
+  Object.keys({...S,...O}).sort().forEach(d=>{const m=de(d);
+    if(S[d]){m.sp+=S[d][1]||0;m.spp+=S[d][0]||0;m.diasS++;}
+    if(O[d]){m.app+=O[d].hApp||0;m.web+=O[d].hWeb||0;m.dls+=O[d].descargas||0;m.diasO++;}});
+  const lista=Object.values(meses).sort((a,b)=>a.ini<b.ini?1:-1).slice(0,5);
+  if(!lista.length){tb.innerHTML="<tbody><tr><td>Sin datos todavía</td></tr></tbody>";return;}
+  const f=n=>Math.round(n||0).toLocaleString(), fd=d=>d.slice(8)+"/"+d.slice(5,7);
+  const hoy=new Date().toISOString().slice(0,10), mesHoy=fMes.format(new Date(hoy+"T12:00:00Z"));
+  tb.innerHTML=`<thead><tr><th>Mes</th><th>💚 Spotify h</th><th>▶ plays Spotify</th><th>📱 Apps h</th><th>🌐 Web h</th><th>Total h</th><th>Datos</th></tr></thead><tbody>`+
+    lista.map(m=>`<tr><td>${escHtml(m.k)}${m.k===mesHoy?' <small style="color:var(--olive)">· en curso</small>':""}</td><td>${f(m.sp)}</td><td>${f(m.spp)}</td><td>${f(m.app)}</td><td>${f(m.web)}</td>`+
+      `<td class="tot">${f(m.sp+m.app+m.web)}</td><td><small>${fd(m.ini)}–${fd(m.fin)}</small></td></tr>`).join("")+"</tbody>";
+  document.getElementById("c-meses-nota").textContent="Spotify = horas de Spotify for Creators (todos los shows de la cuenta). Apps y web = OP3, ajustado a lo que se oye de cada shiur, sin robots ni descargas masivas. "+
+    "La columna Datos dice de qué día a qué día hay números: Spotify y OP3 cuentan el día anterior, así que el último día del mes aparece al día siguiente.";
+}
+
+// ── TODOS LOS SHOWS DE SPOTIFY (nov/2026): una tarjeta por show de la cuenta de Creators,
+// con plays/horas de 30 dias, total historico, seguidores y la grafica de los ultimos 30 dias.
+function pintarSoloSpotify(){
+  const sec=document.getElementById("solo-spotify"), g=document.getElementById("grid-spo");
+  const S=SPOTIFY_LIVE?.shows; if(!sec||!S){if(sec)sec.style.display="none";return;}
+  const lista=Object.entries(S).map(([k,v])=>({k,...v})).sort((a,b)=>(b.horas30||0)-(a.horas30||0));
+  const f=n=>n==null?"–":Math.round(n).toLocaleString();
+  const hoy=new Date(); const dias=[...Array(30)].map((_,i)=>new Date(hoy-(30-i)*864e5).toISOString().slice(0,10));
+  g.innerHTML=lista.map(s=>{
+    const d=s.dias||{}; const v=dias.map(x=>(d[x]?.[0]??d[x]??0)); const m=Math.max(1,...v);
+    const barras=v.map((x,i)=>`<div class="bar ${i===29?"actual":""}" style="height:${Math.max(5,x/m*100)}%;opacity:${x?0.95:0.2}" title="${dias[i]}: ${x} plays"></div>`).join("");
+    const url="https://open.spotify.com/show/"+(s.spotifyId||"");
+    const ini=escHtml((s.nombre||s.k).trim().charAt(0));
+    const foto=s.portada?`<img class="foto" src="${escAttr(s.portada)}" alt="" loading="lazy" onerror="this.outerHTML='<div class=foto-fallback>${ini}</div>'">`:`<div class="foto-fallback">${ini}</div>`;
+    const cambio=s.playsPrev30?Math.round((s.plays30/s.playsPrev30-1)*100):null;
+    return `<section class="card spo">
+      <div class="cabecera">${foto}<h2>${escHtml(s.nombre||s.k)}</h2>${s.seguidores?`<span style="font-size:.72rem;color:var(--olive);white-space:nowrap">💚 ${f(s.seguidores)}</span>`:""}</div>
+      <div class="nums">
+        <div class="num horas"><b>${f(s.horas30)}</b><span>h Spotify 30 días</span></div>
+        <div class="num"><b>${f(s.plays30)}</b><span>▶ plays 30 días${cambio==null?"":` <small style="color:${cambio>=0?"var(--olive)":"var(--adom)"}">${cambio>=0?"▲":"▼"}${Math.abs(cambio)}%</small>`}</span></div>
+        <div class="num"><b>${f(s.playsTotalCreators)}</b><span>plays en total</span></div>
+        <div class="num horas"><b>${f(s.horasCorte)}</b><span>h desde 17 jul</span></div>
+      </div>
+      <div class="chart">${barras}</div>
+      <p class="ult" dir="ltr">${s.episodiosSpotify!=null?f(s.episodiosSpotify)+" episodios · ":""}${s.minutosPorPlay?s.minutosPorPlay+" min por play":""}${s.viejo?" · ⚠ sin actualizar hoy":""}</p>
+      <div class="acciones"><a class="btn principal" href="${url}" target="_blank">🎵 Abrir en Spotify</a></div>
+    </section>`;}).join("");
+  document.getElementById("spo-cuenta").textContent=`· ${lista.length} shows`;
+  sec.style.display="";
+}
+
 async function cargar(){
   await Promise.all([cargarSpotifyLive(),cargarRobot()]);
   T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0,dls30:0,dlsAll:0,hseg30:0,hsegAll:0,histPlays:0,histSeg:0,seguidores:0};
@@ -946,7 +1022,7 @@ async function cargar(){
       repos.filter(x=>x.name!=="panel").map(x=>pintarShow(x.name,`https://${GITHUB_USER}.github.io/${x.name}/feed.xml`))
     );
     if(T.shows===0)grid.innerHTML=`<p class="err">No encontré shows con feed publicado todavía.</p>`;
-    else{pintarInsights();pintarConsumo();pintarDestacado();lanzarConfeti();}
+    else{pintarInsights();pintarConsumo();pintarMesesHebreos();pintarSoloSpotify();pintarDestacado();lanzarConfeti();}
     document.getElementById("auto-info").textContent="· se actualiza solo cada 10 min";
   }catch(e){busc.textContent="⚠️ No pude consultar GitHub: "+e.message;}
 }
