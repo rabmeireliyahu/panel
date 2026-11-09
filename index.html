@@ -100,6 +100,13 @@
   .consumo-box{background:var(--card);border:1px solid var(--linea);border-radius:8px;padding:12px 14px}
   .consumo-box h4{font-size:.8rem;color:var(--mut);margin-bottom:8px;font-weight:600}
   .consumo-box ul{list-style:none;max-height:260px;overflow:auto}
+  .meses-box{margin-top:12px}
+  .meses-tabla{overflow-x:auto}
+  .meses-tabla table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:520px}
+  .meses-tabla th,.meses-tabla td{padding:6px 8px;border-bottom:1px dashed var(--linea);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .meses-tabla th:first-child,.meses-tabla td:first-child{text-align:start}
+  .meses-tabla thead th{color:var(--mut);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
+  .meses-tabla td.tot{font-weight:800;color:var(--zahav)}
   .consumo-box li{display:flex;justify-content:space-between;gap:10px;font-size:.8rem;padding:4px 0;border-bottom:1px dashed var(--linea)}
   .consumo-box li .n{direction:rtl;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
   .consumo-box li b{white-space:nowrap;color:var(--zahav)}
@@ -292,6 +299,9 @@
     <div class="consumo-box"><h4>📱 Desde dónde escuchan (desde 17 jul)</h4><ul id="c-apps"></ul></div>
     <div class="consumo-box"><h4>📊 Por show · últimos 30 días (Spotify + demás apps)</h4><ul id="c-shows"></ul></div>
   </div>
+  <div class="consumo-box meses-box"><h4>🗓 Por mes hebreo · para los reportes (Spotify + todas las apps)</h4>
+    <div class="meses-tabla"><table id="c-meses"><tbody><tr><td>Cargando…</td></tr></tbody></table></div>
+    <p class="consumo-nota" id="c-meses-nota"></p></div>
   <div id="c-alertas"></div>
   <p class="consumo-nota" id="c-nota"></p>
 </section>
@@ -925,6 +935,30 @@ btnNoche.onclick=()=>{
   btnNoche.textContent=document.body.classList.contains("noche")?"☀️":"🌙";
 };
 
+// ── POR MES HEBREO (nov/2026): suma por dia Spotify (stats_spotify.total.dias = [plays, horas])
+// y las demas apps (historial_op3._dias = {descargas, horas, hApp, hWeb}); el mes sale del
+// calendario hebreo del navegador. Es lo que se presenta en el reporte de cada mes.
+async function pintarMesesHebreos(){
+  const tb=document.getElementById("c-meses"); if(!tb)return;
+  let H=null; try{const r=await fetchT(DATOS_GITHUB+"historial_op3.json?nc="+Date.now(),10000); if(r.ok)H=await r.json();}catch(e){}
+  const S=SPOTIFY_LIVE?.total?.dias||{}, O=H?._dias||{};
+  const fMes=new Intl.DateTimeFormat("he-u-ca-hebrew",{month:"long",year:"numeric",timeZone:"UTC"});
+  const meses={}, orden=[];
+  const de=d=>{const k=fMes.format(new Date(d+"T12:00:00Z")); if(!meses[k]){meses[k]={k,ini:d,fin:d,sp:0,spp:0,app:0,web:0,dls:0,diasS:0,diasO:0};orden.push(k);} const m=meses[k]; if(d<m.ini)m.ini=d; if(d>m.fin)m.fin=d; return m;};
+  Object.keys({...S,...O}).sort().forEach(d=>{const m=de(d);
+    if(S[d]){m.sp+=S[d][1]||0;m.spp+=S[d][0]||0;m.diasS++;}
+    if(O[d]){m.app+=O[d].hApp||0;m.web+=O[d].hWeb||0;m.dls+=O[d].descargas||0;m.diasO++;}});
+  const lista=Object.values(meses).sort((a,b)=>a.ini<b.ini?1:-1).slice(0,5);
+  if(!lista.length){tb.innerHTML="<tbody><tr><td>Sin datos todavía</td></tr></tbody>";return;}
+  const f=n=>Math.round(n||0).toLocaleString(), fd=d=>d.slice(8)+"/"+d.slice(5,7);
+  const hoy=new Date().toISOString().slice(0,10), mesHoy=fMes.format(new Date(hoy+"T12:00:00Z"));
+  tb.innerHTML=`<thead><tr><th>Mes</th><th>💚 Spotify h</th><th>▶ plays Spotify</th><th>📱 Apps h</th><th>🌐 Web h</th><th>Total h</th><th>Datos</th></tr></thead><tbody>`+
+    lista.map(m=>`<tr><td>${escHtml(m.k)}${m.k===mesHoy?' <small style="color:var(--olive)">· en curso</small>':""}</td><td>${f(m.sp)}</td><td>${f(m.spp)}</td><td>${f(m.app)}</td><td>${f(m.web)}</td>`+
+      `<td class="tot">${f(m.sp+m.app+m.web)}</td><td><small>${fd(m.ini)}–${fd(m.fin)}</small></td></tr>`).join("")+"</tbody>";
+  document.getElementById("c-meses-nota").textContent="Spotify = horas de Spotify for Creators (todos los shows de la cuenta). Apps y web = OP3, ajustado a lo que se oye de cada shiur, sin robots ni descargas masivas. "+
+    "La columna Datos dice de qué día a qué día hay números: Spotify y OP3 cuentan el día anterior, así que el último día del mes aparece al día siguiente.";
+}
+
 async function cargar(){
   await Promise.all([cargarSpotifyLive(),cargarRobot()]);
   T={hoy:0,mes:0,mesPas:0,anio:0,anioPas:0,total:0,shows:0,dls:0,seg:0,segMes:0,dls30:0,dlsAll:0,hseg30:0,hsegAll:0,histPlays:0,histSeg:0,seguidores:0};
@@ -946,7 +980,7 @@ async function cargar(){
       repos.filter(x=>x.name!=="panel").map(x=>pintarShow(x.name,`https://${GITHUB_USER}.github.io/${x.name}/feed.xml`))
     );
     if(T.shows===0)grid.innerHTML=`<p class="err">No encontré shows con feed publicado todavía.</p>`;
-    else{pintarInsights();pintarConsumo();pintarDestacado();lanzarConfeti();}
+    else{pintarInsights();pintarConsumo();pintarMesesHebreos();pintarDestacado();lanzarConfeti();}
     document.getElementById("auto-info").textContent="· se actualiza solo cada 10 min";
   }catch(e){busc.textContent="⚠️ No pude consultar GitHub: "+e.message;}
 }

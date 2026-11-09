@@ -63,6 +63,106 @@ const SPOTIFY_IDS = {
   "033XnfqUvY5NTtUx68kaWP": "bensoussan",
   "033Xn7o4U4umJiIWMcwDDl": "musayof",
   "033Xnc9ELU8FF1ibMhiyrL": "abuhatzeira",
+  // (nov/2026) el resto de los shows de la cuenta que tienen feed propio
+  "1gVVXZw6fNyrcqadB5pmLC": "tawil",
+  "1tH0BEW6Aj5Y6jjgaLyLp5": "jabura",
+  "0cYnBpoSDs2xKlJCYZzkjR": "grillak",
+  "2rhmdVO0e4Mw5WlXpmpYOA": "davidsohn",
+  "2EAoQJBjPKpNuPPLqg2Vi2": "hilu",
+  "7I2RGTw0P9ZJPJpyu9KRFv": "credi",
+  "4n6T6DtZgVbp2wI9FXNuVn": "isaaccredi",
+  "2bfUBL0Vnc0qsA1JSU2Pzr": "nacash",
+  "0Pt8iVLDBL1q19pAbdYojI": "ofirmalka",
+  "2O5nxKWNPSW7effDzVQLl8": "tefila",
+  "71nydHczOXLiDqj6bYNnZw": "efshar",
+  "6gb5Fm7HKjty9X4zjeEB7A": "taamim",
+  "2c7SCoKzuKoNJjVkeuI1HA": "ahavatjesed",
+  "1OjW9J8D1TQ4pvQ6pbhUvG": "biderman",
+  "033fytinnIcLjGycuE3SGX": "chazaq",
+  "5ir5eIX0mg7LOO10lNlnsE": "dafyomi",
+  "5oApbe7beN3ymuvITYFyDH": "davidpinto",
+  "033Xo3fl1NjAhhic1C8cLQ": "kavas",
+  "033YchQjHB1L2o3CLDB880": "meital",
+  "0ThYPFwshtBVjI7DkyJOfC": "mishnaberura",
+  "4VxYrXxIAz2zmVQvy2aI0G": "yalkutyosef",
+  "0XMwVvgh7aPrBVyzRXGLpq": "shaked",
+  "5Yoke1wohAXml2UeOZGy6O": "yitzchakcohen",
+  "6T1mknQ153QlG2GXNvmjXJ": "pinchastaylor",
+  "0Ff3mvZAspNQCgNAzz8fId": "yechezkelozer",
+  "2YETjYhbD1rQJcMM69J0pJ": "yarchi",
+  "7hie18OQ72r6saHW9WKwRo": "glazer",
+};
+
+// (nov/2026) shows de la cuenta SIN feed propio (alojados en Spotify: las masejtot, otros Rabanim):
+// cuentan en los totales con la clave "sp-<id>"; el panel los suma en "Solo en Spotify".
+const SOLO_SPOTIFY = {
+ "0peyjCwOSQHO3vHRPAksqo": "הרב בן ציון אבא שאול זצ\"ל",
+ "3lqH8s85KsnIFMldcoTJUl": "El Código Judío de la Felicidad",
+ "6RdsTuEmWyz3MZjhC20b9w": "Mesilat Yesharim · Rab Igal Snertz",
+ "4Q2jYnVkZ1ah3zVxafgNO5": "Moadim · Rab Igal Snertz",
+ "6FnOKOtLv3vE2Qp5IiPhUJ": "Rab Daniel Tawil",
+ "7LHbRmkxUi6jOeBMfVKgD2": "Rab Moshe Walles",
+ "5OUM11o3VbQwotURYfRXrt": "Rab Yehuda Jasqui",
+ "7g2SN5u3uYViwJ3atZWzac": "Rabbi Uren Reich",
+ "5Hq31vrKgRp6a4IkPfdwRE": "Rafa Levy",
+ "3p7WsXXJFvIEevTPz6JCIA": "Rafael Cattan",
+ "6jZdeFLWCqmGUgpVABlwD4": "Salomon Michan",
+ "6WYy2HdDoZdISxSb8XiCt9": "Shiurim familia Perets (2)",
+ "7nJtMvycSrUHKs6GDK8l5V": "Shiurim Yeshivas Ner Israel",
+ "033vA9PrqLoQWslUXgyV7v": "slk",
+ "4YUXYvl21nrmVSiu8Hdj7a": "הינוקא · הרב שלמה יהודה בארי",
+ "031BeKZBDM3pTdqoI1HXrs": "הלכות שבת",
+ "1Ezt5SfK99XOgZy26VXzXw": "הרב אורי דויטש",
+ "6MPQin0VFqJxDOCef971RM": "הרב דוד כהן",
+ "17hlknwFix2SMpQfXxU1h8": "הרב יהודה אוהד תורג'מן",
+ "66Z2P0oofAp9XKdrT7xxsd": "הרב יעקב יוסף זצ\"ל",
+ "1k1aZsHSb16hN81vQ7irR5": "הרב יצחק זילברשטיין",
+ "4r6o6Jw95Ya1kOCqkQqFdZ": "הרב שלמה זעפרני",
+ "0O4CtxqHEHCX8lAByxykca": "הרב שלמה לוינשטיין",
+ "6cVoJUzaCWi8URMeegCTQ9": "הרב שמשון דוד פינקוס זצ\"ל",
+ "0dIBKhPswb3GYudcedooeV": "הרב יהונתן בן צור",
+ "7mKUeCxExPxrGfSj8VCrq3": "מחוברים לתורה · הגדה של פסח",
+ "6LKbmkjZfwet4zasF2A3Nq": "מחוברים לתורה · ש\"ס משניות",
+ "1uCh3jBqfvlCI7vEu8LJgF": "שמירת הברית",
+ "7LFauUKfYuWzkkuSVpMVn1": "מסכת בבא בתרא",
+ "1zNhSgcehp5zLQUgdUwtR6": "מסכת בבא מציעא",
+ "1LzxtHXG00v14atMGg2gUc": "מסכת בבא קמא",
+ "20OndZv4lrg78Q0244uCry": "מסכת ביצה",
+ "3PJXfG4tqrLdX4FRVMjaDR": "מסכת בכורות",
+ "1cABsgeC9ZXKgAXFMt4o6K": "מסכת ברכות",
+ "52SE1nVX6v7EUFZJqxtPxg": "מסכת גיטין",
+ "6PoqmHCyBYnXjlOw1biOjr": "מסכת הוריות",
+ "6bAwXZse8qJqs64cTk5p63": "מסכת זבחים",
+ "6Sieg3G4ltaQFFlEBOeSC1": "מסכת חגיגה",
+ "5QlJPWUPcw5ewdka7okBMT": "מסכת חולין",
+ "5EEjKQXl7UnZgUmUwonTT5": "מסכת יבמות",
+ "0OMwA9mLcSiviTcJEWsR5D": "מסכת יומא",
+ "3XSJevbjNeZ4HWXYiNkw2M": "מסכת כריתות",
+ "07mdUgVsHAY9DEYSvWgAd9": "מסכת כתובות",
+ "3kL1n9pvd26E1kg3H3H0LK": "מסכת מגילה",
+ "3Z3S8zf6VfDOmkS5YFwQXV": "מסכת מועד קטן",
+ "4g3hVNc6tWPXjEecF22xlJ": "מסכת מכות",
+ "6RRgcgIVAVqZb4q5D5zu4K": "מסכת מנחות",
+ "5zzthXDoiwCmGtC0rg7nF4": "מסכת מעילה",
+ "6xo1jDOCne5jIhNpgh3eqZ": "מסכת נדה",
+ "5vjrGrUcJBKbWZzi4pI3Ow": "מסכת נדרים",
+ "7uPUwOBU3alrWOsuGjSC53": "מסכת נזיר",
+ "2MqjCJ92oNmpAVFqZjXSRo": "מסכת סוטה",
+ "0ubx36eYA4i0xtmc0O2GqL": "מסכת סוכה",
+ "7x1RtolIJq2mPQWnhD3mbp": "מסכת סנהדרין",
+ "1ykeX6KAY5l6CKCNV7gIsK": "מסכת עבודה זרה",
+ "4emOUGXUA34yxBBwlqaaEG": "מסכת עירובין",
+ "19bh7scSAfZDVzYNlbwsCZ": "מסכת ערכין",
+ "7ihPGay7addTZ3yWCG9ZUz": "מסכת פסחים",
+ "6beBtZi98vNYt9EWw8Dlhf": "מסכת קידושין",
+ "5v6FEamXINivO5LWYr3BbZ": "מסכת קינים",
+ "0JW49owyJzKtYIMllqZUxS": "מסכת ראש השנה",
+ "4o1Se9417WMEMEXfAzG56Z": "מסכת שבועות",
+ "1NTuXrwioWV7Kiw4DSno54": "מסכת שבת",
+ "59w2bvndXA02lmJL9k6C60": "מסכת שקלים",
+ "0quKfLKfG1A3KIFcF6NgsG": "מסכת תמורה",
+ "1ugqRGW2wbcJv04VVEIQwq": "מסכת תמיד",
+ "7Jn8SjBZjMagPTCFIOFoHM": "מסכת תענית"
 };
 
 const espera = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -419,9 +519,10 @@ export async function main() {
   const shows = {}; const sinRepo = [];
   const ids = new Set([...cuenta.map((s) => s.id)]);
   for (const id of Object.keys(SPOTIFY_IDS)) ids.add(id); // por si el catalogo no los lista todos
+  for (const id of Object.keys(SOLO_SPOTIFY)) ids.add(id);
   for (const id of ids) {
     const nombreCuenta = cuenta.find((s) => s.id === id)?.nombre || "";
-    const repo = SPOTIFY_IDS[id] || porNombre.get(normal(nombreCuenta));
+    const repo = SPOTIFY_IDS[id] || porNombre.get(normal(nombreCuenta)) || ((SOLO_SPOTIFY[id] || nombreCuenta) ? "sp-" + id : null);
     if (!repo) { sinRepo.push(nombreCuenta || id); continue; }
     if (shows[repo]) continue;
     try {
@@ -434,6 +535,7 @@ export async function main() {
       for (const [d, n] of Object.entries(s.diasPlays)) if (d >= CORTE && d < hoyISO) dPrev[d] = n;
       delete s.diasPlays;
       completarShow(s, repo, hist, hoyISO);
+      if (repo.startsWith("sp-")) { s.soloSpotify = true; s.nombre = s.nombre || SOLO_SPOTIFY[id] || nombreCuenta; }
       shows[repo] = s;
       console.log(`✓ ${repo.padEnd(18)} total Creators ${String(s.playsTotalCreators ?? "–").padStart(7)} · plays30 ${String(s.plays30 ?? "–").padStart(6)} [${s.fuente}] (antes ${s.playsPrev30 ?? "–"}) · ${String(s.horas30 ?? "–").padStart(5)} h · ${s.minutosPorPlay} min/play (${s.fuenteMinutos}) · seguidores ${s.seguidores ?? "–"} · desde corte ${s.playsCorte} plays = ${s.horasCorte} h`);
     } catch (e) {
