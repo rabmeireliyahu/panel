@@ -366,6 +366,7 @@ export async function procesarShow(api, showId, ahora, desdeDias) {
   return {
     diasPlays,
     spotifyId: showId, nombre: meta.name || "", seguidores: ultimoFol ?? meta.followers ?? null,
+    portada: meta.artworkUrl || meta.coverImage || null, oyentesTotalCreators: meta.listeners ?? null,
     playsTotalCreators: meta.starts ?? null, streamsTotalCreators: meta.streams ?? null,
     episodiosSpotify: meta.totalEpisodes ?? null,
     minutosPorPlayCurvas: segPorPlay ? +(segPorPlay / 60).toFixed(1) : null, episodiosConCurva: conCurva,
