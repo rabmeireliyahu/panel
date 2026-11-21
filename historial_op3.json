@@ -713,7 +713,7 @@
    "horas": 250.8,
    "hApp": 71.9,
    "hWeb": 178.9,
-   "hMasiva": 56.8
+   "hMasiva": 56.9
   },
   "2026-10-14": {
    "descargas": 623,
@@ -930,21 +930,21 @@
    "horas": 225.4,
    "hApp": 18.7,
    "hWeb": 206.6,
-   "hMasiva": 17.2
+   "hMasiva": 17.3
   },
   "2026-11-14": {
    "descargas": 740,
    "horas": 231.3,
    "hApp": 13.1,
    "hWeb": 218.2,
-   "hMasiva": 48.9
+   "hMasiva": 49
   },
   "2026-11-15": {
    "descargas": 795,
    "horas": 245.7,
    "hApp": 29.3,
    "hWeb": 216.2,
-   "hMasiva": 23.1
+   "hMasiva": 23.2
   },
   "2026-11-16": {
    "descargas": 777,
@@ -973,6 +973,13 @@
    "hApp": 35.4,
    "hWeb": 217.4,
    "hMasiva": 8.7
+  },
+  "2026-11-20": {
+   "descargas": 718,
+   "horas": 218.4,
+   "hApp": 15.9,
+   "hWeb": 202.7,
+   "hMasiva": 0
   }
  },
  "_diasShow": {
@@ -1228,6 +1235,10 @@
    "2026-11-19": [
     3,
     0.1
+   ],
+   "2026-11-20": [
+    5,
+    0.4
    ]
   },
   "abuhatzeira": {
@@ -1590,6 +1601,10 @@
    "2026-11-19": [
     5,
     0.4
+   ],
+   "2026-11-20": [
+    1,
+    0.1
    ]
   },
   "ahavatjesed": {
@@ -1962,6 +1977,10 @@
    "2026-11-16": [
     1,
     0
+   ],
+   "2026-11-20": [
+    1,
+    0
    ]
   },
   "efshar": {
@@ -2182,6 +2201,10 @@
    "2026-11-17": [
     4,
     0.3
+   ],
+   "2026-11-20": [
+    2,
+    0.1
    ]
   },
   "isaaccredi": {
@@ -2290,6 +2313,10 @@
     0
    ],
    "2026-11-19": [
+    1,
+    0
+   ],
+   "2026-11-20": [
     1,
     0
    ]
@@ -2798,6 +2825,10 @@
    "2026-11-19": [
     26,
     4.4
+   ],
+   "2026-11-20": [
+    5,
+    1.1
    ]
   },
   "musayof": {
@@ -3862,6 +3893,10 @@
    "2026-11-19": [
     71,
     20.7
+   ],
+   "2026-11-20": [
+    30,
+    8.5
    ]
   },
   "ravmeir": {
@@ -4368,6 +4403,10 @@
    "2026-11-19": [
     65,
     24.1
+   ],
+   "2026-11-20": [
+    18,
+    6.3
    ]
   },
   "ravmutzafi": {
@@ -4872,6 +4911,10 @@
    "2026-11-19": [
     3,
     1
+   ],
+   "2026-11-20": [
+    3,
+    1
    ]
   },
   "ravyitzchakyosef": {
@@ -4958,6 +5001,10 @@
    "2026-11-19": [
     3,
     0.8
+   ],
+   "2026-11-20": [
+    3,
+    1.8
    ]
   },
   "shaked": {
@@ -5356,6 +5403,10 @@
    "2026-11-19": [
     12,
     2.5
+   ],
+   "2026-11-20": [
+    5,
+    1.2
    ]
   },
   "tefila": {
@@ -5470,6 +5521,10 @@
    "2026-11-19": [
     1,
     0.1
+   ],
+   "2026-11-20": [
+    4,
+    0.2
    ]
   },
   "torahanytime": {
@@ -5804,6 +5859,10 @@
    "2026-11-19": [
     7,
     0.3
+   ],
+   "2026-11-20": [
+    26,
+    1.2
    ]
   },
   "yakobov": {
@@ -6310,6 +6369,10 @@
    "2026-11-19": [
     577,
     193.8
+   ],
+   "2026-11-20": [
+    575,
+    193.9
    ]
   },
   "yalkutyosef": {
@@ -6782,6 +6845,10 @@
    "2026-11-19": [
     23,
     1.5
+   ],
+   "2026-11-20": [
+    11,
+    1
    ]
   },
   "kavas": {
@@ -6934,6 +7001,10 @@
    "2026-11-19": [
     17,
     0.3
+   ],
+   "2026-11-20": [
+    24,
+    0.4
    ]
   },
   "nacach": {
@@ -7090,6 +7161,10 @@
    "2026-11-19": [
     5,
     2
+   ],
+   "2026-11-20": [
+    3,
+    1.1
    ]
   },
   "grillak": {
@@ -7098,6 +7173,10 @@
     0.1
    ],
    "2026-11-16": [
+    1,
+    0.1
+   ],
+   "2026-11-20": [
     1,
     0.1
    ]
@@ -14723,6 +14802,194 @@
     "horas30": 58,
     "dlsAll": 68,
     "horasAll": 4
+   }
+  }
+ },
+ "2026-11-21": {
+  "dls30": 19434,
+  "horas30": 5440,
+  "dlsAll": 1888,
+  "horasAll": 429,
+  "shows": {
+   "abergel": {
+    "dls30": 86,
+    "horas30": 12,
+    "dlsAll": 9,
+    "horasAll": 1
+   },
+   "abuhatzeira": {
+    "dls30": 225,
+    "horas30": 25,
+    "dlsAll": 64,
+    "horasAll": 5
+   },
+   "ahavatjesed": {
+    "dls30": 2,
+    "horas30": 0,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "bensoussan": {
+    "dls30": 27,
+    "horas30": 9,
+    "dlsAll": 10,
+    "horasAll": 3
+   },
+   "chazaq": {
+    "dls30": 44,
+    "horas30": 14,
+    "dlsAll": 25,
+    "horasAll": 6
+   },
+   "credi": {
+    "dls30": 28,
+    "horas30": 0,
+    "dlsAll": 12,
+    "horasAll": 0
+   },
+   "efshar": {
+    "dls30": 70,
+    "horas30": 12,
+    "dlsAll": 23,
+    "horasAll": 4
+   },
+   "grillak": {
+    "dls30": 2,
+    "horas30": 0,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "hilu": {
+    "dls30": 94,
+    "horas30": 5,
+    "dlsAll": 54,
+    "horasAll": 3
+   },
+   "isaaccredi": {
+    "dls30": 118,
+    "horas30": 4,
+    "dlsAll": 9,
+    "horasAll": 0
+   },
+   "kavas": {
+    "dls30": 16,
+    "horas30": 2,
+    "dlsAll": 4,
+    "horasAll": 0
+   },
+   "meital": {
+    "dls30": 30,
+    "horas30": 12,
+    "dlsAll": 16,
+    "horasAll": 6
+   },
+   "musar": {
+    "dls30": 1065,
+    "horas30": 292,
+    "dlsAll": 56,
+    "horasAll": 9
+   },
+   "musayof": {
+    "dls30": 6,
+    "horas30": 2,
+    "dlsAll": 8,
+    "horasAll": 2
+   },
+   "nacach": {
+    "dls30": 46,
+    "horas30": 5,
+    "dlsAll": 34,
+    "horasAll": 3
+   },
+   "ofirmalka": {
+    "dls30": 38,
+    "horas30": 11,
+    "dlsAll": 24,
+    "horasAll": 8
+   },
+   "peretz": {
+    "dls30": 73,
+    "horas30": 14,
+    "dlsAll": 8,
+    "horasAll": 3
+   },
+   "podcast": {
+    "dls30": 39,
+    "horas30": 6,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "ravasherweiss": {
+    "dls30": 2035,
+    "horas30": 436,
+    "dlsAll": 497,
+    "horasAll": 123
+   },
+   "ravmeir": {
+    "dls30": 1687,
+    "horas30": 540,
+    "dlsAll": 530,
+    "horasAll": 176
+   },
+   "ravmutzafi": {
+    "dls30": 106,
+    "horas30": 30,
+    "dlsAll": 23,
+    "horasAll": 7
+   },
+   "ravshmueli": {
+    "dls30": 119,
+    "horas30": 30,
+    "dlsAll": 17,
+    "horasAll": 2
+   },
+   "ravyitzchakyosef": {
+    "dls30": 24,
+    "horas30": 11,
+    "dlsAll": 21,
+    "horasAll": 10
+   },
+   "shaked": {
+    "dls30": 775,
+    "horas30": 219,
+    "dlsAll": 17,
+    "horasAll": 4
+   },
+   "tawil": {
+    "dls30": 285,
+    "horas30": 5,
+    "dlsAll": 64,
+    "horasAll": 1
+   },
+   "tefila": {
+    "dls30": 144,
+    "horas30": 11,
+    "dlsAll": 13,
+    "horasAll": 1
+   },
+   "torahanytime": {
+    "dls30": 609,
+    "horas30": 34,
+    "dlsAll": 138,
+    "horasAll": 6
+   },
+   "yakobov": {
+    "dls30": 10924,
+    "horas30": 3644,
+    "dlsAll": 136,
+    "horasAll": 41
+   },
+   "yalkutyosef": {
+    "dls30": 2,
+    "horas30": 0,
+    "dlsAll": 0,
+    "horasAll": 0
+   },
+   "yechavedaat": {
+    "dls30": 715,
+    "horas30": 55,
+    "dlsAll": 76,
+    "horasAll": 5
    }
   }
  }
